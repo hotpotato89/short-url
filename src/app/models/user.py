@@ -1,14 +1,14 @@
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from sqlalchemy import TIMESTAMP, func, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
 
 
 if TYPE_CHECKING:
-    from src.app.models.short_url import ShortUrl
+    pass
 
 
 class User(Base):
@@ -24,5 +24,3 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
     )
-
-    short_urls: Mapped[List["ShortUrl"]] = relationship(back_populates="owner")

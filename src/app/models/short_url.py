@@ -30,4 +30,4 @@ class ShortUrl(Base):
         TIMESTAMP(timezone=True), server_default=func.now()
     )
 
-    owner: Mapped["User"] = relationship(back_populates="short_urls")
+    owner: Mapped["User"] = relationship("User")
