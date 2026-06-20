@@ -12,3 +12,11 @@ class SlugAlreadyExistsError(Exception):
 
 class SlugNotFoundError(Exception):
     pass
+
+
+class InvalidTokenError(Exception):
+    pass
+
+
+class InvalidCredentialsError(Exception):
+    pass

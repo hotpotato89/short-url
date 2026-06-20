@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings
 
@@ -14,8 +16,14 @@ class DbSettings(BaseModel):
         return f"postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
 
 
+class JwtSettings(BaseModel):
+    private_key_path: Path
+    public_key_path: Path
+
+
 class Settings(BaseSettings):
     db: DbSettings
+    jwt: JwtSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
