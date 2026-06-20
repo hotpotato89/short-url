@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -22,3 +24,9 @@ class ShortUrlService:
         await self.repo.increment_clicks(slug)
         await self.session.commit()
         return result.original_url
+
+    async def get_my_urls(
+        self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
+    ) -> Sequence[UrlResponse]:
+        result = await self.repo.get_urls_owner(owner_id, reverse, page, limit)
+        return [UrlResponse.model_validate(url) for url in result]

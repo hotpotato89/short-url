@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from typing import Sequence
+
+from sqlalchemy import select, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -32,3 +34,20 @@ class ShortUrlRepository:
         url = await self.get_url(slug)
         url.clicks += 1
         await self.session.flush()
+
+    async def get_urls_owner(
+        self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
+    ) -> Sequence[ShortUrl]:
+        offset = (page - 1) * limit
+        query = (
+            select(ShortUrl)
+            .where(ShortUrl.owner_id == owner_id)
+            .limit(limit)
+            .offset(offset)
+        )
+        if reverse:
+            query = query.order_by(asc(ShortUrl.created_at))
+        else:
+            query = query.order_by(desc(ShortUrl.created_at))
+        result = await self.session.execute(query)
+        return result.scalars().all()
