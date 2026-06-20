@@ -28,7 +28,7 @@ class ShortUrlRepository:
             raise SlugNotFoundError(f"Url with slug {slug} not found")
         return url
 
-    async def inchrement_clicks(self, slug: str) -> None:
+    async def increment_clicks(self, slug: str) -> None:
         url = await self.get_url(slug)
         url.clicks += 1
         await self.session.flush()
