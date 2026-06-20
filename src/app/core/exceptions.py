@@ -4,3 +4,11 @@ class UserAlreadyExistsError(Exception):
 
 class UserNotFoundError(Exception):
     pass
+
+
+class SlugAlreadyExistsError(Exception):
+    pass
+
+
+class SlugNotFoundError(Exception):
+    pass
