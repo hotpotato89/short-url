@@ -1,0 +1,20 @@
+services:
+    db:
+      image: postgres:18-alpine
+      ports:
+        - '5432:5432'
+      volumes:
+        - postgres_data:/var/lib/postgresql
+      environment:
+        - POSTGRES_DB=${DB__NAME}
+        - POSTGRES_USER=${DB__USER}
+        - POSTGRES_PASSWORD=${DB__PASSWORD}
+      restart: unless-stopped
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${DB__USER} -d ${DB__NAME}"]
+        interval: 5s
+        timeout: 10s
+        retries: 3
+
+volumes:
+  postgres_data:
