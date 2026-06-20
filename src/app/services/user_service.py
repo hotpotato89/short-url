@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.app.core.exceptions import InvalidCredentialsError
 from src.app.repositories.user_repository import UserRepository
 from src.app.schemas.token import TokenInfo
@@ -7,15 +9,17 @@ from src.app.utils.jwt import create_access_token
 
 
 class UserService:
-    def __init__(self, repo: UserRepository) -> None:
+    def __init__(self, repo: UserRepository, session: AsyncSession) -> None:
         self.repo = repo
+        self.session = session
 
     async def register(self, register_data: UserRegister) -> UserResponse:
-        result = await self.repo.create_user(
-            register_data.email,
-            hash_password(register_data.password.get_secret_value()),
-        )
-        return UserResponse.model_validate(result)
+        async with self.session.begin():
+            result = await self.repo.create_user(
+                register_data.email,
+                hash_password(register_data.password.get_secret_value()),
+            )
+            return UserResponse.model_validate(result)
 
     async def login(self, login_data: UserLogin) -> TokenInfo:
         user = await self.repo.get_user(login_data.email)
