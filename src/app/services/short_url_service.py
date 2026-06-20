@@ -11,14 +11,14 @@ class ShortUrlService:
         self.session = session
 
     async def create(self, url_data: UrlCreate, owner_id: int) -> UrlResponse:
-        async with self.session.begin():
-            original_url = str(url_data.original_url)
-            slug = generate_slug(6)
-            result = await self.repo.create_url(original_url, slug, owner_id)
-            return UrlResponse.model_validate(result)
+        original_url = str(url_data.original_url)
+        slug = generate_slug(6)
+        result = await self.repo.create_url(original_url, slug, owner_id)
+        await self.session.commit()
+        return UrlResponse.model_validate(result)
 
     async def get_url(self, slug: str) -> str:
-        async with self.session.begin():
-            result = await self.repo.get_url(slug)
-            await self.repo.increment_clicks(slug)
-            return result.original_url
+        result = await self.repo.get_url(slug)
+        await self.repo.increment_clicks(slug)
+        await self.session.commit()
+        return result.original_url
