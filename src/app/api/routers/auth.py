@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.app.api.deps import get_user_service
-from src.app.schemas.user import UserRegister, UserResponse
+from src.app.schemas.token import TokenInfo
+from src.app.schemas.user import UserLogin, UserRegister, UserResponse
 from src.app.services.user_service import UserService
 
 
@@ -16,3 +17,10 @@ async def register(
     register_data: UserRegister,
 ) -> UserResponse:
     return await service.register(register_data)
+
+
+@router.post("/login")
+async def login(
+    service: Annotated[UserService, Depends(get_user_service)], login_data: UserLogin
+) -> TokenInfo:
+    return await service.login(login_data)
