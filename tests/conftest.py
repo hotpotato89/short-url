@@ -1,3 +1,5 @@
+from faker import Faker
+from pydantic import SecretStr
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from httpx import AsyncClient, ASGITransport
@@ -5,8 +7,10 @@ from httpx import AsyncClient, ASGITransport
 from src.app.api.deps import get_session
 from src.app.main import app
 from src.app.models.base import Base
+from src.app.schemas.user import UserRegister
 
 
+faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
@@ -45,3 +49,8 @@ async def client(db_session):
         yield ac
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+async def fake_user() -> UserRegister:
+    return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
