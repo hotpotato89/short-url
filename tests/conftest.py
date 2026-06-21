@@ -1,7 +1,9 @@
+from typing import AsyncGenerator
+
 from faker import Faker
 from pydantic import SecretStr
 import pytest
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker, AsyncSession
 from httpx import AsyncClient, ASGITransport
 
 from src.app.api.deps import get_session
@@ -15,7 +17,7 @@ TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
 @pytest.fixture()
-async def db_engine():
+async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
     engine = create_async_engine(TEST_DB_URL, echo=False)
 
     async with engine.begin() as conn:
@@ -28,7 +30,7 @@ async def db_engine():
 
 
 @pytest.fixture()
-async def db_session(db_engine):
+async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
     TestSesstionLocal = async_sessionmaker(
         db_engine, expire_on_commit=False, class_=AsyncSession
     )
@@ -38,7 +40,7 @@ async def db_session(db_engine):
 
 
 @pytest.fixture()
-async def client(db_session):
+async def client(db_session) -> AsyncGenerator[AsyncClient, None]:
     async def override_db_session():
         yield db_session
 
