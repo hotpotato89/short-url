@@ -42,3 +42,10 @@ class ShortUrlService:
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
         await self.session.commit()
         return UrlResponse.model_validate(result)
+
+    async def delete_url(self, slug: str, user_id: int) -> None:
+        url = await self.repo.get_url(slug)
+        if url.owner_id != user_id:
+            raise PermissionDeniedError("You don't have permission")
+        await self.repo.delete_url(slug)
+        await self.session.commit()

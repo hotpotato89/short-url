@@ -65,3 +65,8 @@ class ShortUrlRepository:
             return url
         except IntegrityError:
             raise SlugAlreadyExistsError(f"Slug {new_slug} already taken")
+
+    async def delete_url(self, slug: str) -> None:
+        url = await self.get_url(slug)
+        await self.session.delete(url)
+        await self.session.flush()

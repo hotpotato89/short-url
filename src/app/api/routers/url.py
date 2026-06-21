@@ -1,6 +1,6 @@
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, status
 from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import get_current_user, get_url_service
@@ -49,3 +49,12 @@ async def edit_slug(
     slug: str = Path(..., max_length=20, description="Slug of url"),
 ) -> UrlResponse:
     return await service.edit_slug(slug, edit_data, current_user.id)
+
+
+@router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_url(
+    service: Annotated[ShortUrlService, Depends(get_url_service)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    slug: str = Path(..., max_length=20, description="Slug of url"),
+) -> None:
+    await service.delete_url(slug, current_user.id)
