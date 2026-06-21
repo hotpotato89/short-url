@@ -3,7 +3,12 @@ from typing import AsyncGenerator
 from faker import Faker
 from pydantic import SecretStr
 import pytest
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    create_async_engine,
+    async_sessionmaker,
+    AsyncSession,
+)
 from httpx import AsyncClient, ASGITransport
 
 from src.app.api.deps import get_session
