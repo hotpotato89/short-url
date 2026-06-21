@@ -2,8 +2,9 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.core.exceptions import PermissionDeniedError
 from src.app.repositories.short_url_repository import ShortUrlRepository
-from src.app.schemas.short_url import UrlCreate, UrlResponse
+from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.utils.slug import generate_slug
 
 
@@ -30,3 +31,14 @@ class ShortUrlService:
     ) -> Sequence[UrlResponse]:
         result = await self.repo.get_urls_owner(owner_id, reverse, page, limit)
         return [UrlResponse.model_validate(url) for url in result]
+
+    async def edit_slug(
+        self, exist_slug: str, edit_data: UrlEdit, user_id: int
+    ) -> UrlResponse:
+        url = await self.repo.get_url(exist_slug)
+        if url.owner_id != user_id:
+            raise PermissionDeniedError("You don't have permission")
+
+        result = await self.repo.edit_slug(exist_slug, edit_data.slug)
+        await self.session.commit()
+        return UrlResponse.model_validate(result)

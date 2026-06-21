@@ -20,3 +20,7 @@ class InvalidTokenError(Exception):
 
 class InvalidCredentialsError(Exception):
     pass
+
+
+class PermissionDeniedError(Exception):
+    pass

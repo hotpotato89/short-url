@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import get_current_user, get_url_service
 from src.app.models.user import User
-from src.app.schemas.short_url import UrlCreate, UrlResponse
+from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.short_url_service import ShortUrlService
 
 
@@ -39,3 +39,13 @@ async def redirect(
 ) -> RedirectResponse:
     url = await service.get_url(slug)
     return RedirectResponse(url)
+
+
+@router.put("/{slug}")
+async def edit_slug(
+    service: Annotated[ShortUrlService, Depends(get_url_service)],
+    edit_data: UrlEdit,
+    current_user: Annotated[User, Depends(get_current_user)],
+    slug: str = Path(..., max_length=20, description="Slug of url"),
+) -> UrlResponse:
+    return await service.edit_slug(slug, edit_data, current_user.id)

@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from src.app.core.exceptions import (
     InvalidTokenError,
     InvalidCredentialsError,
+    PermissionDeniedError,
     UserAlreadyExistsError,
     SlugNotFoundError,
     SlugAlreadyExistsError,
@@ -55,4 +56,12 @@ def register_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
             content={"detail": str(exc)},
+        )
+
+    @app.exception_handler(PermissionDeniedError)
+    async def permission_denied_handler(
+        request: Request, exc: PermissionDeniedError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc)}
         )

@@ -51,3 +51,17 @@ class ShortUrlRepository:
             query = query.order_by(desc(ShortUrl.created_at))
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def edit_slug(self, exist_slug: str, new_slug: str) -> ShortUrl:
+        result = await self.session.execute(
+            select(ShortUrl).where(ShortUrl.slug == exist_slug)
+        )
+        url = result.scalar_one_or_none()
+        if not url:
+            raise SlugNotFoundError(f"Url with slug {exist_slug} not found")
+        url.slug = new_slug
+        try:
+            await self.session.flush()
+            return url
+        except IntegrityError:
+            raise SlugAlreadyExistsError(f"Slug {new_slug} already taken")
