@@ -8,23 +8,14 @@
     <script type="module" src="config.js"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">🔗 ShortURL</div>
-        <nav class="nav">
-            <a href="/">Главная</a>
-            <a href="/dashboard.html">Мои ссылки</a>
-            <a href="/login.html" id="authLink">Войти</a>
-            <a href="/dashboard.html" id="dashboardLink" style="display:none;">Панель</a>
-            <button id="logoutBtn" class="btn btn-danger btn-sm" style="display:none;">Выйти</button>
-        </nav>
-    </header>
+    <header class="header" id="header"></header>
 
     <div class="container">
         <section class="hero">
-            <h1>🔗 Короткие ссылки</h1>
-            <p>Создавайте короткие, красивые и запоминающиеся ссылки за секунды.</p>
-            <a href="/dashboard.html" class="btn btn-primary" id="heroBtn">Начать</a>
-            <a href="/login.html" class="btn btn-secondary" id="heroAuthBtn">Войти</a>
+            <h1>🔗 <span>Short</span>URL</h1>
+            <p>Короткие ссылки за секунды</p>
+            <a href="/ui/dashboard.html" class="btn btn-primary" id="heroBtn">Мои ссылки</a>
+            <a href="/ui/auth.html" class="btn btn-secondary" id="heroAuth">Войти</a>
         </section>
 
         <div class="stats">
@@ -41,56 +32,46 @@
 
     <script type="module">
         import { API_URL } from './config.js';
-
         const token = localStorage.getItem('access_token');
-        const authLink = document.getElementById('authLink');
-        const dashboardLink = document.getElementById('dashboardLink');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const heroBtn = document.getElementById('heroBtn');
-        const heroAuthBtn = document.getElementById('heroAuthBtn');
 
-        function updateNav() {
+        function renderHeader() {
+            const header = document.getElementById('header');
+            header.innerHTML = `
+                <div class="logo">🔗 <span>Short</span>URL</div>
+                <nav class="nav">
+                    <a href="/ui/">Главная</a>
+                    <a href="/ui/dashboard.html">Мои ссылки</a>
+                    ${token ? `<button id="logoutBtn" class="btn btn-danger btn-sm">Выйти</button>` : `<a href="/ui/auth.html">Войти</a>`}
+                </nav>
+            `;
             if (token) {
-                authLink.style.display = 'none';
-                dashboardLink.style.display = 'inline';
-                logoutBtn.style.display = 'inline';
-                heroBtn.textContent = 'Мои ссылки';
-                heroBtn.href = '/dashboard.html';
-                heroAuthBtn.style.display = 'none';
-            } else {
-                authLink.style.display = 'inline';
-                dashboardLink.style.display = 'none';
-                logoutBtn.style.display = 'none';
-                heroBtn.textContent = 'Начать';
-                heroBtn.href = '/dashboard.html';
-                heroAuthBtn.style.display = 'inline';
+                document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    window.location.href = '/ui/';
+                });
             }
+            document.getElementById('heroBtn').textContent = token ? 'Мои ссылки' : 'Начать';
+            document.getElementById('heroBtn').href = '/ui/dashboard.html';
+            document.getElementById('heroAuth').style.display = token ? 'none' : 'inline-block';
         }
-
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            window.location.href = '/';
-        });
 
         async function loadStats() {
             if (!token) return;
             try {
                 const resp = await fetch(`${API_URL}/url/my`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (resp.ok) {
                     const urls = await resp.json();
                     document.getElementById('totalUrls').textContent = urls.length;
-                    const clicks = urls.reduce((sum, u) => sum + u.clicks, 0);
+                    const clicks = urls.reduce((s, u) => s + u.clicks, 0);
                     document.getElementById('totalClicks').textContent = clicks;
                 }
-            } catch (e) {
-                console.error('Stats error:', e);
-            }
+            } catch {}
         }
 
-        updateNav();
+        renderHeader();
         loadStats();
     </script>
 </body>
