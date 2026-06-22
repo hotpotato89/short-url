@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель — Short URL</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="config.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🔗 ShortURL</div>
+        <nav class="nav">
+            <a href="/">Главная</a>
+            <a href="/dashboard.html">Мои ссылки</a>
+            <a href="/login.html" id="authLink" style="display:none;">Войти</a>
+            <a href="/dashboard.html" id="dashboardLink">Панель</a>
+            <button id="logoutBtn" class="btn btn-danger btn-sm">Выйти</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>📊 Мои ссылки</h1>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h3>➕ Новая ссылка</h3>
+            <form id="createForm" style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <input type="url" id="originalUrl" placeholder="https://example.com" required style="flex:1;min-width:200px;padding:0.75rem;border-radius:0.5rem;border:1px solid #2a2a4e;background:#0f0f1a;color:#e0e0e0;">
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+        </div>
+
+        <div id="urlsList" class="grid"></div>
+        <div id="emptyState" style="text-align:center;color:#888;padding:3rem;">
+            <p>У вас пока нет ссылок. Создайте первую!</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { API_URL } from './config.js';
+
+        const token = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+        const urlsList = document.getElementById('urlsList');
+        const emptyState = document.getElementById('emptyState');
+        const createForm = document.getElementById('createForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function refreshAccessToken() {
+            try {
+                const resp = await fetch(`${API_URL}/auth/refresh`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    localStorage.setItem('access_token', data.access_token);
+                    if (data.refresh_token) {
+                        localStorage.setItem('refresh_token', data.refresh_token);
+                    }
+                    return data.access_token;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            let currentToken = localStorage.getItem('access_token');
+            const makeRequest = async (t) => {
+                return fetch(url, {
+                    ...options,
+                    headers: {
+                        ...options.headers,
+                        'Authorization': `Bearer ${t}`
+                    }
+                });
+            };
+
+            let resp = await makeRequest(currentToken);
+            if (resp.status === 401) {
+                const newToken = await refreshAccessToken();
+                if (newToken) {
+                    resp = await makeRequest(newToken);
+                } else {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    window.location.href = '/login.html';
+                    return null;
+                }
+            }
+            return resp;
+        }
+
+        async function loadUrls() {
+            try {
+                const resp = await fetchWithAuth(`${API_URL}/url/my`);
+                if (resp && resp.ok) {
+                    const urls = await resp.json();
+                    renderUrls(urls);
+                }
+            } catch (e) {
+                showToast('Ошибка загрузки ссылок', 'error');
+            }
+        }
+
+        function renderUrls(urls) {
+            if (urls.length === 0) {
+                urlsList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            emptyState.style.display = 'none';
+            urlsList.innerHTML = urls.map(url => `
+                <div class="card">
+                    <div class="url-info">
+                        <div class="short">🔗 ${window.location.origin}/${url.slug}</div>
+                        <div class="original">${url.original_url}</div>
+                        <div class="clicks">👆 ${url.clicks} переходов</div>
+                        <div style="font-size:0.75rem;color:#555;margin-top:0.25rem;">${new Date(url.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div class="actions" style="margin-top:0.75rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="copyUrl('${window.location.origin}/${url.slug}')">📋 Копировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUrl('${url.slug}')">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.copyUrl = (url) => {
+            navigator.clipboard.writeText(url);
+            showToast('Ссылка скопирована!');
+        };
+
+        window.deleteUrl = async (slug) => {
+            if (!confirm('Удалить ссылку?')) return;
+            try {
+                const resp = await fetchWithAuth(`${API_URL}/url/${slug}`, {
+                    method: 'DELETE'
+                });
+                if (resp && resp.ok) {
+                    showToast('Ссылка удалена');
+                    loadUrls();
+                } else {
+                    showToast('Ошибка удаления', 'error');
+                }
+            } catch (e) {
+                showToast('Ошибка подключения', 'error');
+            }
+        };
+
+        createForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('originalUrl');
+            const url = input.value.trim();
+
+            try {
+                const resp = await fetchWithAuth(`${API_URL}/url`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ original_url: url })
+                });
+
+                if (resp && resp.ok) {
+                    showToast('Ссылка создана!');
+                    input.value = '';
+                    loadUrls();
+                } else {
+                    const data = resp ? await resp.json() : {};
+                    showToast(data.detail || 'Ошибка создания', 'error');
+                }
+            } catch (e) {
+                showToast('Ошибка подключения', 'error');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/';
+        });
+
+        loadUrls();
+    </script>
+</body>
+</html>
