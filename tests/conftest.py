@@ -47,7 +47,7 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture()
-async def client(db_session) -> AsyncGenerator[AsyncClient, None]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     async def override_db_session():
         yield db_session
 
@@ -58,10 +58,16 @@ async def client(db_session) -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
     app.dependency_overrides.clear()
+    await db_session.rollback()
 
 
 @pytest.fixture()
 async def fake_user() -> UserRegister:
+    return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
+
+
+@pytest.fixture()
+async def fake_user2() -> UserRegister:
     return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
 
 
@@ -79,6 +85,27 @@ async def auth_token(client: AsyncClient, fake_user: UserRegister) -> str:
         json={
             "email": fake_user.email,
             "password": fake_user.password.get_secret_value(),
+        },
+    )
+    login_data = TokenInfo(**login_resp.json())
+
+    return login_data.access_token
+
+
+@pytest.fixture()
+async def auth_token2(client: AsyncClient, fake_user2: UserRegister) -> str:
+    await client.post(
+        "/auth/register",
+        json={
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
+        },
+    )
+    login_resp = await client.post(
+        "/auth/login",
+        json={
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
     login_data = TokenInfo(**login_resp.json())
