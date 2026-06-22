@@ -9,7 +9,7 @@ async def test_edit_slug(client: AsyncClient, auth_tokens: TokenInfo) -> None:
     create_resp = await client.post(
         "/url",
         json={"original_url": "https://google.com"},
-        headers={"Authorization": f"Bearer {auth_tokens}"},
+        headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
     )
 
     assert create_resp.status_code == status.HTTP_200_OK
