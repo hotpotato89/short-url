@@ -1,5 +1,4 @@
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:80/'
-    : '/api';
+// frontend/config.js
+const API_URL = '/api';
 
 export { API_URL };
