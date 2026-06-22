@@ -2,9 +2,10 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.exceptions import PermissionDeniedError
+from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.utils.retry import retry
 from src.app.utils.slug import generate_slug
 
 
@@ -13,6 +14,7 @@ class ShortUrlService:
         self.repo = repo
         self.session = session
 
+    @retry(SlugAlreadyExistsError)
     async def create(self, url_data: UrlCreate, owner_id: int) -> UrlResponse:
         original_url = str(url_data.original_url)
         slug = generate_slug(6)
