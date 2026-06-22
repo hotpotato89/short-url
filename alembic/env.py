@@ -11,6 +11,7 @@ from src.app.core.settings import settings
 from src.app.models.base import Base
 from src.app.models.user import User
 from src.app.models.short_url import ShortUrl
+from src.app.models.refresh_token import RefreshToken
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
