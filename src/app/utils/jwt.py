@@ -27,6 +27,16 @@ def create_access_token(user_id: int, email: str) -> str:
     )
 
 
+def create_refresh_token(user_id: int, email: str) -> str:
+    return _encode_jwt(
+        {
+            "sub": str(user_id),
+            "email": email,
+        },
+        60 * 24 * 7,
+    )
+
+
 def _encode_jwt(
     payload: dict[str, Any], expire_min: int = 15, type: str = "access"
 ) -> str:
