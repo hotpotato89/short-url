@@ -24,7 +24,7 @@ class RefreshTokenRepository:
         return token
 
     async def delete_by_token(self, refresh_token: str) -> None:
-        await self.session.execute(
-            delete(RefreshToken).where(RefreshToken.token == refresh_token)
-        )
-        await self.session.flush()
+        token = await self.session.get(RefreshToken, refresh_token)
+        if token:
+            await self.session.delete(token)
+            await self.session.flush()
