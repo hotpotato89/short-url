@@ -34,8 +34,9 @@ async def get_url_repo(
 ) -> ShortUrlRepository:
     return ShortUrlRepository(session)
 
+
 async def get_refresh_token_repo(
-        session: Annotated[AsyncSession, Depends(get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> RefreshTokenRepository:
     return RefreshTokenRepository(session)
 
@@ -45,7 +46,9 @@ async def get_refresh_token_repo(
 
 async def get_user_service(
     user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-    refresh_token_repo: Annotated[RefreshTokenRepository, Depends(get_refresh_token_repo)],
+    refresh_token_repo: Annotated[
+        RefreshTokenRepository, Depends(get_refresh_token_repo)
+    ],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserService:
     return UserService(user_repo, refresh_token_repo, session)
