@@ -42,6 +42,8 @@ async def test_refresh_reuse(client: AsyncClient, auth_tokens: TokenInfo) -> Non
     I was supposed to delete the old token and create a new one, which would invalidate the old token.
     But for some reason, it remains valid.
     I spent three hours debugging it, and it was unsuccessful.
+    ---------------------------------------------------------------------------
+    In manual testing, everything works perfectly.
 
     """
     refresh_resp1 = await client.post(
