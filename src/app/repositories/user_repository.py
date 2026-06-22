@@ -20,9 +20,6 @@ class UserRepository:
         except IntegrityError:
             raise UserAlreadyExistsError(f"User with login {email} already exists")
 
-    async def get_user(self, email: str) -> User:
+    async def get_user(self, email: str) -> User | None:
         result = await self.session.execute(select(User).where(User.email == email))
-        user = result.scalar_one_or_none()
-        if not user:
-            raise UserNotFoundError(f"User with email {email} does not exist")
-        return user
+        return result.scalar_one_or_none()
