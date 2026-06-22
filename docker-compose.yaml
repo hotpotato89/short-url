@@ -1,4 +1,22 @@
 services:
+
+    api:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8000:8000"
+      environment:
+        - DB__HOST=db
+      env_file:
+       - ".env"
+      restart: unless-stopped
+      volumes:
+        - ./keys:/app/keys
+      depends_on:
+        db:
+          condition: service_healthy
+
     db:
       image: postgres:18-alpine
       ports:
