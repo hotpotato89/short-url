@@ -51,7 +51,7 @@ class UserService:
         token_payload = decode_jwt(refresh_token)
         if token_payload.get("type") != "refresh":
             raise InvalidTokenError("Invalid token type")
-    
+
         existing_token = await self.refresh_token_repo.get_by_token(refresh_token)
         if not existing_token:
             raise InvalidTokenError("Token not found")
@@ -62,7 +62,7 @@ class UserService:
             raise UserNotFoundError(f"User with ID {user_id} not found")
 
         new_refresh_token = create_refresh_token(user.id, user.email)
-    
+
         await self.refresh_token_repo.delete_by_token(refresh_token)
         await self.refresh_token_repo.create(user.id, new_refresh_token)
         await self.session.commit()

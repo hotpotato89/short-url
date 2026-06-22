@@ -10,4 +10,6 @@ class RefreshToken(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    token: Mapped[str] = mapped_column(String(500), nullable=False, index=True, primary_key=True)
+    token: Mapped[str] = mapped_column(
+        String(500), nullable=False, index=True, primary_key=True
+    )
