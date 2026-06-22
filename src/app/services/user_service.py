@@ -14,12 +14,12 @@ class UserService:
         self.session = session
 
     async def register(self, register_data: UserRegister) -> UserResponse:
-            result = await self.repo.create_user(
-                register_data.email,
-                hash_password(register_data.password.get_secret_value()),
-            )
-            await self.session.commit()
-            return UserResponse.model_validate(result)
+        result = await self.repo.create_user(
+            register_data.email,
+            hash_password(register_data.password.get_secret_value()),
+        )
+        await self.session.commit()
+        return UserResponse.model_validate(result)
 
     async def login(self, login_data: UserLogin) -> TokenInfo:
         user = await self.repo.get_user(login_data.email)
