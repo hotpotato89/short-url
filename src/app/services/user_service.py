@@ -1,16 +1,27 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.exceptions import InvalidCredentialsError
+from src.app.core.exceptions import (
+    InvalidCredentialsError,
+    InvalidTokenError,
+    UserNotFoundError,
+)
+from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.user_repository import UserRepository
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserLogin, UserRegister, UserResponse
 from src.app.utils.hash import hash_password, verify_password
-from src.app.utils.jwt import create_access_token
+from src.app.utils.jwt import create_access_token, create_refresh_token, decode_jwt
 
 
 class UserService:
-    def __init__(self, repo: UserRepository, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        repo: UserRepository,
+        refresh_token_repo: RefreshTokenRepository,
+        session: AsyncSession,
+    ) -> None:
         self.repo = repo
+        self.refresh_token_repo = refresh_token_repo
         self.session = session
 
     async def register(self, register_data: UserRegister) -> UserResponse:
@@ -29,4 +40,37 @@ class UserService:
             raise InvalidCredentialsError("Invalid email or password")
 
         access_token = create_access_token(user.id, user.email)
-        return TokenInfo(access_token=access_token)
+        refresh_token = create_refresh_token(user.id, user.email)
+
+        await self.refresh_token_repo.create(user.id, refresh_token)
+        await self.session.commit()
+
+        return TokenInfo(access_token=access_token, refresh_token=refresh_token)
+
+    async def refresh(self, refresh_token: str) -> TokenInfo:
+        token_payload = decode_jwt(refresh_token)
+        if token_payload["type"] != "refresh":
+            raise InvalidTokenError("Invalid token type")
+        existing_token = await self.refresh_token_repo.get_by_token(refresh_token)
+        if not existing_token:
+            raise InvalidTokenError("Token not found")
+
+        user_id = int(token_payload["sub"])
+        user = await self.repo.get_by_id(user_id)
+        if not user:
+            raise UserNotFoundError(f"User with ID {user_id} not found")
+
+        await self.refresh_token_repo.delete_by_token(refresh_token)
+
+        access_token = create_access_token(user.id, user.email)
+        new_refresh_token = create_refresh_token(user.id, user.email)
+
+        await self.refresh_token_repo.create(user.id, new_refresh_token)
+        await self.session.commit()
+
+        return TokenInfo(access_token=access_token, refresh_token=new_refresh_token)
+
+    async def logout(self, refresh_token: str) -> None:
+        await self.refresh_token_repo.delete_by_token(refresh_token)
+        await self.session.commit()
+        return
