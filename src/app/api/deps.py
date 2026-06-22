@@ -7,6 +7,7 @@ from typing import Annotated, Any, AsyncGenerator
 from src.app.core.database import SessionLocal
 from src.app.core.exceptions import InvalidTokenError
 from src.app.models.user import User
+from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.user_repository import UserRepository
 from src.app.services.short_url_service import ShortUrlService
@@ -33,15 +34,21 @@ async def get_url_repo(
 ) -> ShortUrlRepository:
     return ShortUrlRepository(session)
 
+async def get_refresh_token_repo(
+        session: Annotated[AsyncSession, Depends(get_session)]
+) -> RefreshTokenRepository:
+    return RefreshTokenRepository(session)
+
 
 # Service dependencies
 
 
 async def get_user_service(
     user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+    refresh_token_repo: Annotated[RefreshTokenRepository, Depends(get_refresh_token_repo)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserService:
-    return UserService(user_repo, session)
+    return UserService(user_repo, refresh_token_repo, session)
 
 
 async def get_url_service(
@@ -68,5 +75,5 @@ async def get_token_payload(
 async def get_current_user(
     user_data: Annotated[dict[str, Any], Depends(get_token_payload)],
     repo: Annotated[UserRepository, Depends(get_user_repo)],
-) -> User:
+) -> User | None:
     return await repo.get_user(user_data["email"])
