@@ -66,12 +66,11 @@ def register_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exc)}
         )
-    
+
     @app.exception_handler(UserNotFoundError)
     async def user_not_found_handler(
         request: Request, exc: UserNotFoundError
     ) -> JSONResponse:
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={'detail': str(exc)}
+            status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc)}
         )

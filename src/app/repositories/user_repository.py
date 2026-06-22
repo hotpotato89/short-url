@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from src.app.core.exceptions import UserAlreadyExistsError, UserNotFoundError
+from src.app.core.exceptions import UserAlreadyExistsError
 from src.app.models.user import User
 
 
