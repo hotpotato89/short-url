@@ -34,6 +34,7 @@ def create_refresh_token(user_id: int, email: str) -> str:
             "email": email,
         },
         60 * 24 * 7,
+        type='refresh'
     )
 
 
