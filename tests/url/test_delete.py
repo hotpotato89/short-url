@@ -22,7 +22,9 @@ async def test_delete_slug(client: AsyncClient, auth_tokens: TokenInfo) -> None:
     assert delete_resp.status_code == status.HTTP_204_NO_CONTENT
 
 
-async def test_delete_slug_unauthorize(client: AsyncClient, auth_tokens: TokenInfo) -> None:
+async def test_delete_slug_unauthorize(
+    client: AsyncClient, auth_tokens: TokenInfo
+) -> None:
     create_resp = await client.post(
         "/url",
         json={"original_url": "https://google.com"},
@@ -56,7 +58,9 @@ async def test_delete_slug_permission_denied(
     assert delete_resp.status_code == status.HTTP_403_FORBIDDEN
 
 
-async def test_delete_slug_not_found(client: AsyncClient, auth_tokens: TokenInfo) -> None:
+async def test_delete_slug_not_found(
+    client: AsyncClient, auth_tokens: TokenInfo
+) -> None:
     delete_resp = await client.delete(
         "/url/nonexistent",
         headers={"Authorization": f"Bearer {auth_tokens.access_token}"},

@@ -30,7 +30,9 @@ async def test_edit_slug(client: AsyncClient, auth_tokens: TokenInfo) -> None:
     assert redirect_resp.headers["Location"] == "https://google.com/"
 
 
-async def test_edit_slug_unauthorized(client: AsyncClient, auth_tokens: TokenInfo) -> None:
+async def test_edit_slug_unauthorized(
+    client: AsyncClient, auth_tokens: TokenInfo
+) -> None:
     create_resp = await client.post(
         "/url",
         json={"original_url": "https://google.com"},
