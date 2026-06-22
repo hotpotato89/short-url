@@ -14,6 +14,9 @@ async def test_login(client, fake_user) -> None:
     assert resp.status_code == status.HTTP_200_OK
     assert hasattr(data, "access_token")
     assert hasattr(data, "refresh_token")
+    assert len(data.access_token) > 0
+    if data.refresh_token:
+        assert len(data.refresh_token) > 0
 
 
 async def test_login_invalid(client) -> None:

@@ -3,13 +3,14 @@ import pytest
 from fastapi import status
 
 from src.app.schemas.short_url import UrlResponse
+from src.app.schemas.token import TokenInfo
 
 
-async def test_redirect(client: AsyncClient, auth_token: str) -> None:
+async def test_redirect(client: AsyncClient, auth_tokens: TokenInfo) -> None:
     url_resp = await client.post(
         "/url",
         json={"original_url": "https://google.com"},
-        headers={"Authorization": f"Bearer {auth_token}"},
+        headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
     )
 
     assert url_resp.status_code == status.HTTP_200_OK
