@@ -80,4 +80,40 @@ async def test_edit_slug_conflict(client: AsyncClient, auth_token: str) -> None:
 async def test_edit_slug_permission_denied(
     client: AsyncClient, auth_token: str, auth_token2: str
 ) -> None:
-    ...
+    create_resp = await client.post(
+        "/url",
+        json={"original_url": "https://google.com"},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    slug = create_resp.json()["slug"]
+
+    assert create_resp.status_code == status.HTTP_200_OK
+
+    edit_resp = await client.put(
+        f"/url/{slug}",
+        json={"slug": "google"},
+        headers={"Authorization": f"Bearer {auth_token2}"},
+    )
+
+    assert edit_resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+async def test_edit_slug_invalid(client: AsyncClient, auth_token: str) -> None:
+    create_resp = await client.post(
+        "/url",
+        json={"original_url": "https://google.com"},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    slug = create_resp.json()["slug"]
+
+    assert create_resp.status_code == status.HTTP_200_OK
+
+    invalid_slug = "very_long" * 21  # max = 20
+
+    edit_resp = await client.put(
+        f"/url/{slug}",
+        json={"slug": invalid_slug},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+
+    assert edit_resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
