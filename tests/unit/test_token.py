@@ -7,7 +7,7 @@ from src.app.utils.jwt import create_access_token, decode_jwt, _encode_jwt
 
 
 TEST_EMAIL: str = "test@test.test"
-INVALID_TOKEN: str = 'not-a-token'
+INVALID_TOKEN: str = "not-a-token"
 
 
 async def test_create_access_token() -> None:
@@ -25,7 +25,7 @@ async def test_decode_jwt() -> None:
     assert isinstance(token_payload, Dict)
     assert token_payload["sub"] == "1"
     assert token_payload["email"] == TEST_EMAIL
-    assert token_payload['type'] == 'access'
+    assert token_payload["type"] == "access"
 
 
 async def test_decode_jwt_expired() -> None:
