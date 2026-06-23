@@ -1,21 +1,25 @@
 from logging import getLogger
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import get_current_user, get_url_service
 from src.app.models.user import User
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.short_url_service import ShortUrlService
+from src.app.core.limiter import limiter
 
 
 logger = getLogger(__name__)
+BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
 
 
 @router.post("")
+@limiter.limit(BASE_LIMIT)
 async def shorten(
+    request: Request,
     url_data: UrlCreate,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     current_user: Annotated[User, Depends(get_current_user)],
@@ -45,7 +49,9 @@ async def redirect(
 
 
 @router.put("/{slug}")
+@limiter.limit(BASE_LIMIT)
 async def edit_slug(
+    request: Request,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     edit_data: UrlEdit,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -55,7 +61,9 @@ async def edit_slug(
 
 
 @router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(BASE_LIMIT)
 async def delete_url(
+    request: Request,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     current_user: Annotated[User, Depends(get_current_user)],
     slug: str = Path(..., max_length=20, description="Slug of url"),
