@@ -8,17 +8,9 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
+![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, кэшированием в Redis и фронтендом сгенерированным через ИИ.
-
-## Технологии
-
-- Python 3.14 / FastAPI
-- PostgreSQL 18 / SQLAlchemy 2.0
-- Redis 7 (кэш)
-- JWT (RS256) / Argon2
-- Docker / Docker Compose
-- Nginx
 
 # Быстрый старт
 
@@ -96,6 +88,7 @@ curl http://localhost/api/health
  - Nginx reverse proxy + раздача статики
  - Rate limiting (SlowAPI)
  - Кэширование редиректов в Redis
+ - Ограничение запросов через SlowAPI
 
 # Автор:
  - [hotpotato89](https://github.com/hotpotato89)
