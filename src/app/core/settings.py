@@ -14,15 +14,16 @@ class DbSettings(BaseModel):
     @property
     def url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
-    
+
+
 class RedisSettings(BaseModel):
-    host: str = 'localhost'
+    host: str = "localhost"
     port: int = 6379
     db: int = 0
 
     @property
     def cache_url(self) -> str:
-        return f'redis://{self.host}:{self.port}/{self.db}'
+        return f"redis://{self.host}:{self.port}/{self.db}"
 
 
 class JwtSettings(BaseModel):
