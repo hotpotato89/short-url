@@ -15,7 +15,7 @@ BASE_LIMIT: str = "5/min"
 
 
 @router.post("/register")
-@limiter.limit(BASE_LIMIT)
+@limiter.limit(limit_value=BASE_LIMIT)
 async def register(
     request: Request,
     service: Annotated[UserService, Depends(get_user_service)],
@@ -25,7 +25,7 @@ async def register(
 
 
 @router.post("/login")
-@limiter.limit(BASE_LIMIT)
+@limiter.limit(limit_value=BASE_LIMIT)
 async def login(
     request: Request,
     service: Annotated[UserService, Depends(get_user_service)],
@@ -40,7 +40,7 @@ async def me(current_user: Annotated[User, Depends(get_current_user)]) -> UserRe
 
 
 @router.post("/refresh")
-@limiter.limit(BASE_LIMIT)
+@limiter.limit(limit_value=BASE_LIMIT)
 async def refresh(
     request: Request,
     service: Annotated[UserService, Depends(get_user_service)],

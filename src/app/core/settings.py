@@ -26,7 +26,7 @@ class RedisSettings(BaseModel):
     @property
     def cache_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.db}"
-    
+
     @property
     def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
@@ -38,7 +38,7 @@ class JwtSettings(BaseModel):
 
 
 class AppSettings(BaseModel):
-    log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = 'INFO'
+    log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = "INFO"
 
 
 class Settings(BaseSettings):

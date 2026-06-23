@@ -82,9 +82,8 @@ def register_handlers(app: FastAPI) -> None:
         request: Request, exc: RateLimitExceeded
     ) -> JSONResponse:
         retry_after = getattr(exc, "retry_after", 60)
-        limit = getattr(exc, "limit", "unknown")
         return JSONResponse(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            content={"detail": "Toomany requests, try later", "limit": f"{limit}"},
+            content={"detail": "Toomany requests, try later"},
             headers={"Retry-After": f"{retry_after}"},
         )
