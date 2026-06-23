@@ -1,0 +1,101 @@
+# Short URL
+
+![Python](https://img.shields.io/badge/Python-3.14-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue)
+![Redis](https://img.shields.io/badge/Redis-7-red)
+![Docker](https://img.shields.io/badge/Docker-28-blue)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)
+![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
+![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
+
+Сервис для сокращения ссылок с JWT-аутентификацией, кэшированием в Redis и фронтендом сгенерированным через ИИ.
+
+## Технологии
+
+- Python 3.14 / FastAPI
+- PostgreSQL 18 / SQLAlchemy 2.0
+- Redis 7 (кэш)
+- JWT (RS256) / Argon2
+- Docker / Docker Compose
+- Nginx
+
+# Быстрый старт
+
+## Клонирование:
+
+```bash
+git clone https://github.com/hotpotato89/short-url.git
+cd short-url
+```
+
+## Виртуальное окружение:
+
+```bash
+uv sync --frozen
+source .venv/bin/activate
+```
+
+## Настройка окружения:
+
+```bash
+cp .env.example .env
+```
+
+## Генерация RSA ключей:
+
+```bash
+mkdir -p keys
+openssl genrsa -out keys/private.pem 2048
+openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+```
+
+## Запуск:
+
+```bash
+docker compose up -d --build
+```
+
+## Проверка:
+
+```bash
+curl http://localhost/api/health
+```
+
+# API эндпоинты:
+
+## Авторизация:
+
+ - POST /auth/register - регистрация
+ - POST /auth/login - логин (access + refresh)
+ - POST /auth/refresh - обновить access и refresh
+ - POST /auth/logout - выход
+ - GET /auth/me - профиль
+
+## Ссылки:
+
+ - POST /url - создать (требует токен)
+ - GET /url/my - список своих ссылок (требует токен)
+ - GET /url/{slug} - редирект
+ - PUT /url/{slug} - изменить адрес (владелец)
+ - DELETE /url/{slug} - удалить (владелец)
+
+## Документация:
+
+ - /docs - Swagger UI
+ - /openapi.json - OpenAPI схема
+
+# Переменные окружение:
+ - *в файле .env.example*
+
+# Особенности:
+ - JWT access (15 минут) + refresh (7 дней)
+ - RSA подпись токенов (асимметричное шифрование)
+ - Argon2 хэширование паролей
+ - Чистая архитектура (Service → Repository)
+ - Nginx reverse proxy + раздача статики
+ - Rate limiting (SlowAPI)
+ - Кэширование редиректов в Redis
+
+# Автор:
+ - [hotpotato89](https://github.com/hotpotato89)
