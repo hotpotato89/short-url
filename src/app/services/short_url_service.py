@@ -4,6 +4,7 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.core.database import SessionLocal
 from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -33,7 +34,6 @@ class ShortUrlService:
     async def get_url(self, slug: str) -> str:
         result = await self.repo.get_url(slug)
         asyncio.create_task(self._increment_clicks(slug))
-        await self.session.commit()
         return result.original_url
 
     async def get_my_urls(
@@ -64,7 +64,9 @@ class ShortUrlService:
 
     async def _increment_clicks(self, slug: str) -> None:
         try:
-            await self.repo.increment_clicks(slug)
-            await self.session.flush()
+            async with SessionLocal() as session:
+                repo = ShortUrlRepository(session)
+                await repo.increment_clicks(slug)
+                await session.commit()
         except Exception as e:
             logger.error("Unhandled error %s", e)
