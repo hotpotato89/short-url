@@ -34,15 +34,16 @@ def cache(ttl: int = 3600, prefix: str | None = None):
 def _gen_cache_key(
     func_name: str, args: tuple, kwargs: dict, prefix: str | None = None
 ) -> str:
+    clean_args = args[1:] if args and hasattr(args[0], "__class__") else args
     sorted_kwargs = dict(sorted(kwargs.items()))
 
     data = {
         "func_name": func_name,
-        "args": args,
+        "args": clean_args,
         "kwargs": sorted_kwargs,
     }
 
-    key_hash = hashlib.md5(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
+    key_hash = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
 
     if prefix:
         return f"cache:{prefix}:{key_hash}"
