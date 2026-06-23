@@ -7,19 +7,13 @@ from src.app.core.settings import settings
 from src.app.core.exception_handlers import register_handlers
 from src.app.core.lifespan import lifespan
 from src.app.core.logging import setup_logging
+from src.app.core.limiter import limiter
 
 from src.app.api.routers import health
 from src.app.api.routers import auth
 from src.app.api.routers import url
 
 setup_logging("DEBUG")
-
-
-limiter = Limiter(
-    key_func=get_remote_address,
-    storage_uri=settings.redis.cache_url,
-    default_limits=["100/hour"],
-)
 
 
 app = FastAPI(title="Short Url", lifespan=lifespan)
