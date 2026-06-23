@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings
 
 
@@ -12,8 +12,12 @@ class DbSettings(BaseModel):
     host: str = "localhost"
     port: int = 5432
 
+    override_url: PostgresDsn | None = None
+
     @property
     def url(self) -> str:
+        if self.override_url:
+            return str(self.override_url)
         return f"postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
 
 
