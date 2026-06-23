@@ -4,6 +4,7 @@ from unittest.mock import patch, AsyncMock
 from faker import Faker
 from pydantic import SecretStr
 import pytest
+from slowapi import Limiter
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     create_async_engine,
@@ -14,6 +15,7 @@ from httpx import AsyncClient, ASGITransport
 from redis.asyncio import Redis
 
 from src.app.api.deps import get_session
+from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
 from src.app.schemas.token import TokenInfo
@@ -35,6 +37,13 @@ async def mock_redis() -> AsyncGenerator[Redis, None]:
         mock.close = AsyncMock(return_values=[])
 
         yield mock
+
+
+@pytest.fixture(autouse=True)
+async def disable_limiter() -> AsyncGenerator[Limiter, None]:
+    limiter.enabled = False
+    yield limiter
+    limiter.enabled = True
 
 
 @pytest.fixture()
