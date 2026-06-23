@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings
@@ -31,10 +32,15 @@ class JwtSettings(BaseModel):
     public_key_path: Path
 
 
+class AppSettings(BaseModel):
+    log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = 'INFO'
+
+
 class Settings(BaseSettings):
     db: DbSettings
     jwt: JwtSettings
     redis: RedisSettings
+    app: AppSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
