@@ -8,6 +8,7 @@ services:
         - 8000
       environment:
         - DB__HOST=db
+        - REDIS__HOST=redis
       env_file:
        - ".env"
       restart: unless-stopped
