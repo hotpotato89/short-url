@@ -1,7 +1,7 @@
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.core.settings import settings
+from src.app.core.settings import settings
 
 
 limiter = Limiter(
