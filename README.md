@@ -9,6 +9,7 @@
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
+![MIT](https://img.shields.io/badge/License-MIT-yellow)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, кэшированием в Redis и фронтендом сгенерированным через ИИ.
 
@@ -92,3 +93,7 @@ curl http://localhost/api/health
 
 # Автор:
  - [hotpotato89](https://github.com/hotpotato89)
+
+# 📄 Лицензия
+
+Проект распространяется под лицензией MIT. Подробности в файле [LICENSE](LICENSE).
