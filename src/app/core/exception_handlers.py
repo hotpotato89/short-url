@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
+from slowapi.errors import RateLimitExceeded
+
 from src.app.core.exceptions import (
     InvalidTokenError,
     InvalidCredentialsError,
@@ -73,4 +75,16 @@ def register_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc)}
+        )
+
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limited_handler(
+        request: Request, exc: RateLimitExceeded
+    ) -> JSONResponse:
+        retry_after = getattr(exc, "retry_after", 60)
+        limit = getattr(exc, "limit", "unknown")
+        return JSONResponse(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            content={"detail": "Toomany requests, try later", "limit": f"{limit}"},
+            headers={"Retry-After": f"{retry_after}"},
         )
