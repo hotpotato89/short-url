@@ -101,7 +101,7 @@
 </div>
 
 <script type="module">
-    import { API_URL } from './config.js';
+    import { API_URL, BASE_URL } from './config.js';
 
     // === Проверка авторизации ===
     const token = localStorage.getItem('access_token');
@@ -243,7 +243,7 @@
         }
         emptyState.style.display = 'none';
 
-        const base = window.location.origin;
+        const base = BASE_URL;
 
         urlsList.innerHTML = urls.map((u) => `
             <div class="url-item">
