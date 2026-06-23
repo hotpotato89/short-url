@@ -27,7 +27,7 @@ TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 @pytest.fixture(autouse=True)
 async def mock_redis() -> AsyncGenerator[Redis, None]:
-    with patch('src.app.utils.cache.redis_client') as mock:
+    with patch("src.app.utils.cache.redis_client") as mock:
         mock.get = AsyncMock(return_value=None)
         mock.setex = AsyncMock()
         mock.delete = AsyncMock()
