@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Path, Query, status
@@ -9,6 +10,7 @@ from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.short_url_service import ShortUrlService
 
 
+logger = getLogger(__name__)
 router = APIRouter(tags=["url"], prefix="/url")
 
 
@@ -17,7 +19,7 @@ async def shorten(
     url_data: UrlCreate,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     current_user: Annotated[User, Depends(get_current_user)],
-) -> UrlResponse:
+) -> UrlResponse | None:
     return await service.create(url_data, current_user.id)
 
 
@@ -38,6 +40,7 @@ async def redirect(
     slug: str = Path(..., max_length=20, description="Slug of url"),
 ) -> RedirectResponse:
     url = await service.get_url(slug)
+    logger.info("Redirected from %s to %s", slug, url)
     return RedirectResponse(url)
 
 
