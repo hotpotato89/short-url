@@ -55,6 +55,12 @@ docker compose up -d --build
 curl http://localhost/api/health
 ```
 
+# Тестирование:
+
+```bash
+pytest
+```
+
 # API эндпоинты:
 
 ## Авторизация:
