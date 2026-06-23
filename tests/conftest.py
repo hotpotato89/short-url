@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+from unittest.mock import patch, AsyncMock
 
 from faker import Faker
 from pydantic import SecretStr
@@ -10,6 +11,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from httpx import AsyncClient, ASGITransport
+from redis.asyncio import Redis
 
 from src.app.api.deps import get_session
 from src.app.main import app
@@ -21,6 +23,18 @@ from src.app.utils.jwt import create_access_token
 
 faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
+
+
+@pytest.fixture(autouse=True)
+async def mock_redis() -> AsyncGenerator[Redis, None]:
+    with patch('src.app.utils.cache.redis_client') as mock:
+        mock.get = AsyncMock(return_value=None)
+        mock.setex = AsyncMock()
+        mock.delete = AsyncMock()
+        mock.keys = AsyncMock()
+        mock.close = AsyncMock(return_values=[])
+
+        yield mock
 
 
 @pytest.fixture()
