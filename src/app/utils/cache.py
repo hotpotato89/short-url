@@ -1,9 +1,12 @@
 from functools import wraps
 import hashlib
 import json
+from logging import getLogger
 from typing import Callable
 
 from app.core.redis_client import redis_client
+
+logger = getLogger(__name__)
 
 
 def cache(ttl: int = 3600, prefix: str | None = None):
@@ -14,11 +17,13 @@ def cache(ttl: int = 3600, prefix: str | None = None):
 
             cached = await redis_client.get(cache_key)
             if cached:
+                logger.debug("Cache hit: %s", cache_key)
                 return json.loads(cached)
 
             result = await func(*args, **kwargs)
 
             await redis_client.setex(cache_key, ttl, json.dumps(result, default=str))
+            logger.debug("Cache missed and saved: %s", cache_key)
             return result
 
         return inner
@@ -47,4 +52,5 @@ def _gen_cache_key(
 async def invalidate_cache(prefix: str = "*") -> None:
     keys = await redis_client.keys(f"cache:{prefix}")
     if keys:
+        logger.debug("Cache invalidated: %s", *keys)
         await redis_client.delete(*keys)
