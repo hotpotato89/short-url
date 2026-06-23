@@ -4,7 +4,7 @@ import json
 from logging import getLogger
 from typing import Callable
 
-from app.core.redis_client import redis_client
+from src.app.core.redis_client import redis_client
 
 logger = getLogger(__name__)
 

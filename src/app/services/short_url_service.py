@@ -4,7 +4,7 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.utils.cache import cache, invalidate_cache
+from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
