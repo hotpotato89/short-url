@@ -1,12 +1,19 @@
+import asyncio
+from logging import getLogger
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.utils.retry import retry
 from src.app.utils.slug import generate_slug
+
+
+logger = getLogger(__name__)
+URL_KEY_FIELD: str = "url"
 
 
 class ShortUrlService:
@@ -22,9 +29,10 @@ class ShortUrlService:
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
+    @cache(prefix=URL_KEY_FIELD)
     async def get_url(self, slug: str) -> str:
         result = await self.repo.get_url(slug)
-        await self.repo.increment_clicks(slug)
+        asyncio.create_task(self._increment_clicks(slug))
         await self.session.commit()
         return result.original_url
 
@@ -42,6 +50,7 @@ class ShortUrlService:
             raise PermissionDeniedError("You don't have permission")
 
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
+        await invalidate_cache(URL_KEY_FIELD)
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
@@ -50,4 +59,12 @@ class ShortUrlService:
         if url.owner_id != user_id:
             raise PermissionDeniedError("You don't have permission")
         await self.repo.delete_url(slug)
+        await invalidate_cache(URL_KEY_FIELD)
         await self.session.commit()
+
+    async def _increment_clicks(self, slug: str) -> None:
+        try:
+            await self.repo.increment_clicks(slug)
+            await self.session.flush()
+        except Exception as e:
+            logger.error("Unhandled error %s", e)
