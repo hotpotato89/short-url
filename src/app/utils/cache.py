@@ -43,7 +43,9 @@ def _gen_cache_key(
         "kwargs": sorted_kwargs,
     }
 
-    key_hash = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
+    key_hash = hashlib.sha256(
+        json.dumps(data, sort_keys=True, default=str).encode()
+    ).hexdigest()
 
     if prefix:
         return f"cache:{prefix}:{key_hash}"
