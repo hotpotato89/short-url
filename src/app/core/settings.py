@@ -21,9 +21,14 @@ class RedisSettings(BaseModel):
     host: str = "localhost"
     port: int = 6379
     db: int = 0
+    rate_limiter_db: int = 1
 
     @property
     def cache_url(self) -> str:
+        return f"redis://{self.host}:{self.port}/{self.db}"
+    
+    @property
+    def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.db}"
 
 
