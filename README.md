@@ -89,7 +89,6 @@ curl http://localhost/api/health
  - Nginx reverse proxy + раздача статики
  - Rate limiting (SlowAPI)
  - Кэширование редиректов в Redis
- - Ограничение запросов через SlowAPI
 
 # Автор:
  - [hotpotato89](https://github.com/hotpotato89)
