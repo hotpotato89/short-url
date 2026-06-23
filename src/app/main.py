@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
-from src.app.core.settings import settings
 from src.app.core.exception_handlers import register_handlers
 from src.app.core.lifespan import lifespan
 from src.app.core.logging import setup_logging
