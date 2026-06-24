@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from src.app.core.exception_handlers import register_handlers
@@ -16,6 +17,13 @@ setup_logging(settings.app.log_level)
 
 app = FastAPI(title="Short Url", lifespan=lifespan)
 app.state.limiter = limiter
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.app.cors_origins,
+    allow_methods=["*"],
+    allow_credentials=True,
+    allow_headers=["*"],
+)
 
 register_handlers(app)
 

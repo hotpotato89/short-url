@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import List, Literal
 
 from pydantic import BaseModel, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings
@@ -43,6 +43,7 @@ class JwtSettings(BaseModel):
 
 class AppSettings(BaseModel):
     log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = "INFO"
+    cors_origins: List[str] = ["http://localhost:3000"]
 
 
 class Settings(BaseSettings):
