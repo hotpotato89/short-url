@@ -11,6 +11,8 @@
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
 ![MIT](https://img.shields.io/badge/License-MIT-yellow)
 
+![Deploy](https://github.com/hotpotato89/short-url/actions/runs/28118769280)
+
 Сервис для сокращения ссылок с JWT-аутентификацией, кэшированием в Redis и фронтендом сгенерированным через ИИ.
 
 # Быстрый старт
