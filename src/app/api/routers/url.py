@@ -1,12 +1,14 @@
+import base64
 from logging import getLogger
 from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Depends, Path, Query, Request, status
+from fastapi import APIRouter, Depends, Path, Query, Request, Response, status
 from fastapi.responses import RedirectResponse
 
-from src.app.api.deps import get_current_user, get_url_service
+from src.app.api.deps import get_current_user, get_qrcode_service, get_url_service
 from src.app.models.user import User
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
 
@@ -46,6 +48,21 @@ async def redirect(
     url = await service.get_url(slug)
     logger.info("Redirected from %s to %s", slug, url)
     return RedirectResponse(url, status_code=status.HTTP_308_PERMANENT_REDIRECT)
+
+
+@router.get("/{slug}/qr")
+async def get_qrcode(
+    service: Annotated[QrcodeService, Depends(get_qrcode_service)],
+    slug: str = Path(..., max_length=20, description="Slug of url"),
+) -> Response:
+    qr_base64 = await service.get_qrcode(slug)
+    qr_bytes = base64.b64decode(qr_base64)
+
+    return Response(
+        content=qr_bytes,
+        media_type="image/png",
+        headers={"Cache-Control": f"public, max-age={3600 * 24}"},
+    )
 
 
 @router.put("/{slug}")

@@ -10,6 +10,7 @@ from src.app.models.user import User
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.user_repository import UserRepository
+from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.services.user_service import UserService
 from src.app.utils.jwt import decode_jwt
@@ -44,6 +45,12 @@ async def get_refresh_token_repo(
 # Service dependencies
 
 
+async def get_qrcode_service(
+    url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
+) -> QrcodeService:
+    return QrcodeService(url_repo)
+
+
 async def get_user_service(
     user_repo: Annotated[UserRepository, Depends(get_user_repo)],
     refresh_token_repo: Annotated[
@@ -57,8 +64,9 @@ async def get_user_service(
 async def get_url_service(
     url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
     session: Annotated[AsyncSession, Depends(get_session)],
+    qrcode_service: Annotated[QrcodeService, Depends(get_qrcode_service)],
 ) -> ShortUrlService:
-    return ShortUrlService(url_repo, session)
+    return ShortUrlService(url_repo, session, qrcode_service)
 
 
 # Jwt dependencies

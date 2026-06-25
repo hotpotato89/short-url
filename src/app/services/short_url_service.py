@@ -5,6 +5,7 @@ from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.database import SessionLocal
+from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -18,9 +19,12 @@ URL_KEY_FIELD: str = "url"
 
 
 class ShortUrlService:
-    def __init__(self, repo: ShortUrlRepository, session: AsyncSession) -> None:
+    def __init__(
+        self, repo: ShortUrlRepository, session: AsyncSession, qr_service: QrcodeService
+    ) -> None:
         self.repo = repo
         self.session = session
+        self.qr_service = qr_service
 
     @retry(SlugAlreadyExistsError)
     async def create(self, url_data: UrlCreate, owner_id: int) -> UrlResponse:
@@ -51,6 +55,8 @@ class ShortUrlService:
 
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
         await invalidate_cache(URL_KEY_FIELD)
+        await self.qr_service.invalidate_qrcode_cache(exist_slug)
+        await self.qr_service.invalidate_qrcode_cache(edit_data.slug)
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
