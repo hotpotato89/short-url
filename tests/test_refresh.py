@@ -54,4 +54,4 @@ async def test_refresh_reuse(client: AsyncClient, auth_tokens: TokenInfo) -> Non
     refresh_resp2 = await client.post(
         "/auth/refresh", json={"refresh_token": auth_tokens.refresh_token}
     )
-    assert refresh_resp2.status_code == status.HTTP_401_UNAUTHORIZED
+    assert refresh_resp2.status_code in (status.HTTP_401_UNAUTHORIZED, status.HTTP_401_UNAUTHORIZED) #It is not ok
