@@ -4,7 +4,6 @@ from unittest.mock import patch, AsyncMock
 from faker import Faker
 from pydantic import SecretStr
 import pytest
-from slowapi import Limiter
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     create_async_engine,
