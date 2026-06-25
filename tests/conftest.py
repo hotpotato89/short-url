@@ -13,6 +13,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from httpx import AsyncClient, ASGITransport
 from redis.asyncio import Redis
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
@@ -37,6 +39,18 @@ async def mock_redis() -> AsyncGenerator[Redis, None]:
         mock.close = AsyncMock(return_values=[])
 
         yield mock
+
+
+@pytest.fixture(autouse=True)
+async def test_limiter() -> AsyncGenerator[Limiter, None]:
+    test_limiter = Limiter(
+        key_func=get_remote_address,
+        storage_uri=None,
+        default_limits=['10/minute']
+    )
+
+    with patch('src.app.core.limiter.limiter', test_limiter):
+        yield test_limiter
 
 
 @pytest.fixture(autouse=True)
