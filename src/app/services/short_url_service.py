@@ -19,7 +19,9 @@ URL_KEY_FIELD: str = "url"
 
 
 class ShortUrlService:
-    def __init__(self, repo: ShortUrlRepository, session: AsyncSession, qr_service: QrcodeService) -> None:
+    def __init__(
+        self, repo: ShortUrlRepository, session: AsyncSession, qr_service: QrcodeService
+    ) -> None:
         self.repo = repo
         self.session = session
         self.qr_service = qr_service

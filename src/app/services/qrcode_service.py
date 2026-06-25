@@ -8,11 +8,11 @@ class QrcodeService:
     def __init__(self, repo: ShortUrlRepository) -> None:
         self.repo = repo
 
-    @cache(3600 * 24, prefix='qr')
+    @cache(3600 * 24, prefix="qr")
     async def get_qrcode(self, slug: str) -> str:
         url = await self.repo.get_url(slug)
-        full_url = f'{settings.app.base_url}/url/{url}'
+        full_url = f"{settings.app.base_url}/url/{url}"
         return generate_qr_base64(full_url)
-    
+
     async def invalidate_qrcode_cache(self, slug: str) -> None:
-        await invalidate_cache(f'qr:{slug}')
+        await invalidate_cache(f"qr:{slug}")

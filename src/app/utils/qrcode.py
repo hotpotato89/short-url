@@ -12,10 +12,10 @@ def generate_qr_base64(data: str, box_size: int = 10, border: int = 4) -> str:
     qr.add_data(data=data)
     qr.make(fit=True)
 
-    image: Image.Image = qr.make_image(fill_color="black", back_color="white") #type: ignore
+    image: Image.Image = qr.make_image(fill_color="black", back_color="white")  # type: ignore
 
     if not isinstance(image, Image.Image):
-        image = image.convert('RGB')
+        image = image.convert("RGB")
 
     buffered = BytesIO()
     image.save(buffered, format="PNG")
