@@ -1,11 +1,17 @@
 import base64
+from datetime import datetime, timezone
 from logging import getLogger
-from typing import Annotated, Sequence
+from typing import Annotated, Literal, Sequence
 
 from fastapi import APIRouter, Depends, Path, Query, Request, Response, status
 from fastapi.responses import RedirectResponse
 
-from src.app.api.deps import get_current_user, get_qrcode_service, get_url_service
+from src.app.api.deps import (
+    get_current_admin,
+    get_current_user,
+    get_qrcode_service,
+    get_url_service,
+)
 from src.app.models.user import User
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.qrcode_service import QrcodeService
@@ -85,3 +91,26 @@ async def delete_url(
     slug: str = Path(..., max_length=20, description="Slug of url"),
 ) -> None:
     await service.delete_url(slug, current_user.id)
+
+
+@router.get("/admin/export")
+async def export_all(
+    _: Annotated[User, Depends(get_current_admin)],
+    service: Annotated[ShortUrlService, Depends(get_url_service)],
+    format: Literal["csv", "json"] = Query("csv", description="Output data format"),
+) -> Response:
+    """
+    Export all data, only for admins
+    Formats: csv and json
+    """
+
+    content = await service.export_all_urls(format)
+
+    media_type = "text/csv" if format == "csv" else "application/json"
+    filename = f"urls_{datetime.now(timezone.utc)}.{format}"
+
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
