@@ -70,3 +70,9 @@ class ShortUrlRepository:
         url = await self.get_url(slug)
         await self.session.delete(url)
         await self.session.flush()
+
+    async def get_all(self, limit: int = 10000) -> Sequence[ShortUrl]:
+        result = await self.session.execute(
+            select(ShortUrl).limit(limit).order_by(ShortUrl.created_at.desc())
+        )
+        return result.scalars().all()
