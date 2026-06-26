@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
 
@@ -25,5 +26,6 @@ class UserResponse(BaseModel):
     id: int
     email: str
     created_at: datetime
+    role: Literal['user', 'admin']
 
     model_config = {"from_attributes": True}
