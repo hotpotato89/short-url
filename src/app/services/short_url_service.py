@@ -1,10 +1,14 @@
 import asyncio
+import csv
+from io import StringIO
+import json
 from logging import getLogger
-from typing import Sequence
+from typing import Literal, Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.database import SessionLocal
+from src.app.models.short_url import ShortUrl
 from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import PermissionDeniedError, SlugAlreadyExistsError
@@ -76,3 +80,39 @@ class ShortUrlService:
                 await session.commit()
         except Exception as e:
             logger.error("Unhandled error %s", e)
+
+    async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
+        urls = await self.repo.get_all()
+
+        if format == "csv":
+            return self._csv_format(urls)
+        elif format == "json":
+            return self._json_format(urls)
+
+    def _json_format(self, urls: Sequence) -> str:
+        data = []
+        for url in urls:
+            data.append(url.model_dump())
+        return json.dumps(data, indent=2, ensure_ascii=False)
+
+    def _csv_format(self, urls: Sequence[ShortUrl]) -> str:
+        output = StringIO()
+        writer = csv.writer(output)
+
+        writer.writerow(
+            ["ID", "Original url", "Slug", "Clicks", "Owner ID", "Created at"]
+        )
+
+        for url in urls:
+            writer.writerow(
+                [
+                    url.id,
+                    url.original_url,
+                    url.slug,
+                    url.clicks,
+                    url.owner_id,
+                    url.created_at.isoformat(),
+                ]
+            )
+
+        return output.getvalue()
