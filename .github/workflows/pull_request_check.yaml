@@ -1,0 +1,48 @@
+name: Pull Request Checkout
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: 
+          python-version: '3.14'
+
+      - name: Install deps
+        run: |
+          pip install uv
+          uv sync --frozen
+
+      - name: Generate RSA keys
+        run: |
+          mkdir -p keys
+          openssl genrsa -out keys/private.pem 2048
+          openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+
+      - name: Run tests
+        run: |
+          uv run pytest
+        env:
+          DB__NAME: shorturl
+          DB__USER: postgres
+          DB__PASSWORD: postgres
+          DB__HOST: localhost
+          DB__PORT: 5432
+          REDIS__HOST: localhost
+          REDIS__PORT: 6379
+          REDIS__DB: 0
+          REDIS__RATE_LIMITER_DB: 1
+          JWT__PRIVATE_KEY_PATH: keys/private.pem
+          JWT__PUBLIC_KEY_PATH: keys/public.pem
+          APP__LOG_LEVEL: INFO
+          APP__CORS_ORIGINS: '["http://localhost:3000"]'
