@@ -39,8 +39,8 @@ class UserService:
         ):
             raise InvalidCredentialsError("Invalid email or password")
 
-        access_token = create_access_token(user.id, user.email)
-        refresh_token = create_refresh_token(user.id, user.email)
+        access_token = create_access_token(user.id, user.email, user.role)
+        refresh_token = create_refresh_token(user.id, user.email, user.role)
 
         await self.refresh_token_repo.create(user.id, refresh_token)
         await self.session.commit()
@@ -61,17 +61,15 @@ class UserService:
         if not user:
             raise UserNotFoundError(f"User with ID {user_id} not found")
 
-        new_refresh_token = create_refresh_token(user.id, user.email)
+        new_refresh_token = create_refresh_token(user.id, user.email, user.role)
+        access_token = create_access_token(user.id, user.email, user.role)
 
         await self.refresh_token_repo.delete_by_token(refresh_token)
         await self.refresh_token_repo.create(user.id, new_refresh_token)
         await self.session.commit()
-
-        access_token = create_access_token(user.id, user.email)
 
         return TokenInfo(access_token=access_token, refresh_token=new_refresh_token)
 
     async def logout(self, refresh_token: str) -> None:
         await self.refresh_token_repo.delete_by_token(refresh_token)
         await self.session.commit()
-        return
