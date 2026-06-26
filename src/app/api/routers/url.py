@@ -107,7 +107,7 @@ async def export_all(
     content = await service.export_all_urls(format)
 
     media_type = "text/csv" if format == "csv" else "application/json"
-    filename = f"urls_{datetime.now(timezone.utc)}.{format}"
+    filename = f"urls_{datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%m')}.{format}"
 
     return Response(
         content=content,
