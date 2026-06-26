@@ -11,7 +11,7 @@ class QrcodeService:
     @cache(3600 * 24, prefix="qr")
     async def get_qrcode(self, slug: str) -> str:
         url = await self.repo.get_url(slug)
-        full_url = f"{settings.app.base_url}/url/{url}"
+        full_url = f"{settings.app.base_url}/url/{url.slug}"
         return generate_qr_base64(full_url)
 
     async def invalidate_qrcode_cache(self, slug: str) -> None:
