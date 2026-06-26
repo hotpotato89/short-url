@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-and-deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with: 
-          python-version: 3.14
+          python-version: '3.14'
 
       - name: Install deps
         run: |
@@ -46,8 +46,13 @@ jobs:
           JWT__PUBLIC_KEY_PATH: keys/public.pem
           APP__LOG_LEVEL: INFO
           APP__CORS_ORIGINS: '["http://localhost:3000"]'
-        
-      - name: Deploy Render
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:    
+      - name: Deploy to Render
         if: success()
         run: |
-          curl -X POST ${{secrets.RENDER_DEPLOY_HOOK}}
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
