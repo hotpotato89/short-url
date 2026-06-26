@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from sqlalchemy import TIMESTAMP, func, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,4 +23,7 @@ class User(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
+    )
+    role: Mapped[Literal["user", "admin"]] = mapped_column(
+        String(20), default="user", nullable=False
     )
