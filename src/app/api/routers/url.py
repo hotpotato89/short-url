@@ -61,7 +61,6 @@ async def get_qrcode(
     return Response(
         content=qr_bytes,
         media_type="image/png",
-        headers={"Cache-Control": f"public, max-age={3600 * 24}"},
     )
 
 
