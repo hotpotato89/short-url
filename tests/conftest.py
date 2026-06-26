@@ -18,8 +18,10 @@ from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
+from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
+from src.app.utils.hash import hash_password
 from src.app.utils.jwt import create_access_token
 
 
@@ -134,3 +136,28 @@ async def auth_tokens2(client: AsyncClient, fake_user2: UserRegister) -> TokenIn
     login_data = TokenInfo(**login_resp.json())
 
     return login_data
+
+
+# В conftest.py
+@pytest.fixture
+async def admin_user(db_session: AsyncSession) -> User:
+    admin = User(
+        email="admin@example.com",
+        password_hash=hash_password("admin123"),
+        role="admin",
+    )
+    db_session.add(admin)
+    await db_session.commit()
+    return admin
+
+
+@pytest.fixture
+async def admin_tokens(client: AsyncClient, admin_user: User) -> TokenInfo:
+    login_resp = await client.post(
+        "/auth/login",
+        json={
+            "email": admin_user.email,
+            "password": "admin123",
+        },
+    )
+    return TokenInfo(**login_resp.json())
