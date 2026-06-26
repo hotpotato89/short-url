@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated, Any, AsyncGenerator
 
 from src.app.core.database import SessionLocal
-from src.app.core.exceptions import InvalidTokenError
+from src.app.core.exceptions import InvalidTokenError, PermissionDeniedError
 from src.app.models.user import User
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -87,4 +87,13 @@ async def get_current_user(
     user_data: Annotated[dict[str, Any], Depends(get_token_payload)],
     repo: Annotated[UserRepository, Depends(get_user_repo)],
 ) -> User | None:
+    return await repo.get_user(user_data["email"])
+
+
+async def get_current_admin(
+    user_data: Annotated[dict[str, Any], Depends(get_token_payload)],
+    repo: Annotated[UserRepository, Depends(get_user_repo)],
+) -> User | None:
+    if user_data["role"] != "admin":
+        raise PermissionDeniedError("Only for admins")
     return await repo.get_user(user_data["email"])

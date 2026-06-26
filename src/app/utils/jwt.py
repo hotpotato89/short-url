@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
-from typing import Any
+from typing import Any, Literal
 
 import jwt
 
@@ -18,16 +18,21 @@ def _public_key():
     return settings.jwt.public_key_path.read_text()
 
 
-def create_access_token(user_id: int, email: str) -> str:
+def create_access_token(
+    user_id: int, email: str, role: Literal["user", "admin"] = "user"
+) -> str:
     return _encode_jwt(
         {
             "sub": str(user_id),
             "email": email,
-        }
+        },
+        role=role,
     )
 
 
-def create_refresh_token(user_id: int, email: str) -> str:
+def create_refresh_token(
+    user_id: int, email: str, role: Literal["user", "admin"] = "user"
+) -> str:
     return _encode_jwt(
         {
             "sub": str(user_id),
@@ -35,17 +40,22 @@ def create_refresh_token(user_id: int, email: str) -> str:
         },
         60 * 24 * 7,
         type="refresh",
+        role=role,
     )
 
 
 def _encode_jwt(
-    payload: dict[str, Any], expire_min: int = 15, type: str = "access"
+    payload: dict[str, Any],
+    expire_min: int = 15,
+    type: str = "access",
+    role: Literal["user", "admin"] = "user",
 ) -> str:
     to_encode = payload.copy()
     iat = datetime.now(timezone.utc)
     exp = iat + timedelta(minutes=expire_min)
     to_encode["iat"] = iat
     to_encode["exp"] = exp
+    to_encode["role"] = role
     to_encode["type"] = type
 
     return jwt.encode(to_encode, _private_key(), algorithm="RS256")
