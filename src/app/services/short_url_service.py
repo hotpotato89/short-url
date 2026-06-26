@@ -92,7 +92,14 @@ class ShortUrlService:
     def _json_format(self, urls: Sequence) -> str:
         data = []
         for url in urls:
-            data.append(url.model_dump())
+            data.append({
+                "id": url.id,
+                "original_url": url.original_url,
+                "slug": url.slug,
+                "clicks": url.clicks,
+                "owner_id": url.owner_id,
+                "created_at": url.created_at.isoformat(),
+            })
         return json.dumps(data, indent=2, ensure_ascii=False)
 
     def _csv_format(self, urls: Sequence[ShortUrl]) -> str:
