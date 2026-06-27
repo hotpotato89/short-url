@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 from unittest.mock import patch, AsyncMock
+import uuid
 
 from faker import Faker
 from pydantic import SecretStr
@@ -28,7 +29,7 @@ faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 async def mock_redis() -> AsyncGenerator[Redis, None]:
     with patch("src.app.utils.cache.redis_client") as mock:
         mock.get = AsyncMock(return_value=None)
@@ -47,7 +48,7 @@ async def disable_limiter() -> AsyncGenerator[Limiter, None]:
     limiter.enabled = True
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
     engine = create_async_engine(TEST_DB_URL, echo=False)
 
@@ -167,7 +168,7 @@ async def auth_tokens2(client: AsyncClient, fake_user2: UserRegister) -> TokenIn
 @pytest.fixture
 async def admin_user(db_session: AsyncSession) -> User:
     admin = User(
-        email="admin@example.com",
+        email=f"admin_{uuid.uuid4()}@example.com",
         password_hash=hash_password("admin123"),
         role="admin",
         is_superadmin=True,
