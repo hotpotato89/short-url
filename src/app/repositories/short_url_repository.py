@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import Sequence
 
 from sqlalchemy import select, desc, asc
@@ -12,8 +13,9 @@ class ShortUrlRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create_url(self, original_url: str, slug: str, owner_id: int) -> ShortUrl:
-        new_url = ShortUrl(original_url=original_url, slug=slug, owner_id=owner_id)
+    async def create_url(self, original_url: str, slug: str, owner_id: int, ttl_days: int | None) -> ShortUrl:
+        ttl = datetime.now(timezone.utc) + timedelta(days=ttl_days) if ttl_days else None
+        new_url = ShortUrl(original_url=original_url, slug=slug, owner_id=owner_id, expires_at=ttl)
         self.session.add(new_url)
         try:
             await self.session.flush()
