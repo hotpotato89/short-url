@@ -32,7 +32,7 @@ async def shorten(
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UrlResponse | None:
-    return await service.create(url_data, current_user.id)
+    return await service.create(url_data, current_user.id, url_data.ttl_days)
 
 
 @router.get("/my")
