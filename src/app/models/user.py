@@ -27,3 +27,5 @@ class User(Base):
     role: Mapped[Literal["user", "admin"]] = mapped_column(
         String(20), default="user", nullable=False
     )
+
+    is_superadmin: Mapped[bool] = mapped_column(nullable=True, default=False)
