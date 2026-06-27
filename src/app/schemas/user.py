@@ -22,6 +22,10 @@ class UserLogin(BaseModel):
     password: SecretStr = Field(..., description="User password")
 
 
+class ChangeRole(BaseModel):
+    role: Literal["user", "admin"] = Field(..., description="New users's role")
+
+
 class UserResponse(BaseModel):
     id: int
     email: str
