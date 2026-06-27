@@ -71,6 +71,6 @@ async def change_role(
 async def get_all(
     service: Annotated[UserService, Depends(get_user_service)],
     admin: Annotated[User, Depends(get_current_admin)],
-    limit: int = Query(100, ge=1, le=1000, description="Count of records on 1 page")
+    limit: int = Query(100, ge=1, le=1000, description="Count of records on 1 page"),
 ) -> Sequence[UserResponse]:
     return await service.get_all(limit)
