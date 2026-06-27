@@ -1,8 +1,10 @@
+from typing import Literal
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from src.app.core.exceptions import UserAlreadyExistsError
+from src.app.core.exceptions import UserAlreadyExistsError, UserNotFoundError
 from src.app.models.user import User
 
 
@@ -27,3 +29,13 @@ class UserRepository:
     async def get_by_id(self, user_id: int) -> User | None:
         result = await self.session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
+
+    async def change_role(
+        self, user_id: int, new_role: Literal["user", "admin"]
+    ) -> User | None:
+        user = await self.session.get(User, user_id)
+        if not user:
+            raise UserNotFoundError(f"User with ID {user_id} not found")
+        user.role = new_role
+        await self.session.flush()
+        return user

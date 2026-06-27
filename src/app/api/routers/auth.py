@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, Request, status
+from fastapi import APIRouter, Body, Depends, Path, Request, status
 
-from src.app.api.deps import get_current_user, get_user_service
+from src.app.api.deps import get_current_admin, get_current_user, get_user_service
 from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
-from src.app.schemas.user import UserLogin, UserRegister, UserResponse
+from src.app.schemas.user import ChangeRole, UserLogin, UserRegister, UserResponse
 from src.app.services.user_service import UserService
 from src.app.core.limiter import limiter
 
@@ -55,3 +55,13 @@ async def logout(
     refresh_token: str = Body(..., embed=True),
 ) -> None:
     return await service.logout(refresh_token)
+
+
+@router.patch("/admin/users/{user_id}/role")
+async def change_role(
+    service: Annotated[UserService, Depends(get_user_service)],
+    admin: Annotated[User, Depends(get_current_admin)],
+    user_id: Annotated[int, Path(..., ge=1, description="User ID")],
+    role_data: ChangeRole,
+) -> UserResponse:
+    return await service.change_role(user_id, admin.id, role_data.role)

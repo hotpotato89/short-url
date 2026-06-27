@@ -22,10 +22,14 @@ class UserLogin(BaseModel):
     password: SecretStr = Field(..., description="User password")
 
 
+class ChangeRole(BaseModel):
+    role: Literal["user", "admin"] = Field(..., description="New users's role")
+
+
 class UserResponse(BaseModel):
     id: int
     email: str
     created_at: datetime
-    role: Literal['user', 'admin']
+    role: Literal["user", "admin"]
 
     model_config = {"from_attributes": True}

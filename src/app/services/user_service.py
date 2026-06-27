@@ -1,8 +1,11 @@
+from typing import Literal
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.exceptions import (
     InvalidCredentialsError,
     InvalidTokenError,
+    PermissionDeniedError,
     UserNotFoundError,
 )
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
@@ -73,3 +76,18 @@ class UserService:
     async def logout(self, refresh_token: str) -> None:
         await self.refresh_token_repo.delete_by_token(refresh_token)
         await self.session.commit()
+
+    async def change_role(
+        self, user_id: int, admin_id: int, role: Literal["user", "admin"]
+    ) -> UserResponse:
+        user = await self.repo.get_by_id(user_id)
+
+        if user:
+            if user.is_superadmin:
+                raise PermissionDeniedError("You can not edit super admin's role")
+            if user.id == admin_id:
+                raise PermissionDeniedError("You can not edit your role")
+
+        result = await self.repo.change_role(user_id, role)
+        await self.session.commit()
+        return UserResponse.model_validate(result)
