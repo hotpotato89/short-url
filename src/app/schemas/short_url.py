@@ -8,9 +8,7 @@ class UrlCreate(BaseModel):
         ..., max_length=2048, description="Original url to shorten"
     )
 
-    ttl_days: int | None = Field(
-        None, ge=1, le=365, description='TTL in days'
-    )
+    ttl_days: int | None = Field(None, ge=1, le=365, description="TTL in days")
 
 
 class UrlEdit(BaseModel):
