@@ -8,6 +8,10 @@ class UrlCreate(BaseModel):
         ..., max_length=2048, description="Original url to shorten"
     )
 
+    ttl_days: int | None = Field(
+        None, ge=1, le=365, description='TTL in days'
+    )
+
 
 class UrlEdit(BaseModel):
     slug: str = Field(
@@ -21,5 +25,7 @@ class UrlResponse(BaseModel):
     slug: str
     clicks: int
     created_at: datetime
+    expires_at: datetime
+    is_expired: bool
 
     model_config = {"from_attributes": True}
