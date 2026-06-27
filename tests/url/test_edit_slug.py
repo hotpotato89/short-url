@@ -26,7 +26,7 @@ async def test_edit_slug(client: AsyncClient, auth_tokens: TokenInfo) -> None:
 
     redirect_resp = await client.get("/url/google", follow_redirects=False)
 
-    assert redirect_resp.status_code == status.HTTP_308_PERMANENT_REDIRECT
+    assert redirect_resp.status_code == status.HTTP_303_SEE_OTHER
     assert redirect_resp.headers["Location"] == "https://google.com/"
 
 
