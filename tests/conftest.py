@@ -87,7 +87,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture()
-async def fake_user() -> UserRegister:
+async def fake_user1() -> UserRegister:
     return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
 
 
@@ -97,19 +97,19 @@ async def fake_user2() -> UserRegister:
 
 
 @pytest.fixture()
-async def auth_tokens(client: AsyncClient, fake_user: UserRegister) -> TokenInfo:
+async def auth_tokens(client: AsyncClient, fake_user2: UserRegister) -> TokenInfo:
     await client.post(
         "/auth/register",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
     login_resp = await client.post(
         "/auth/login",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
     login_data = TokenInfo(**login_resp.json())

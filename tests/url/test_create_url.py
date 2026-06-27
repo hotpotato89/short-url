@@ -12,19 +12,19 @@ async def test_create_url_unauthorized(client: AsyncClient) -> None:
     assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-async def test_create_url(client: AsyncClient, fake_user) -> None:
+async def test_create_url(client: AsyncClient, fake_user2) -> None:
     await client.post(
         "/auth/register",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
     login_resp = await client.post(
         "/auth/login",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
 
@@ -46,20 +46,20 @@ async def test_create_url(client: AsyncClient, fake_user) -> None:
     assert hasattr(url_data, "created_at")
 
 
-async def test_url_create_invalid(client: AsyncClient, fake_user) -> None:
+async def test_url_create_invalid(client: AsyncClient, fake_user2) -> None:
     await client.post(
         "/auth/register",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
 
     login_resp = await client.post(
         "/auth/login",
         json={
-            "email": fake_user.email,
-            "password": fake_user.password.get_secret_value(),
+            "email": fake_user2.email,
+            "password": fake_user2.password.get_secret_value(),
         },
     )
 
