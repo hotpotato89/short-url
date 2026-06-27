@@ -23,7 +23,7 @@ class UrlResponse(BaseModel):
     slug: str
     clicks: int
     created_at: datetime
-    expires_at: datetime
+    expires_at: datetime | None
     is_expired: bool
 
     model_config = {"from_attributes": True}
