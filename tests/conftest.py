@@ -22,7 +22,6 @@ from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
 from src.app.utils.hash import hash_password
-from src.app.utils.jwt import create_access_token
 
 
 faker = Faker()
@@ -87,45 +86,73 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture()
-async def fake_user1() -> UserRegister:
-    return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
+async def fake_user() -> UserRegister:
+    return UserRegister(
+        email=faker.unique.email(), password=SecretStr(faker.password())
+    )
 
 
 @pytest.fixture()
 async def fake_user2() -> UserRegister:
-    return UserRegister(email=faker.email(), password=SecretStr(faker.password()))
+    """Создаёт ещё одного уникального пользователя."""
+    return UserRegister(
+        email=faker.unique.email(), password=SecretStr(faker.password())
+    )
 
 
 @pytest.fixture()
-async def auth_tokens(client: AsyncClient, fake_user2: UserRegister) -> TokenInfo:
-    await client.post(
+async def auth_tokens(client: AsyncClient, fake_user: UserRegister) -> TokenInfo:
+    reg_resp = await client.post(
         "/auth/register",
         json={
-            "email": fake_user2.email,
-            "password": fake_user2.password.get_secret_value(),
+            "email": fake_user.email,
+            "password": fake_user.password.get_secret_value(),
         },
     )
+    if reg_resp.status_code == 409:
+        login_resp = await client.post(
+            "/auth/login",
+            json={
+                "email": fake_user.email,
+                "password": fake_user.password.get_secret_value(),
+            },
+        )
+        return TokenInfo(**login_resp.json())
+
+    assert reg_resp.status_code == 200
+
     login_resp = await client.post(
         "/auth/login",
         json={
-            "email": fake_user2.email,
-            "password": fake_user2.password.get_secret_value(),
+            "email": fake_user.email,
+            "password": fake_user.password.get_secret_value(),
         },
     )
-    login_data = TokenInfo(**login_resp.json())
-
-    return login_data
+    assert login_resp.status_code == 200
+    return TokenInfo(**login_resp.json())
 
 
 @pytest.fixture()
 async def auth_tokens2(client: AsyncClient, fake_user2: UserRegister) -> TokenInfo:
-    await client.post(
+    reg_resp = await client.post(
         "/auth/register",
         json={
             "email": fake_user2.email,
             "password": fake_user2.password.get_secret_value(),
         },
     )
+    if reg_resp.status_code == 409:
+        login_resp = await client.post(
+            "/auth/login",
+            json={
+                "email": fake_user2.email,
+                "password": fake_user2.password.get_secret_value(),
+            },
+        )
+        return TokenInfo(**login_resp.json())
+
+    assert reg_resp.status_code == 200
+
     login_resp = await client.post(
         "/auth/login",
         json={
@@ -133,21 +160,21 @@ async def auth_tokens2(client: AsyncClient, fake_user2: UserRegister) -> TokenIn
             "password": fake_user2.password.get_secret_value(),
         },
     )
-    login_data = TokenInfo(**login_resp.json())
+    assert login_resp.status_code == 200
+    return TokenInfo(**login_resp.json())
 
-    return login_data
 
-
-# В conftest.py
 @pytest.fixture
 async def admin_user(db_session: AsyncSession) -> User:
     admin = User(
         email="admin@example.com",
         password_hash=hash_password("admin123"),
         role="admin",
+        is_superadmin=True,
     )
     db_session.add(admin)
     await db_session.commit()
+    await db_session.refresh(admin)
     return admin
 
 
@@ -160,4 +187,5 @@ async def admin_tokens(client: AsyncClient, admin_user: User) -> TokenInfo:
             "password": "admin123",
         },
     )
+    assert login_resp.status_code == 200
     return TokenInfo(**login_resp.json())
