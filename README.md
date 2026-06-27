@@ -10,11 +10,17 @@
 ![QR Code](https://img.shields.io/badge/QR%20Code-Generated-brightgreen)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
+![TTL](https://img.shields.io/badge/TTL-Supported-blue)
 ![MIT](https://img.shields.io/badge/License-MIT-yellow)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
 
-Сервис для сокращения ссылок с JWT-аутентификацией, кэшированием в Redis и фронтендом сгенерированным через ИИ. 
+Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis.
+
+## 🌐 Демо
+
+- **Фронтенд:** [short-url-ui-9240.onrender.com](https://short-url-ui-9240.onrender.com)
+- **Swagger UI:** [short-url-8bjl.onrender.com/docs](https://short-url-8bjl.onrender.com/docs)
 
 ---
 
@@ -66,7 +72,7 @@ curl http://localhost/health
 pytest
 ```
 
-> Результат: **40+ зеленых тестов**.
+> Результат: **65+ зеленых тестов**.
 
 ## API эндпоинты
 
@@ -86,13 +92,16 @@ pytest
 
 ### Авторизация
 
-| Метод | Эндпоинт | Описание |
-|-------|----------|----------|
-| POST | `/auth/register` | Регистрация |
-| POST | `/auth/login` | Логин (access + refresh) |
-| POST | `/auth/refresh` | Обновить access и refresh |
-| POST | `/auth/logout` | Выход |
-| GET | `/auth/me` | Профиль |
+| Метод | Эндпоинт | Описание | Требует токен | only-admins |
+|-------|----------|----------|---------------|-------------|
+| POST | `/auth/register` | Регистрация | Нет | Нет |
+| POST | `/auth/login` | Логин (access + refresh) | Нет | Нет |
+| POST | `/auth/refresh` | Обновить access и refresh | Нет | Нет |
+| POST | `/auth/logout` | Выход | Нет | Нет |
+| GET | `/auth/me` | Профиль | Да | Нет |
+| GET | `/auth/admin/users` | Все пользователи | Да | Да |
+| PATCH | `/auth/admin/users/{user_id}/role` | Меняет роль пользователя | Да | Да |
+
 
 ### Ссылки
 
@@ -125,6 +134,7 @@ pytest
  - Кэширование редиректов в **Redis**
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
+ - **TTL** система для ссылок
 
 
 ## 🧠 Как это работает
