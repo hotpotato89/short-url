@@ -53,7 +53,7 @@ async def redirect(
 ) -> RedirectResponse:
     url = await service.get_url(slug)
     logger.info("Redirected from %s to %s", slug, url)
-    return RedirectResponse(url, status_code=status.HTTP_308_PERMANENT_REDIRECT)
+    return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/{slug}/qr")
