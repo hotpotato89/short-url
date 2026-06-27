@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -91,3 +91,7 @@ class UserService:
         result = await self.repo.change_role(user_id, role)
         await self.session.commit()
         return UserResponse.model_validate(result)
+
+    async def get_all(self, limit: int = 100) -> Sequence[UserResponse]:
+        users = await self.repo.get_all(limit)
+        return [UserResponse.model_validate(user) for user in users]
