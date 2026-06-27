@@ -1,9 +1,8 @@
-import asyncio
 import csv
 from io import StringIO
 import json
 from logging import getLogger
-from typing import Literal, Sequence
+from typing import Callable, Literal, Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,12 +44,15 @@ class ShortUrlService:
         return UrlResponse.model_validate(result)
 
     @cache(prefix=URL_KEY_FIELD)
-    async def get_url(self, slug: str) -> str:
+    async def get_url(self, slug: str) -> tuple[str, Callable]:
         result = await self.repo.get_url(slug)
         if result.is_expired:
             raise SlugNotFoundError(f"URL with slug '{result.slug}' has expired")
-        asyncio.create_task(self._increment_clicks(slug))
-        return result.original_url
+
+        async def increment():
+            await self._increment_clicks(slug)
+
+        return result.original_url, increment
 
     async def get_my_urls(
         self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
