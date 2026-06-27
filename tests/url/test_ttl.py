@@ -107,7 +107,9 @@ async def test_expired_url_returns_404(
     assert resp.status_code == status.HTTP_200_OK
     slug = resp.json()["slug"]
 
-    with patch.object(ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True):
+    with patch.object(
+        ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True
+    ):
         redirect_resp = await client.get(f"/url/{slug}")
         assert redirect_resp.status_code == status.HTTP_404_NOT_FOUND
 
@@ -124,7 +126,9 @@ async def test_edit_expired_url(
     assert resp.status_code == status.HTTP_200_OK
     slug = resp.json()["slug"]
 
-    with patch.object(ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True):
+    with patch.object(
+        ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True
+    ):
         edit_resp = await client.put(
             f"/url/{slug}",
             json={"slug": "new-slug"},
@@ -145,7 +149,9 @@ async def test_delete_expired_url(
     assert resp.status_code == status.HTTP_200_OK
     slug = resp.json()["slug"]
 
-    with patch.object(ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True):
+    with patch.object(
+        ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True
+    ):
         delete_resp = await client.delete(
             f"/url/{slug}",
             headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
