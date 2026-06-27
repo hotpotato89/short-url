@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,3 +39,9 @@ class UserRepository:
         user.role = new_role
         await self.session.flush()
         return user
+
+    async def get_all(self, limit: int = 100) -> Sequence[User]:
+        result = await self.session.execute(
+            select(User).limit(limit).order_by(User.id.desc())
+        )
+        return result.scalars().all()

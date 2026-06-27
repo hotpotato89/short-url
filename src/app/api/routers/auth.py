@@ -1,6 +1,6 @@
-from typing import Annotated
+from typing import Annotated, Sequence
 
-from fastapi import APIRouter, Body, Depends, Path, Request, status
+from fastapi import APIRouter, Body, Depends, Path, Query, Request, status
 
 from src.app.api.deps import get_current_admin, get_current_user, get_user_service
 from src.app.models.user import User
@@ -65,3 +65,12 @@ async def change_role(
     role_data: ChangeRole,
 ) -> UserResponse:
     return await service.change_role(user_id, admin.id, role_data.role)
+
+
+@router.get("/admin/users")
+async def get_all(
+    service: Annotated[UserService, Depends(get_user_service)],
+    admin: Annotated[User, Depends(get_current_admin)],
+    limit: int = Query(100, ge=1, le=1000, description="Count of records on 1 page")
+) -> Sequence[UserResponse]:
+    return await service.get_all(limit)
