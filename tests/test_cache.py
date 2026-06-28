@@ -1,12 +1,17 @@
 from httpx import AsyncClient
 import pytest
 from src.app.schemas.token import TokenInfo
-from uuid import uuid4
 from fastapi import status
 from time import perf_counter
 
 
 async def test_cache_redirect(client: AsyncClient, auth_tokens: TokenInfo) -> None:
+    for _ in range(100):
+        resp = await client.post(
+            "/url",
+            json={"original_url": "https://example.com"},
+            headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
+        )
     resp = await client.post(
         "/url",
         json={"original_url": "https://example.com"},
