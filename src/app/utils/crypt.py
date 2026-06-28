@@ -1,8 +1,7 @@
 from logging import getLogger
 
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet
 
-from src.app.core.exceptions import InvalidTokenError
 from src.app.core.settings import settings
 
 
