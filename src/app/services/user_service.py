@@ -46,8 +46,8 @@ class UserService:
         access_token = create_access_token(user.id, user.email, user.role)
         refresh_token = create_refresh_token(user.id, user.email, user.role)
 
-        encrypted = crypt_util.encrypt(refresh_token)
-        await self.refresh_token_repo.create(user.id, encrypted)
+        hashed = crypt_util.hash(refresh_token)
+        await self.refresh_token_repo.create(user.id, hashed)
         await self.session.commit()
 
         return TokenInfo(access_token=access_token, refresh_token=refresh_token)
@@ -57,8 +57,8 @@ class UserService:
         if token_payload.get("type") != "refresh":
             raise InvalidTokenError("Invalid token type")
 
-        encrypted = crypt_util.encrypt(refresh_token)
-        existing_token = await self.refresh_token_repo.get_by_token(encrypted)
+        hashed = crypt_util.hash(refresh_token)
+        existing_token = await self.refresh_token_repo.get_by_token(hashed)
         if not existing_token:
             raise InvalidTokenError("Token not found")
 
@@ -70,16 +70,16 @@ class UserService:
         new_refresh_token = create_refresh_token(user.id, user.email, user.role)
         access_token = create_access_token(user.id, user.email, user.role)
 
-        await self.refresh_token_repo.delete_by_token(encrypted)
+        await self.refresh_token_repo.delete_by_token(hashed)
         await self.refresh_token_repo.create(
-            user.id, crypt_util.encrypt(new_refresh_token)
+            user.id, crypt_util.hash(new_refresh_token)
         )
         await self.session.commit()
 
         return TokenInfo(access_token=access_token, refresh_token=new_refresh_token)
 
     async def logout(self, refresh_token: str) -> None:
-        encrypted = crypt_util.encrypt(refresh_token)
+        encrypted = crypt_util.hash(refresh_token)
         await self.refresh_token_repo.delete_by_token(encrypted)
         await self.session.commit()
 
