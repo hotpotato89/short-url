@@ -75,8 +75,8 @@ class ShortUrlService:
 
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
         await invalidate_cache(URL_KEY_FIELD)
-        await self.qr_service.invalidate_qrcode_cache(exist_slug)
-        await self.qr_service.invalidate_qrcode_cache(edit_data.slug)
+        await self.qr_service.invalidate_qrcode_cache()
+        await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
         return UrlResponse.model_validate(result)
 

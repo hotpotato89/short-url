@@ -14,5 +14,5 @@ class QrcodeService:
         full_url = f"{settings.app.base_url}/url/{url.slug}"
         return generate_qr_base64(full_url)
 
-    async def invalidate_qrcode_cache(self, slug: str) -> None:
-        await invalidate_cache(f"qr:{slug}")
+    async def invalidate_qrcode_cache(self) -> None:
+        await invalidate_cache("qr")

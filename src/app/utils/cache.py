@@ -53,7 +53,10 @@ def _gen_cache_key(
 
 
 async def invalidate_cache(prefix: str = "*") -> None:
-    keys = await redis_client.keys(f"cache:{prefix}")
+    if prefix == "*":
+        keys = await redis_client.keys(f"cache:{prefix}")
+    else:
+        keys = await redis_client.keys(f"cache:{prefix}:*")
     logger.debug('Found keys: %s', *keys)
     if keys:
         await redis_client.delete(*keys)
