@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from httpx import AsyncClient, ASGITransport
-from redis.asyncio import Redis
+from fakeredis import aioredis
 
 from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
@@ -29,16 +29,12 @@ faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
-@pytest.fixture(autouse=True, scope="session")
-async def mock_redis() -> AsyncGenerator[Redis, None]:
-    with patch("src.app.utils.cache.redis_client") as mock:
-        mock.get = AsyncMock(return_value=None)
-        mock.setex = AsyncMock()
-        mock.delete = AsyncMock()
-        mock.keys = AsyncMock()
-        mock.close = AsyncMock(return_values=[])
+@pytest.fixture(autouse=True, scope="function")
+async def test_redis() -> AsyncGenerator[aioredis.FakeRedis, None]:
+    test_redis_client = aioredis.FakeRedis(decode_responses=True)
 
-        yield mock
+    with patch("src.app.core.redis_client.redis_client", test_redis_client):
+        yield test_redis_client
 
 
 @pytest.fixture(autouse=True)
