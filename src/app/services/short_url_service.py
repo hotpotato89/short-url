@@ -3,7 +3,7 @@ import csv
 from io import StringIO
 import json
 from logging import getLogger
-from typing import Callable, Literal, Sequence
+from typing import Literal, Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
