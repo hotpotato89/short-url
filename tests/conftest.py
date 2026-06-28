@@ -33,7 +33,7 @@ TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 async def test_redis() -> AsyncGenerator[aioredis.FakeRedis, None]:
     test_redis_client = aioredis.FakeRedis(decode_responses=True)
 
-    with patch("src.app.core.redis_client.redis_client", test_redis_client):
+    with patch("src.app.utils.cache.redis_client", test_redis_client):
         yield test_redis_client
 
 
