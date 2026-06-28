@@ -1,3 +1,4 @@
+import asyncio
 import csv
 from io import StringIO
 import json
@@ -44,15 +45,14 @@ class ShortUrlService:
         return UrlResponse.model_validate(result)
 
     @cache(prefix=URL_KEY_FIELD)
-    async def get_url(self, slug: str) -> tuple[str, Callable]:
+    async def get_url(self, slug: str) -> str:
         result = await self.repo.get_url(slug)
         if result.is_expired:
             raise SlugNotFoundError(f"URL with slug '{result.slug}' has expired")
 
-        async def increment():
-            await self._increment_clicks(slug)
+        asyncio.create_task(self._increment_clicks(result.slug))
 
-        return result.original_url, increment
+        return result.original_url
 
     async def get_my_urls(
         self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
@@ -75,8 +75,7 @@ class ShortUrlService:
 
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
         await invalidate_cache(URL_KEY_FIELD)
-        await self.qr_service.invalidate_qrcode_cache(exist_slug)
-        await self.qr_service.invalidate_qrcode_cache(edit_data.slug)
+        await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
@@ -93,6 +92,7 @@ class ShortUrlService:
 
         await self.repo.delete_url(slug)
         await invalidate_cache(URL_KEY_FIELD)
+        await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
 
     async def _increment_clicks(self, slug: str) -> None:

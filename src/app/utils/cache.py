@@ -22,7 +22,7 @@ def cache(ttl: int = 3600, prefix: str | None = None):
 
             result = await func(*args, **kwargs)
 
-            await redis_client.setex(cache_key, ttl, json.dumps(result, default=str))
+            await redis_client.set(cache_key, json.dumps(result, default=str), ex=ttl)
             logger.debug("Cache missed and saved: %s", cache_key)
             return result
 
@@ -53,7 +53,11 @@ def _gen_cache_key(
 
 
 async def invalidate_cache(prefix: str = "*") -> None:
-    keys = await redis_client.keys(f"cache:{prefix}")
+    if prefix == "*":
+        keys = await redis_client.keys(f"cache:{prefix}")
+    else:
+        keys = await redis_client.keys(f"cache:{prefix}:*")
+    logger.debug("Found keys: %s", *keys)
     if keys:
-        logger.debug("Cache invalidated: %s", *keys)
         await redis_client.delete(*keys)
+        logger.debug("Cache invalidated: %s", *keys)

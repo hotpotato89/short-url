@@ -57,12 +57,10 @@ async def get_my(
 
 @router.get("/{slug}")
 async def redirect(
-    bg_tasks: BackgroundTasks,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     slug: str = Path(..., max_length=20, description="Slug of url"),
 ) -> RedirectResponse:
-    url, task = await service.get_url(slug)
-    bg_tasks.add_task(task)
+    url = await service.get_url(slug)
     logger.info("Redirected from %s to %s", slug, url)
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
