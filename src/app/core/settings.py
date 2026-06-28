@@ -47,11 +47,16 @@ class AppSettings(BaseModel):
     base_url: str = "http://localhost:8000"
 
 
+class FernetSettings(BaseModel):
+    secret_key: SecretStr
+
+
 class Settings(BaseSettings):
     db: DbSettings
     jwt: JwtSettings
     redis: RedisSettings
     app: AppSettings
+    fernet: FernetSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
