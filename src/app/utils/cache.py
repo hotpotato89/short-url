@@ -22,7 +22,7 @@ def cache(ttl: int = 3600, prefix: str | None = None):
 
             result = await func(*args, **kwargs)
 
-            await redis_client.setex(cache_key, ttl, json.dumps(result, default=str))
+            await redis_client.set(cache_key, json.dumps(result, default=str), ex=ttl)
             logger.debug("Cache missed and saved: %s", cache_key)
             return result
 
