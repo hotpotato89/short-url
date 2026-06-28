@@ -1,31 +1,30 @@
-from cryptography.fernet import InvalidToken
 import pytest
 from src.app.utils.crypt import crypt_util
 
 
-def test_encrypt_decrypt():
-    original = "my_secret_token"
+def test_hash_token():
+    token = "my_refresh_token"
+    hashed = crypt_util.hash(token)
     
-    encrypted = crypt_util.encrypt(original)
-    assert encrypted is not None
-    assert encrypted != original
+    assert isinstance(hashed, str)
+    assert len(hashed) == 64  # SHA-256
+    assert hashed != token
+
+
+def test_hash_consistent():
+    token = "my_refresh_token"
     
-    decrypted = crypt_util.decrypt(encrypted)
-    assert decrypted == original
+    hash1 = crypt_util.hash(token)
+    hash2 = crypt_util.hash(token)
+    
+    assert hash1 == hash2
 
 
-def test_decrypt_invalid_token():
-    with pytest.raises(InvalidToken):
-        crypt_util.decrypt('invalid_token')
-
-
-def test_encrypt_different_tokens():
+def test_hash_different_tokens():
     token1 = "token1"
     token2 = "token2"
     
-    encrypted1 = crypt_util.encrypt(token1)
-    encrypted2 = crypt_util.encrypt(token2)
+    hash1 = crypt_util.hash(token1)
+    hash2 = crypt_util.hash(token2)
     
-    assert encrypted1 != encrypted2
-    assert crypt_util.decrypt(encrypted1) == token1
-    assert crypt_util.decrypt(encrypted2) == token2
+    assert hash1 != hash2
