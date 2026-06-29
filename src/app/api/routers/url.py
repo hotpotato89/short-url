@@ -5,7 +5,6 @@ from typing import Annotated, Literal, Sequence
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     Depends,
     Path,
     Query,

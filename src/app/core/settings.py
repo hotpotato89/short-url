@@ -47,6 +47,7 @@ class AppSettings(BaseModel):
     base_url: str = "http://localhost:8000"
 
 
+
 class Settings(BaseSettings):
     db: DbSettings
     jwt: JwtSettings

@@ -14,6 +14,7 @@ from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserLogin, UserRegister, UserResponse
 from src.app.utils.hash import hash_password, verify_password
 from src.app.utils.jwt import create_access_token, create_refresh_token, decode_jwt
+from src.app.utils.crypt import crypt_util
 
 
 class UserService:
@@ -45,7 +46,8 @@ class UserService:
         access_token = create_access_token(user.id, user.email, user.role)
         refresh_token = create_refresh_token(user.id, user.email, user.role)
 
-        await self.refresh_token_repo.create(user.id, refresh_token)
+        hashed = crypt_util.hash(refresh_token)
+        await self.refresh_token_repo.create(user.id, hashed)
         await self.session.commit()
 
         return TokenInfo(access_token=access_token, refresh_token=refresh_token)
@@ -55,7 +57,8 @@ class UserService:
         if token_payload.get("type") != "refresh":
             raise InvalidTokenError("Invalid token type")
 
-        existing_token = await self.refresh_token_repo.get_by_token(refresh_token)
+        hashed = crypt_util.hash(refresh_token)
+        existing_token = await self.refresh_token_repo.get_by_token(hashed)
         if not existing_token:
             raise InvalidTokenError("Token not found")
 
@@ -67,14 +70,17 @@ class UserService:
         new_refresh_token = create_refresh_token(user.id, user.email, user.role)
         access_token = create_access_token(user.id, user.email, user.role)
 
-        await self.refresh_token_repo.delete_by_token(refresh_token)
-        await self.refresh_token_repo.create(user.id, new_refresh_token)
+        await self.refresh_token_repo.delete_by_token(hashed)
+        await self.refresh_token_repo.create(
+            user.id, crypt_util.hash(new_refresh_token)
+        )
         await self.session.commit()
 
         return TokenInfo(access_token=access_token, refresh_token=new_refresh_token)
 
     async def logout(self, refresh_token: str) -> None:
-        await self.refresh_token_repo.delete_by_token(refresh_token)
+        encrypted = crypt_util.hash(refresh_token)
+        await self.refresh_token_repo.delete_by_token(encrypted)
         await self.session.commit()
 
     async def change_role(
