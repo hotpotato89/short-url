@@ -2,13 +2,13 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlalchemy import TIMESTAMP, ForeignKey, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
 
 
 if TYPE_CHECKING:
-    from src.app.models.user import User
+    pass
 
 
 class ShortUrl(Base):
@@ -39,5 +39,3 @@ class ShortUrl(Base):
         if self.expires_at is None:
             return False
         return datetime.now(timezone.utc) > self.expires_at
-
-    owner: Mapped["User"] = relationship("User")
