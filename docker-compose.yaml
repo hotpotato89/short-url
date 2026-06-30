@@ -67,6 +67,21 @@ services:
         redis:
           condition: service_healthy
 
+    celery_beat:
+      build: .
+      command: celery -A src.app.core.celery beat --loglevel=info
+      environment:
+        - DB__HOST=db
+        - REDIS__HOST=redis
+      env_file:
+        - ".env"
+      restart: unless-stopped
+      volumes:
+        - ./keys:/app/keys:ro
+      depends_on:
+        celery_worker:
+          condition: service_started
+
 
     nginx:
       image: nginx:alpine
