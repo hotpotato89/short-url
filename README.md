@@ -12,7 +12,6 @@
 ![Celery Beat](https://img.shields.io/badge/Celery%20Beat-Scheduler-blue)
 ![SHA-256](https://img.shields.io/badge/Token%20Storage-SHA256-orange)
 ![Argon2](https://img.shields.io/badge/Argon2-Secure-purple)
-![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
 ![TTL](https://img.shields.io/badge/TTL-Supported-blue)
 ![MIT](https://img.shields.io/badge/License-MIT-yellow)
@@ -135,7 +134,7 @@ pytest
  - **Argon2** хэширование паролей
  - **SHA-256** хэширование refresh токенов в базе данных
  - Чистая архитектура (Service → Repository)
- - **Nginx** reverse proxy + раздача статики
+ - ~~**Nginx** reverse proxy + раздача статики~~ Убрано по причине ненадобности.
  - Rate limiting (**SlowAPI**)
  - Кэширование редиректов в **Redis**
  - CI/CD через **Github Actions**
