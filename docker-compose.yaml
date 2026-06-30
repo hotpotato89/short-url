@@ -4,8 +4,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile
-      expose:
-        - 8000
+      ports:
+        - "8000:8000"
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis
