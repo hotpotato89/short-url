@@ -67,6 +67,15 @@ async def redirect(
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.get("/url/{slug}/info")
+async def get_url_info(
+    service: Annotated[ShortUrlService, Depends(get_url_service)],
+    user: Annotated[User, Depends(get_current_user)],
+    slug: str = Path(..., max_length=20, description="Url's slug"),
+) -> UrlResponse:
+    return await service.get_info(user.id, slug)
+
+
 @router.get("/{slug}/qr")
 async def get_qrcode(
     service: Annotated[QrcodeService, Depends(get_qrcode_service)],
