@@ -1,13 +1,11 @@
-import asyncio
 import csv
 from io import StringIO
 import json
 from logging import getLogger
-from typing import Literal, Sequence
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.database import SessionLocal
 from src.app.models.short_url import ShortUrl
 from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
