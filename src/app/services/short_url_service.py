@@ -93,23 +93,6 @@ class ShortUrlService:
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
 
-    async def _increment_clicks(self, slug: str) -> None:
-        try:
-            async with SessionLocal() as session:
-                repo = ShortUrlRepository(session)
-                await repo.increment_clicks(slug)
-                await session.commit()
-        except Exception as e:
-            logger.error("Unhandled error %s", e)
-
-    async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
-        urls = await self.repo.get_all()
-
-        if format == "csv":
-            return self._csv_format(urls)
-        elif format == "json":
-            return self._json_format(urls)
-
     def _json_format(self, urls: Sequence) -> str:
         data = []
         for url in urls:
