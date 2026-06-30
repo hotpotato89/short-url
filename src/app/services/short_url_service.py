@@ -99,10 +99,12 @@ class ShortUrlService:
         elif format == "json":
             return self._json_format(urls)
 
-    async def get_info(self, user_id: int, slug: str) -> UrlResponse:
+    async def get_info(
+        self, user_id: int, user_role: Literal["user", "admin"], slug: str
+    ) -> UrlResponse:
         url = await self.repo.get_url(slug)
 
-        if url.owner_id != user_id:
+        if url.owner_id != user_id and user_role != "admin":
             raise PermissionDeniedError("You don't have permission to viev it")
 
         return UrlResponse.model_validate(url)

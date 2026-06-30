@@ -73,7 +73,7 @@ async def get_url_info(
     user: Annotated[User, Depends(get_current_user)],
     slug: str = Path(..., max_length=20, description="Url's slug"),
 ) -> UrlResponse:
-    return await service.get_info(user.id, slug)
+    return await service.get_info(user.id, user.role, slug)
 
 
 @router.get("/{slug}/qr")
