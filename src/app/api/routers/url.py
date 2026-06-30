@@ -25,7 +25,8 @@ from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
-
+from src.app.core.task_runner import task_runner
+from src.app.tasks import increment_clicks_task
 
 logger = getLogger(__name__)
 BASE_LIMIT: str = "5/min"
@@ -60,6 +61,7 @@ async def redirect(
     slug: str = Path(..., max_length=20, description="Slug of url"),
 ) -> RedirectResponse:
     url = await service.get_url(slug)
+    task_runner.run_in_bg(increment_clicks_task, slug)
     logger.info("Redirected from %s to %s", slug, url)
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
