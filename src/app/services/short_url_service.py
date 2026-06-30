@@ -50,8 +50,6 @@ class ShortUrlService:
         if result.is_expired:
             raise SlugNotFoundError(f"URL with slug '{result.slug}' has expired")
 
-        asyncio.create_task(self._increment_clicks(result.slug))
-
         return result.original_url
 
     async def get_my_urls(
