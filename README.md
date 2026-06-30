@@ -18,7 +18,7 @@
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
 
-Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery.
+Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
 ## 🌐 Демо
 
