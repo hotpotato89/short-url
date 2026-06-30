@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from pydantic import BaseModel
 
 
@@ -12,3 +12,8 @@ class StatusInfo(BaseModel):
 @router.get("")
 async def health() -> StatusInfo:
     return StatusInfo()
+
+
+@router.head("", status_code=status.HTTP_200_OK)
+async def health_head() -> None:
+    return None
