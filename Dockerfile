@@ -7,7 +7,11 @@ RUN uv sync --frozen --no-dev
 
 COPY . .
 
+
 FROM python:3.14-slim
+
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --gid 1001 appuser
 
 WORKDIR /app
 
@@ -22,6 +26,10 @@ COPY --from=builder /app/alembic.ini /app/alembic.ini
 
 COPY --from=builder /app/src /app/src
 
+RUN chown -R appuser:appgroup /app
+
 ENV PATH="/app/.venv/bin:$PATH"
+
+USER appuser
 
 CMD sh -c "alembic upgrade head && uvicorn src.app.main:app --host 0.0.0.0 --port 8000"
