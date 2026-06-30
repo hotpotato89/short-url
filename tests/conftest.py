@@ -29,6 +29,12 @@ faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
+@pytest.fixture(scope="session", autouse=True)
+async def mock_celery():
+    with patch("src.app.core.task_runner.task_runner.run_in_bg") as mock:
+        yield mock
+
+
 @pytest.fixture(autouse=True, scope="function")
 async def test_redis() -> AsyncGenerator[aioredis.FakeRedis, None]:
     test_redis_client = aioredis.FakeRedis(decode_responses=True)
