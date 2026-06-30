@@ -2,7 +2,7 @@ import csv
 from io import StringIO
 import json
 from logging import getLogger
-from typing import Sequence
+from typing import Sequence, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -90,6 +90,14 @@ class ShortUrlService:
         await invalidate_cache(URL_KEY_FIELD)
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
+
+    async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
+        urls = await self.repo.get_all()
+
+        if format == "csv":
+            return self._csv_format(urls)
+        elif format == "json":
+            return self._json_format(urls)
 
     def _json_format(self, urls: Sequence) -> str:
         data = []
