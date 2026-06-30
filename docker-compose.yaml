@@ -4,8 +4,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile
-      expose:
-        - 8000
+      ports:
+        - "8000:8000"
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis
@@ -81,15 +81,6 @@ services:
       depends_on:
         celery_worker:
           condition: service_started
-
-
-    nginx:
-      image: nginx:alpine
-      ports:
-       - '80:80'
-      restart: unless-stopped
-      volumes:
-       - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes:
   postgres_data:
