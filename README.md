@@ -8,6 +8,9 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![QR Code](https://img.shields.io/badge/QR%20Code-Generated-brightgreen)
+![Celery](https://img.shields.io/badge/Celery-5.6-brightgreen)
+![SHA-256](https://img.shields.io/badge/Token%20Storage-SHA256-orange)
+![Argon2](https://img.shields.io/badge/Argon2-Secure-purple)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
 ![TTL](https://img.shields.io/badge/TTL-Supported-blue)
@@ -15,7 +18,7 @@
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
 
-Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis.
+Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery.
 
 ## 🌐 Демо
 
@@ -125,9 +128,10 @@ pytest
  - *в файле .env.example*
 
 # Особенности:
- - JWT access (15 минут) + refresh (7 дней)
+ - JWT access (15 минут) + refresh (7 дней) токены
  - RSA подпись токенов (асимметричное шифрование)
  - **Argon2** хэширование паролей
+ - **SHA-256** хэширование refresh токенов в базе данных
  - Чистая архитектура (Service → Repository)
  - **Nginx** reverse proxy + раздача статики
  - Rate limiting (**SlowAPI**)
@@ -135,6 +139,7 @@ pytest
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
+ - Увелечение счетчика кликов происходит в фоне через **Celery**
 
 
 ## 🧠 Как это работает
@@ -145,6 +150,8 @@ pytest
 4. Каждый переход учитывается в счётчике кликов.
 5. Для любой ссылки можно сгенерировать QR-код.
 6. Автор может менять `slug` и удалять его.
+
+> Имеется счетчик кликов
 
 
 
