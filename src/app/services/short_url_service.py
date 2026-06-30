@@ -99,6 +99,14 @@ class ShortUrlService:
         elif format == "json":
             return self._json_format(urls)
 
+    async def get_info(self, user_id: int, slug: str) -> UrlResponse:
+        url = await self.repo.get_url(slug)
+
+        if url.owner_id != user_id:
+            raise PermissionDeniedError("You don't have permission to viev it")
+
+        return UrlResponse.model_validate(url)
+
     def _json_format(self, urls: Sequence) -> str:
         data = []
         for url in urls:
