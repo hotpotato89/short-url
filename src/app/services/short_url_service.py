@@ -105,7 +105,7 @@ class ShortUrlService:
         url = await self.repo.get_url(slug)
 
         if url.owner_id != user_id and user_role != "admin":
-            raise PermissionDeniedError("You don't have permission to viev it")
+            raise PermissionDeniedError("You don't have permission to view it")
 
         return UrlResponse.model_validate(url)
 
