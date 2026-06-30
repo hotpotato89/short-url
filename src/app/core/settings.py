@@ -26,6 +26,7 @@ class RedisSettings(BaseModel):
     port: int = 6379
     db: int = 0
     rate_limiter_db: int = 1
+    celery_db: int = 2
 
     @property
     def cache_url(self) -> str:
@@ -34,6 +35,10 @@ class RedisSettings(BaseModel):
     @property
     def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
+
+    @property
+    def celery_url(self) -> str:
+        return f"redis://{self.host}:{self.port}/{self.celery_db}"
 
 
 class JwtSettings(BaseModel):
@@ -45,7 +50,6 @@ class AppSettings(BaseModel):
     log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = "INFO"
     cors_origins: List[str] = ["http://localhost:3000"]
     base_url: str = "http://localhost:8000"
-
 
 
 class Settings(BaseSettings):

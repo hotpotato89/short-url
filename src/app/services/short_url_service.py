@@ -1,13 +1,11 @@
-import asyncio
 import csv
 from io import StringIO
 import json
 from logging import getLogger
-from typing import Literal, Sequence
+from typing import Sequence, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.database import SessionLocal
 from src.app.models.short_url import ShortUrl
 from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
@@ -49,8 +47,6 @@ class ShortUrlService:
         result = await self.repo.get_url(slug)
         if result.is_expired:
             raise SlugNotFoundError(f"URL with slug '{result.slug}' has expired")
-
-        asyncio.create_task(self._increment_clicks(result.slug))
 
         return result.original_url
 
@@ -94,15 +90,6 @@ class ShortUrlService:
         await invalidate_cache(URL_KEY_FIELD)
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
-
-    async def _increment_clicks(self, slug: str) -> None:
-        try:
-            async with SessionLocal() as session:
-                repo = ShortUrlRepository(session)
-                await repo.increment_clicks(slug)
-                await session.commit()
-        except Exception as e:
-            logger.error("Unhandled error %s", e)
 
     async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
         urls = await self.repo.get_all()
