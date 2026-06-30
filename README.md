@@ -22,10 +22,10 @@
 
 ## 🌐 Демо
 
-- **Фронтенд:** [short-url-ui-9240.onrender.com](https://short-url-ui-9240.onrender.com)
-- **Swagger UI:** [short-url-8bjl.onrender.com/docs](https://short-url-8bjl.onrender.com/docs)
+⚠️ Сайт работает в ограниченном режиме: Celery воркер отключён из-за ограничений бесплатного тарифа Render. Клики не учитываются, но всё остальное работает.
 
----
+- **Swagger UI:** [short-url-8bjl.onrender.com/docs](https://short-url-8bjl.onrender.com/docs)
+- **Фронтенд:** [short-url-ui-9240.onrender.com](https://short-url-ui-9240.onrender.com)
 
 # Быстрый старт
 
