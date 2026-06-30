@@ -67,7 +67,7 @@ async def redirect(
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/url/{slug}/info")
+@router.get("/{slug}/info")
 async def get_url_info(
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     user: Annotated[User, Depends(get_current_user)],
