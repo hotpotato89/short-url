@@ -1,6 +1,8 @@
 from typing import Callable
 import logging
 
+from src.app.core.celery import celery_app  # noqa: F401
+
 logger = logging.getLogger(__name__)
 
 
