@@ -61,9 +61,9 @@ async def redirect(
     slug: str = Path(..., max_length=20),
 ) -> RedirectResponse:
     url = await service.get_url(slug)
-    logger.info(f"📤 Sending task for slug: {slug}")
+    logger.debug(f"📤 Sending task for slug: {slug}")
     task_runner.run_in_bg(increment_clicks_task, slug)
-    logger.info(f"✅ Task sent for slug: {slug}")
+    logger.debug(f"✅ Task sent for slug: {slug}")
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
