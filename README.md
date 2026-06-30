@@ -9,6 +9,7 @@
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![QR Code](https://img.shields.io/badge/QR%20Code-Generated-brightgreen)
 ![Celery](https://img.shields.io/badge/Celery-5.6-brightgreen)
+![Celery Beat](https://img.shields.io/badge/Celery%20Beat-Scheduler-blue)
 ![SHA-256](https://img.shields.io/badge/Token%20Storage-SHA256-orange)
 ![Argon2](https://img.shields.io/badge/Argon2-Secure-purple)
 ![Nginx](https://img.shields.io/badge/Nginx-1.27-green)
@@ -22,7 +23,7 @@
 
 ## 🌐 Демо
 
-⚠️ Сайт работает в ограниченном режиме: Celery воркер отключён из-за ограничений бесплатного тарифа Render. Клики не учитываются, но всё остальное работает.
+⚠️ Сайт работает в ограниченном режиме: Celery воркер отключён из-за ограничений бесплатного тарифа Render. Клики не учитываются, просроченные ссылки не удаляются, а всё остальное работает.
 
 - **Swagger UI:** [short-url-8bjl.onrender.com/docs](https://short-url-8bjl.onrender.com/docs)
 - **Фронтенд:** [short-url-ui-9240.onrender.com](https://short-url-ui-9240.onrender.com)
@@ -141,6 +142,7 @@ pytest
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
  - Увелечение счетчика кликов происходит в фоне через **Celery**
+ - Автоматическое удаление истекших ссылок через **Celery Beat**
 
 
 ## 🧠 Как это работает
