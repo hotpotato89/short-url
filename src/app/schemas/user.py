@@ -31,6 +31,6 @@ class UserResponse(BaseModel):
     email: str
     created_at: datetime
     role: Literal["user", "admin"]
-    is_supeadmin: bool = False
+    is_superadmin: bool = False
 
     model_config = {"from_attributes": True}
