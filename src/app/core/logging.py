@@ -1,11 +1,24 @@
 import logging
 from typing import Any
 import sys
+import contextvars
 
 import structlog
 from structlog.types import EventDict
 
 from src.app.core.settings import settings
+
+
+request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "request_id", default=None
+)
+
+
+def add_request_id_context(_: Any, __: Any, event_dict: EventDict) -> EventDict:
+    request_id = request_id_var.get()
+    if request_id:
+        event_dict["request_id"] = request_id
+    return event_dict
 
 
 def add_app_context(_: Any, __: Any, event_dict: EventDict) -> EventDict:
@@ -22,6 +35,7 @@ def setup_logging() -> None:
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
         add_app_context,
+        add_request_id_context,
     ]
 
     if settings.app.env == "prod":
