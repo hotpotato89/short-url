@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from decimal import Decimal
 from functools import wraps
@@ -98,3 +99,39 @@ def cache(
         return cast(Callable[P, T], inner)
 
     return wrapper
+
+
+async def invalidate_cache(prefix: str = "*") -> int:
+    if prefix == "*":
+        pattern = f"cache:*"
+    else:
+        pattern = f"cache:{prefix}:*"
+
+    logger.debug("Starting cache invalidation with pattern: %s", pattern)
+
+    deleted_count = 0
+    cursor = 0
+    start_time = asyncio.get_event_loop().time()
+    timeout = 30  # Seconds
+
+    try:
+        while True:
+            if asyncio.get_event_loop().time() - start_time > timeout:
+                logger.warning("Cache invalidation timed out after %s seconds", timeout)
+                break
+
+            cursor, keys = await redis_client.scan(cursor, pattern, 100)
+
+            if keys:
+                await redis_client.delete(*keys)
+                deleted_count += len(keys)
+
+            if cursor == 0:
+                break
+
+        logger.info("Cache invalidated: %s keys deleted", deleted_count)
+        return deleted_count
+
+    except Exception as exc:
+        logger.error("Failed to invalidate cache: %s", exc, exc_info=exc)
+        return deleted_count
