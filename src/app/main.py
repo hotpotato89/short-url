@@ -10,6 +10,7 @@ from src.app.core.settings import settings
 from src.app.api.routers import health
 from src.app.api.routers import auth
 from src.app.api.routers import url
+from src.app.middlewares import register_middlewares
 
 
 app = FastAPI(title="Short Url", lifespan=lifespan)
@@ -23,6 +24,7 @@ app.add_middleware(
 )
 
 register_handlers(app)
+register_middlewares(app)
 
 app.include_router(health.router)
 app.include_router(auth.router)
