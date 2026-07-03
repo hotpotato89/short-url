@@ -22,6 +22,7 @@ from src.app.utils.slug import generate_slug
 
 logger = getLogger(__name__)
 URL_KEY_FIELD: str = "url"
+BASE_CACHE_TTL: int = 3600 * 2
 
 
 class ShortUrlService:
@@ -42,7 +43,7 @@ class ShortUrlService:
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
-    @cache(prefix=URL_KEY_FIELD)
+    @cache(BASE_CACHE_TTL, prefix=URL_KEY_FIELD)
     async def get_url(self, slug: str) -> str:
         result = await self.repo.get_url(slug)
         if result.is_expired:
