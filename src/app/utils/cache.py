@@ -1,63 +1,40 @@
-from functools import wraps
+from datetime import datetime
 import hashlib
 import json
-from logging import getLogger
-from typing import Callable
-
-from src.app.core.redis_client import redis_client
-
-logger = getLogger(__name__)
+from typing import Any
 
 
-def cache(ttl: int = 3600, prefix: str | None = None):
-    def wrapper(func: Callable):
-        @wraps(func)
-        async def inner(*args, **kwargs):
-            cache_key = _gen_cache_key(func.__name__, args, kwargs, prefix)
-
-            cached = await redis_client.get(cache_key)
-            if cached:
-                logger.debug("Cache hit: %s", cache_key)
-                return json.loads(cached)
-
-            result = await func(*args, **kwargs)
-
-            await redis_client.set(cache_key, json.dumps(result, default=str), ex=ttl)
-            logger.debug("Cache missed and saved: %s", cache_key)
-            return result
-
-        return inner
-
-    return wrapper
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump()
+        if hasattr(obj, "hex"):
+            return str(obj)
+        return super().default(obj)
 
 
 def _gen_cache_key(
-    func_name: str, args: tuple, kwargs: dict, prefix: str | None = None
+    func_name: str,
+    args: tuple,
+    kwargs: dict,
+    prefix: str | None = None,
 ) -> str:
-    clean_args = args[1:] if args and hasattr(args[0], "__class__") else args
-    sorted_kwargs = dict(sorted(kwargs.items()))
+    cleaned_args = args[1:] if args and hasattr(args[1:], "__class__") else args
+    sorted_kwargs = sorted(dict(kwargs.items()))
 
     data = {
         "func_name": func_name,
-        "args": clean_args,
+        "args": cleaned_args,
         "kwargs": sorted_kwargs,
     }
 
-    key_hash = hashlib.sha256(
-        json.dumps(data, sort_keys=True, default=str).encode()
+    cache_key = hashlib.sha256(
+        json.dumps(data, default=str, sort_keys=True).encode()
     ).hexdigest()
 
+    base_key = f"cache:{cache_key}"
     if prefix:
-        return f"cache:{prefix}:{key_hash}"
-    return f"cache:{key_hash}"
-
-
-async def invalidate_cache(prefix: str = "*") -> None:
-    if prefix == "*":
-        keys = await redis_client.keys(f"cache:{prefix}")
-    else:
-        keys = await redis_client.keys(f"cache:{prefix}:*")
-    logger.debug("Found keys: %s", *keys)
-    if keys:
-        await redis_client.delete(*keys)
-        logger.debug("Cache invalidated: %s", *keys)
+        return f"cache:{prefix}:{base_key}"
+    return base_key
