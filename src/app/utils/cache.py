@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 import hashlib
 import json
 from typing import Any
@@ -12,6 +13,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             return obj.model_dump()
         if hasattr(obj, "hex"):
             return str(obj)
+        if isinstance(obj, Decimal):
+            return float(obj)
         return super().default(obj)
 
 
