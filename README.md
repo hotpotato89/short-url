@@ -8,6 +8,7 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![QR Code](https://img.shields.io/badge/QR%20Code-Generated-brightgreen)
+[![logging](https://img.shields.io/badge/logging-structlog-FF6B6B?logo=python&logoColor=white)](https://www.structlog.org/)
 ![Celery](https://img.shields.io/badge/Celery-5.6-brightgreen)
 ![Celery Beat](https://img.shields.io/badge/Celery%20Beat-Scheduler-blue)
 ![SHA-256](https://img.shields.io/badge/Token%20Storage-SHA256-orange)
@@ -17,6 +18,8 @@
 ![MIT](https://img.shields.io/badge/License-MIT-yellow)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
+![uv](https://img.shields.io/badge/uv-0.6-blue)
+![Pytest](https://img.shields.io/badge/Pytest-9.1-blue?logo=pytest)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -75,7 +78,7 @@ curl http://localhost/health
 pytest
 ```
 
-> Результат: **80+ зеленых тестов**.
+> Результат: **98+ зеленых тестов**.
 
 ## API эндпоинты
 
@@ -140,8 +143,9 @@ pytest
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
- - Увелечение счетчика кликов происходит в фоне через **Celery**
+ - Увеличение счетчика кликов происходит в фоне через **Celery**
  - Автоматическое удаление истекших ссылок через **Celery Beat**
+ - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
 
 
 ## 🧠 Как это работает
