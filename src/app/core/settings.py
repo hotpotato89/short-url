@@ -50,6 +50,7 @@ class AppSettings(BaseModel):
     cors_origins: List[str] = ["http://localhost:3000"]
     base_url: str = "http://localhost:8000"
     env: Literal["prod", "test", "dev"] = "prod"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
 
 class Settings(BaseSettings):
