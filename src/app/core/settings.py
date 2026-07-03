@@ -47,9 +47,9 @@ class JwtSettings(BaseModel):
 
 
 class AppSettings(BaseModel):
-    log_level: Literal["DEBUG", "INFO", "ERROR", "WARNING", "CRITICAL"] = "INFO"
     cors_origins: List[str] = ["http://localhost:3000"]
     base_url: str = "http://localhost:8000"
+    env: Literal["prod", "test", "dev"] = "prod"
 
 
 class Settings(BaseSettings):
