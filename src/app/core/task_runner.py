@@ -1,9 +1,8 @@
 from typing import Callable
-import logging
 
-from src.app.core.celery import celery_app  # noqa: F401
+from src.app.core.logging import get_logger  # noqa: F401
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class TaskRunner:
@@ -12,9 +11,9 @@ class TaskRunner:
 
         try:
             result = task.delay(*args, **kwargs)
-            logger.debug(f"✅ Task sent! Task ID: {result.id}")
+            logger.debug("Task sent!", id=result.id)
         except Exception as e:
-            logger.error(f"❌ Failed to send task: {e}")
+            logger.error("Failed to send task", error=str(e), exc_info=True)
             raise
 
 
