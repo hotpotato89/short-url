@@ -16,11 +16,11 @@ def add_app_context(_: Any, __: Any, event_dict: EventDict) -> EventDict:
 def setup_logging() -> None:
     shared_processors = [
         structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter,
+        structlog.stdlib.PositionalArgumentsFormatter(),
         structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer,
+        structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder,
+        structlog.processors.UnicodeDecoder(),
         add_app_context,
     ]
 
