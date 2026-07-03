@@ -5,11 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.app.core.exception_handlers import register_handlers
 from src.app.core.lifespan import lifespan
 from src.app.core.limiter import limiter
+from src.app.core.logging import setup_logging
 from src.app.core.settings import settings
 
 from src.app.api.routers import health
 from src.app.api.routers import auth
 from src.app.api.routers import url
+
+setup_logging()
 
 
 app = FastAPI(title="Short Url", lifespan=lifespan)
