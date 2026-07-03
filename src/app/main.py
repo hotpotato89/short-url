@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,6 +13,10 @@ from src.app.api.routers import health
 from src.app.api.routers import auth
 from src.app.api.routers import url
 from src.app.middlewares import register_middlewares
+
+logging.getLogger("uvicorn").handlers.clear()
+logging.getLogger("uvicorn.access").handlers.clear()
+logging.getLogger("uvicorn.error").handlers.clear()
 
 
 app = FastAPI(title="Short Url", lifespan=lifespan)
