@@ -5,15 +5,15 @@ from functools import wraps
 import hashlib
 import inspect
 import json
-from logging import getLogger
 from typing import Any, Callable, ParamSpec, TypeVar, cast
 
+from src.app.core.logging import get_logger
 from src.app.core.redis_client import redis_client
 
 T = TypeVar("T")
 P = ParamSpec("P")
 
-logger = getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class CustomJSONEncoder(json.JSONEncoder):
@@ -71,13 +71,16 @@ def cache(
             try:
                 cached = await redis_client.get(cache_key)
                 if cached:
-                    logger.debug("Cache HIT: %s", cache_key)
+                    logger.debug("Cache HIT", cache_key=cache_key)
                     if cached == "__NULL__":
                         return None  # type: ignore
                     return json.loads(cached)
             except Exception as exc:
                 logger.warning(
-                    "Failed cache get for key %s: %s", cache_key, exc, exc_info=exc
+                    "Failed cache get",
+                    cache_key=cache_key,
+                    error=str(exc),
+                    exc_info=True,
                 )
 
             result = await func(*args, **kwargs)
@@ -88,10 +91,13 @@ def cache(
                 else:
                     data_to_cache = json.dumps(result, cls=CustomJSONEncoder)
                 await redis_client.set(cache_key, data_to_cache, ex=ttl)
-                logger.debug("Cache saved: %s", cache_key)
+                logger.debug("Cache saved", cache_key=cache_key)
             except Exception as exc:
                 logger.warning(
-                    "Failed cache set for key %s: %s", cache_key, exc, exc_info=exc
+                    "Failed cache set",
+                    cache_key=cache_key,
+                    error=str(exc),
+                    exc_info=True,
                 )
 
             return result
@@ -107,20 +113,24 @@ async def invalidate_cache(prefix: str = "*") -> int:
     else:
         pattern = f"cache:{prefix}:*"
 
-    logger.debug("Starting cache invalidation with pattern: %s", pattern)
+    logger.debug("Starting cache invalidation", pattern=pattern)
 
     deleted_count = 0
     cursor = 0
     start_time = asyncio.get_event_loop().time()
-    timeout = 30  # Seconds
+    timeout = 30
 
     try:
         while True:
             if asyncio.get_event_loop().time() - start_time > timeout:
-                logger.warning("Cache invalidation timed out after %s seconds", timeout)
+                logger.warning("Cache invalidation timed out", timeout_seconds=timeout)
                 break
 
-            cursor, keys = await redis_client.scan(cursor, pattern, 100)
+            cursor, keys = await redis_client.scan(
+                cursor,
+                match=pattern,
+                count=100,
+            )
 
             if keys:
                 await redis_client.delete(*keys)
@@ -129,9 +139,13 @@ async def invalidate_cache(prefix: str = "*") -> int:
             if cursor == 0:
                 break
 
-        logger.info("Cache invalidated: %s keys deleted", deleted_count)
+        logger.info("Cache invalidated", deleted_count=deleted_count)
         return deleted_count
 
     except Exception as exc:
-        logger.error("Failed to invalidate cache: %s", exc, exc_info=exc)
+        logger.error(
+            "Failed to invalidate cache",
+            error=str(exc),
+            exc_info=True,
+        )
         return deleted_count

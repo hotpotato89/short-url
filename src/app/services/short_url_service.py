@@ -1,7 +1,6 @@
 import csv
 from io import StringIO
 import json
-from logging import getLogger
 from typing import Sequence, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +19,6 @@ from src.app.utils.retry import retry
 from src.app.utils.slug import generate_slug
 
 
-logger = getLogger(__name__)
 URL_KEY_FIELD: str = "url"
 BASE_CACHE_TTL: int = 3600 * 2
 
