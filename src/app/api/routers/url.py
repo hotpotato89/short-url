@@ -19,6 +19,7 @@ from src.app.api.deps import (
     get_qrcode_service,
     get_url_service,
 )
+from src.app.core.logging import get_logger
 from src.app.models.user import User
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.qrcode_service import QrcodeService
@@ -29,6 +30,7 @@ from src.app.tasks import increment_clicks_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
+logger = get_logger(__name__)
 
 
 @router.post("")
@@ -59,13 +61,11 @@ async def redirect(
     service: Annotated[ShortUrlService, Depends(get_url_service)],
     slug: str = Path(..., max_length=20),
 ) -> RedirectResponse:
-    request_id = request.state.request_id
-    logger = request.state.logger
 
     url = await service.get_url(slug)
-    logger.debug("Sending task for slug", slug=slug, request_id=request_id)
+    logger.debug("Sending task for slug", slug=slug)
     task_runner.run_in_bg(increment_clicks_task, slug)
-    logger.debug("Task sent for slug", slug=slug, request_id=request_id)
+    logger.debug("Task sent for slug", slug=slug)
     return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
 
 
