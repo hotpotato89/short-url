@@ -103,7 +103,7 @@ def cache(
 
 async def invalidate_cache(prefix: str = "*") -> int:
     if prefix == "*":
-        pattern = f"cache:*"
+        pattern = "cache:*"
     else:
         pattern = f"cache:{prefix}:*"
 
