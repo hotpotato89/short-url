@@ -1,11 +1,8 @@
-import csv
-from io import StringIO
-import json
 from typing import Sequence, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.models.short_url import ShortUrl
+from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import (
@@ -25,11 +22,16 @@ BASE_CACHE_TTL: int = 3600 * 2
 
 class ShortUrlService:
     def __init__(
-        self, repo: ShortUrlRepository, session: AsyncSession, qr_service: QrcodeService
+        self,
+        repo: ShortUrlRepository,
+        session: AsyncSession,
+        qr_service: QrcodeService,
+        export_service: ExportService,
     ) -> None:
         self.repo = repo
         self.session = session
         self.qr_service = qr_service
+        self.export_service = export_service
 
     @retry(SlugAlreadyExistsError)
     async def create(
@@ -91,12 +93,7 @@ class ShortUrlService:
         await self.session.commit()
 
     async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
-        urls = await self.repo.get_all()
-
-        if format == "csv":
-            return self._csv_format(urls)
-        elif format == "json":
-            return self._json_format(urls)
+        return await self.export_service.export(format)
 
     async def get_info(
         self, user_id: int, user_role: Literal["user", "admin"], slug: str
@@ -107,40 +104,3 @@ class ShortUrlService:
             raise PermissionDeniedError("You don't have permission to view it")
 
         return UrlResponse.model_validate(url)
-
-    def _json_format(self, urls: Sequence) -> str:
-        data = []
-        for url in urls:
-            data.append(
-                {
-                    "id": url.id,
-                    "original_url": url.original_url,
-                    "slug": url.slug,
-                    "clicks": url.clicks,
-                    "owner_id": url.owner_id,
-                    "created_at": url.created_at.isoformat(),
-                }
-            )
-        return json.dumps(data, indent=2, ensure_ascii=False)
-
-    def _csv_format(self, urls: Sequence[ShortUrl]) -> str:
-        output = StringIO()
-        writer = csv.writer(output)
-
-        writer.writerow(
-            ["ID", "Original url", "Slug", "Clicks", "Owner ID", "Created at"]
-        )
-
-        for url in urls:
-            writer.writerow(
-                [
-                    url.id,
-                    url.original_url,
-                    url.slug,
-                    url.clicks,
-                    url.owner_id,
-                    url.created_at.isoformat(),
-                ]
-            )
-
-        return output.getvalue()
