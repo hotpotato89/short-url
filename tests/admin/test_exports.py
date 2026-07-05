@@ -1,3 +1,5 @@
+import pandas as pd
+import io
 import pytest
 from fastapi import status
 from httpx import AsyncClient
@@ -45,7 +47,7 @@ async def test_admin_export_csv(
     content = resp.text
     assert "ID" in content
     assert "Slug" in content
-    assert "Original url" in content
+    assert "Original URL" in content
 
 
 async def test_admin_export_json(
@@ -105,3 +107,43 @@ async def test_admin_export_empty(
     assert resp.status_code == status.HTTP_200_OK
     data = resp.json()
     assert isinstance(data, list)
+
+
+async def test_export_xlsx(
+    client: AsyncClient,
+    admin_tokens: TokenInfo,
+) -> None:
+    headers = {"Authorization": f"Bearer {admin_tokens.access_token}"}
+
+    create_resp = await client.post(
+        "/url",
+        json={"original_url": "https://example.com/xlsx-test"},
+        headers=headers,
+    )
+    assert create_resp.status_code == 200
+
+    response = await client.get("/url/admin/export?format=xlsx", headers=headers)
+    assert response.status_code == 200
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    assert "attachment" in response.headers["content-disposition"]
+
+    df = pd.read_excel(io.BytesIO(response.content))
+
+    expected_columns = [
+        "ID",
+        "Original URL",
+        "Slug",
+        "Clicks",
+        "Owner ID",
+        "Created At",
+        "Expires At",
+    ]
+    
+    for col in expected_columns:
+        assert col in df.columns
+
+    assert len(df) > 0
+    assert df.iloc[0]["Original URL"] == "https://example.com/xlsx-test"

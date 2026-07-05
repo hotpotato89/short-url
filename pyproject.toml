@@ -32,6 +32,7 @@ dev = [
     "faker>=40.23.0",
     "fakeredis>=2.36.2",
     "httpx>=0.28.1",
+    "openpyxl>=3.1.5",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
 ]
