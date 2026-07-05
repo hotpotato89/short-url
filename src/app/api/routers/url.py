@@ -16,17 +16,20 @@ from fastapi.responses import RedirectResponse
 from src.app.api.deps import (
     get_current_admin,
     get_current_user,
+    get_export_service,
     get_qrcode_service,
     get_url_service,
 )
 from src.app.core.logging import get_logger
 from src.app.models.user import User
+from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
 from src.app.core.task_runner import task_runner
-from src.app.tasks import increment_clicks_task
+from src.app.tasks import increment_clicks_task, save_logs
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
@@ -117,11 +120,12 @@ async def delete_url(
 
 @router.get("/admin/export")
 async def export_all(
-    _: Annotated[User, Depends(get_current_admin)],
+    admin: Annotated[User, Depends(get_current_admin)],
     export_service: Annotated[ShortUrlService, Depends(get_url_service)],
     format: Literal["csv", "json", "xlsx"] = Query("csv"),
 ) -> Response:
     content = await export_service.export_all_urls(format)
+    task_runner.run_in_bg(save_logs, user_id=admin.id, format=format)
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -140,3 +144,12 @@ async def export_all(
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/admin/export-logs")
+async def get_logs(
+    admin: Annotated[User, Depends(get_current_admin)],
+    service: Annotated[ExportService, Depends(get_export_service)],
+    limit: int = Query(100, ge=1, le=500, description="limit of records count"),
+) -> Sequence[ExportLogResponse]:
+    return await service.get_logs(admin.is_superadmin, admin.id, limit)
