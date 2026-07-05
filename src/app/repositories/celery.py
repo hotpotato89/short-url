@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
+from typing import Literal
 
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from src.app.core.exceptions import SlugNotFoundError
+from src.app.models.export_log import ExportLog
 from src.app.models.short_url import ShortUrl
 
 
@@ -27,3 +29,10 @@ class CeleryRepository:
             return result.rowcount  # type: ignore
         else:
             return 0
+
+    def save_export_logs(
+        self, user_id: int, format: Literal["csv", "json", "xlsx"]
+    ) -> None:
+        new_log = ExportLog(user_id=user_id, format=format)
+        self.session.add(new_log)
+        self.session.commit()
