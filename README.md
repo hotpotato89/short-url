@@ -71,7 +71,7 @@ docker compose up -d --build
 ## Проверка:
 
 ```bash
-curl http://localhost/health
+curl http://localhost:8000/health
 ```
 
 # Тестирование:
