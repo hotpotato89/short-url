@@ -141,7 +141,7 @@ async def test_export_xlsx(
         "Created At",
         "Expires At",
     ]
-    
+
     for col in expected_columns:
         assert col in df.columns
 
