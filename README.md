@@ -22,6 +22,7 @@
 ![Pytest](https://img.shields.io/badge/Pytest-9.1-blue?logo=pytest)
 ![Pandas](https://img.shields.io/badge/Pandas-2.0-150458?logo=pandas&logoColor=white)
 ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.0-0077B5?logo=python&logoColor=white)
+![Export Audit](https://img.shields.io/badge/Export%20Audit-Logs-blue)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -80,7 +81,7 @@ curl http://localhost:8000/health
 pytest
 ```
 
-> Результат: **98+ зеленых тестов**.
+> Результат: **100+ зеленых тестов**.
 
 ## API эндпоинты
 
@@ -148,6 +149,15 @@ pytest
  - Увеличение счетчика кликов происходит в фоне через **Celery**
  - Автоматическое удаление истекших ссылок через **Celery Beat**
  - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
+
+### 📊 Аудит экспорта
+
+Каждый экспорт данных (CSV/JSON/XLSX) логируется:
+- Кто экспортировал (администратор)
+- Когда был выполнен экспорт
+- В каком формате
+
+Просмотр логов доступен только супер-админу через эндпоинт `/url/admin/export-logs`.
 
 
 ## 🧠 Как это работает
