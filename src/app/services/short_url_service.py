@@ -92,7 +92,7 @@ class ShortUrlService:
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
 
-    async def export_all_urls(self, format: Literal["csv", "json"] = "csv") -> str:
+    async def export_all_urls(self, format: Literal["csv", "json", "xlsx"] = "csv") -> str | bytes:
         return await self.export_service.export(format)
 
     async def get_info(
