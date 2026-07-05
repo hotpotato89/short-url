@@ -50,7 +50,7 @@ filterwarnings = [
 ]
 minversion = "8.0"
 asyncio_mode = "auto"
-testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "--tb=short"
+addopts = "--cov=src.app --cov-report=html --cov-report=term --cov-fail-under=80"
+testpaths = ["tests"]
