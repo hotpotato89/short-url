@@ -29,7 +29,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "aiosqlite>=0.22.1",
-    "coverage>=7.15.0",
     "faker>=40.23.0",
     "fakeredis>=2.36.2",
     "httpx>=0.28.1",
@@ -50,6 +49,7 @@ filterwarnings = [
 ]
 minversion = "8.0"
 asyncio_mode = "auto"
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-testpaths = ["tests"]
+addopts = "--tb=short"
