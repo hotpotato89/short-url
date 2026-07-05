@@ -1,5 +1,5 @@
 import base64
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated, Literal, Sequence
 
 from fastapi import (
@@ -118,18 +118,22 @@ async def delete_url(
 @router.get("/admin/export")
 async def export_all(
     _: Annotated[User, Depends(get_current_admin)],
-    service: Annotated[ShortUrlService, Depends(get_url_service)],
-    format: Literal["csv", "json"] = Query("csv", description="Output data format"),
+    export_service: Annotated[ShortUrlService, Depends(get_url_service)],
+    format: Literal["csv", "json", "xlsx"] = Query("csv"),
 ) -> Response:
-    """
-    Export all data, only for admins
-    Formats: csv and json
-    """
+    content = await export_service.export_all_urls(format)
 
-    content = await service.export_all_urls(format)
+    if format == "xlsx":
+        media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        extension = "xlsx"
+    elif format == "csv":
+        media_type = "text/csv"
+        extension = "csv"
+    else:
+        media_type = "application/json"
+        extension = "json"
 
-    media_type = "text/csv" if format == "csv" else "application/json"
-    filename = f"urls_{datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%m')}.{format}"
+    filename = f"urls_{datetime.now().strftime('%Y_%m_%d_%H_%M')}.{extension}"
 
     return Response(
         content=content,
