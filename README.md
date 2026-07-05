@@ -20,6 +20,8 @@
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
 ![uv](https://img.shields.io/badge/uv-0.6-blue)
 ![Pytest](https://img.shields.io/badge/Pytest-9.1-blue?logo=pytest)
+![Pandas](https://img.shields.io/badge/Pandas-2.0-150458?logo=pandas&logoColor=white)
+![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.0-0077B5?logo=python&logoColor=white)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
