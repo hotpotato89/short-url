@@ -30,7 +30,7 @@ jobs:
           openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 
       - name: Run tests with coverage
-        run: uv run pytest
+        run: uv run pytest --cov=src.app --cov-report=html --cov-report=term --cov-fail-under=80
         env:
           DB__NAME: shorturl
           DB__USER: postgres
