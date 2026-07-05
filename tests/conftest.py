@@ -173,7 +173,7 @@ async def admin_user(db_session: AsyncSession) -> User:
         email=f"admin_{uuid.uuid4()}@example.com",
         password_hash=hash_password("admin123"),
         role="admin",
-        is_superadmin=True,
+        is_superadmin=False,
     )
     db_session.add(admin)
     await db_session.commit()
@@ -188,6 +188,36 @@ async def admin_tokens(client: AsyncClient, admin_user: User) -> TokenInfo:
         json={
             "email": admin_user.email,
             "password": "admin123",
+        },
+    )
+    assert login_resp.status_code == 200
+    return TokenInfo(**login_resp.json())
+
+
+@pytest.fixture
+async def superadmin_user(db_session: AsyncSession) -> User:
+    admin = User(
+        email=f"superadmin_{uuid.uuid4()}@example.com",
+        password_hash=hash_password("superadmin123"),
+        role="admin",
+        is_superadmin=True,
+    )
+    db_session.add(admin)
+    await db_session.commit()
+    await db_session.refresh(admin)
+    return admin
+
+
+@pytest.fixture
+async def superadmin_tokens(
+    client: AsyncClient,
+    superadmin_user: User,
+) -> TokenInfo:
+    login_resp = await client.post(
+        "/auth/login",
+        json={
+            "email": superadmin_user.email,
+            "password": "superadmin123",
         },
     )
     assert login_resp.status_code == 200

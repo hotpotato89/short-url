@@ -1,14 +1,14 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, List, Literal
 
 from sqlalchemy import TIMESTAMP, func, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.app.models.base import Base
 
 
 if TYPE_CHECKING:
-    pass
+    from src.app.models.export_log import ExportLog
 
 
 class User(Base):
@@ -29,3 +29,7 @@ class User(Base):
     )
 
     is_superadmin: Mapped[bool] = mapped_column(nullable=True, default=False)
+
+    export_logs: Mapped[List["ExportLog"]] = relationship(
+        "ExportLog", back_populates="user", lazy="selectin"
+    )

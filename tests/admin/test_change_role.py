@@ -6,6 +6,7 @@ from httpx import AsyncClient
 
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
+from src.app.models.user import User
 
 
 async def test_admin_change_role_success(
@@ -36,7 +37,7 @@ async def test_admin_change_role_success(
 async def test_admin_cannot_change_own_role(
     client: AsyncClient,
     admin_tokens: TokenInfo,
-    admin_user,
+    admin_user: User,
 ) -> None:
     resp = await client.patch(
         f"/auth/admin/users/{admin_user.id}/role",
@@ -49,9 +50,10 @@ async def test_admin_cannot_change_own_role(
 async def test_admin_cannot_change_superadmin_role(
     client: AsyncClient,
     admin_tokens: TokenInfo,
+    superadmin_user: User,
 ) -> None:
     resp = await client.patch(
-        "/auth/admin/users/1/role",
+        f"/auth/admin/users/{superadmin_user.id}/role",
         json={"role": "user"},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )

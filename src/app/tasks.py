@@ -1,3 +1,5 @@
+from typing import Literal
+
 from celery import shared_task
 
 from src.app.core.database import CelerySessionLocal
@@ -21,3 +23,11 @@ def delete_expired() -> None:
         repo = CeleryRepository(session)
         deleted = repo.delete_expired()
         logger.info("Deleted expired urls", count=deleted)
+
+
+@shared_task
+def save_logs(user_id: int, format: Literal["csv", "json", "xlsx"]) -> None:
+    with CelerySessionLocal() as session:
+        repo = CeleryRepository(session)
+        repo.save_export_logs(user_id, format)
+        logger.info("Saved export logs")

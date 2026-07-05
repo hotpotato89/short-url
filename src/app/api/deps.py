@@ -7,6 +7,7 @@ from typing import Annotated, Any, AsyncGenerator
 from src.app.core.database import SessionLocal
 from src.app.core.exceptions import InvalidTokenError, PermissionDeniedError
 from src.app.models.user import User
+from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.user_repository import UserRepository
@@ -43,6 +44,12 @@ async def get_refresh_token_repo(
     return RefreshTokenRepository(session)
 
 
+async def get_log_repo(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ExportLogRepository:
+    return ExportLogRepository(session)
+
+
 # Service dependencies
 
 
@@ -54,8 +61,9 @@ async def get_qrcode_service(
 
 async def get_export_service(
     url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
+    log_repo: Annotated[ExportLogRepository, Depends(get_log_repo)],
 ) -> ExportService:
-    return ExportService(url_repo)
+    return ExportService(url_repo, log_repo)
 
 
 async def get_user_service(
