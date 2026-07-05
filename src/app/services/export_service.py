@@ -5,13 +5,30 @@ from typing import Literal, Sequence
 
 import pandas as pd
 
+from src.app.core.exceptions import PermissionDeniedError
 from src.app.models.short_url import ShortUrl
+from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
+from src.app.schemas.export_log import ExportLogResponse
 
 
 class ExportService:
-    def __init__(self, repo: ShortUrlRepository) -> None:
+    def __init__(self, repo: ShortUrlRepository, log_repo: ExportLogRepository) -> None:
         self.repo = repo
+        self.log_repo = log_repo
+
+    async def get_logs(
+        self, is_superadmin: bool, user_id: int | None = None, limit: int = 100
+    ) -> Sequence[ExportLogResponse]:
+        if is_superadmin is False:
+            raise PermissionDeniedError("Only for supeadmin")
+
+        if user_id:
+            result = await self.log_repo.get_logs_by_user_id(limit, user_id)
+        else:
+            result = await self.log_repo.get_all_logs(limit)
+
+        return [ExportLogResponse.model_validate(u) for u in result]
 
     async def export(
         self, format: Literal["csv", "json", "xlsx"] = "json"
