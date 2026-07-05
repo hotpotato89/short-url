@@ -29,9 +29,8 @@ jobs:
           openssl genrsa -out keys/private.pem 2048
           openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 
-      - name: Run tests
-        run: |
-          uv run pytest
+      - name: Run tests with coverage
+        run: uv run pytest --cov=src.app --cov-report=html --cov-report=term --cov-fail-under=80
         env:
           DB__NAME: shorturl
           DB__USER: postgres
@@ -46,6 +45,12 @@ jobs:
           JWT__PUBLIC_KEY_PATH: keys/public.pem
           APP__LOG_LEVEL: INFO
           APP__CORS_ORIGINS: '["http://localhost:3000"]'
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
 
   deploy:
     runs-on: ubuntu-latest
