@@ -21,7 +21,7 @@ jobs:
       - name: Install deps
         run: |
           pip install uv
-          uv sync --frozen --dev
+          uv sync --frozen
 
       - name: Generate RSA keys
         run: |
