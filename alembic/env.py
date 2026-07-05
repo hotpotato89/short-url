@@ -12,6 +12,7 @@ from src.app.models.base import Base
 from src.app.models.user import User
 from src.app.models.short_url import ShortUrl
 from src.app.models.refresh_token import RefreshToken
+from src.app.models.export_log import ExportLog
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
