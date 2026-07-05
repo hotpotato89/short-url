@@ -20,7 +20,6 @@
 ![Deploy](https://img.shields.io/badge/Deploy-Render-46C3C4)
 ![uv](https://img.shields.io/badge/uv-0.6-blue)
 ![Pytest](https://img.shields.io/badge/Pytest-9.1-blue?logo=pytest)
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 ![Pandas](https://img.shields.io/badge/Pandas-2.0-150458?logo=pandas&logoColor=white)
 ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.0-0077B5?logo=python&logoColor=white)
 ![Export Audit](https://img.shields.io/badge/Export%20Audit-Logs-blue)
