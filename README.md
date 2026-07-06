@@ -1,5 +1,11 @@
 # Short URL (**MIT**)
 
+Дата релиза: **26.07.2026**
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/hotpotato89/short-url)
+
+
+
+
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue)
@@ -81,7 +87,7 @@ curl http://localhost:8000/health
 pytest
 ```
 
-> Результат: **100+ зеленых тестов**.
+> Результат: **102 зеленых тестов.**
 
 ## API эндпоинты
 
@@ -175,3 +181,7 @@ pytest
 
 # Автор:
  - [hotpotato89](https://github.com/hotpotato89)
+
+## 📄 Лицензия
+
+Этот проект распространяется под лицензией MIT. Подробнее см. в файле [LICENSE](LICENSE).
