@@ -37,6 +37,15 @@ class ShortUrlRepository:
         if not url:
             raise SlugNotFoundError(f"Url with slug {slug} not found")
         return url
+    
+    async def get_url_by_id(self, url_id: int) -> ShortUrl:
+        result = await self.session.execute(
+            select(ShortUrl).where(ShortUrl.id == url_id)
+        )
+        url = result.scalar_one_or_none()
+        if not url:
+            raise SlugNotFoundError(f"Url with ID {url_id} not found")
+        return url
 
     async def increment_clicks(self, slug: str) -> None:
         url = await self.get_url(slug)
