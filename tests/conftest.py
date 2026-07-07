@@ -29,10 +29,6 @@ faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
-import pytest
-from unittest.mock import AsyncMock, patch
-
-
 @pytest.fixture
 def mock_click_stats():
     with patch("src.app.services.click_service.ClickService.get_stats") as mock:

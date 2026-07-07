@@ -26,7 +26,9 @@ async def test_stats_owner_can_view(client: AsyncClient, auth_tokens, mock_click
     assert stats_response.status_code == status.HTTP_200_OK
 
 
-async def test_stats_admin_can_view_any(client: AsyncClient, auth_tokens, admin_tokens, mock_click_stats):
+async def test_stats_admin_can_view_any(
+    client: AsyncClient, auth_tokens, admin_tokens, mock_click_stats
+):
     create_response = await client.post(
         "/url",
         json={"original_url": "https://example.com"},
@@ -44,7 +46,9 @@ async def test_stats_admin_can_view_any(client: AsyncClient, auth_tokens, admin_
     assert stats_response.status_code == status.HTTP_200_OK
 
 
-async def test_stats_other_user_cannot_view(client: AsyncClient, auth_tokens, auth_tokens2):
+async def test_stats_other_user_cannot_view(
+    client: AsyncClient, auth_tokens, auth_tokens2
+):
     create_response = await client.post(
         "/url",
         json={"original_url": "https://example.com"},
