@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class StatsResponse(BaseModel):
+class ClickResponse(BaseModel):
     id: int
     url_id: int
     user_ip: str
