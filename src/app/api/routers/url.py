@@ -29,7 +29,7 @@ from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
 from src.app.core.task_runner import task_runner
-from src.app.tasks import increment_clicks_task, save_logs
+from src.app.tasks import increment_clicks_task, save_export_log_task, save_click_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
@@ -68,8 +68,14 @@ async def redirect(
     url = await service.get_url(slug)
     logger.debug("Sending task for slug", slug=slug)
     task_runner.run_in_bg(increment_clicks_task, slug)
+    task_runner.run_in_bg(
+        save_click_task,
+        url_id=url.id,
+        user_ip=request.client.host if request.client else "unknown",
+        user_agent=request.headers.get("user-agent", "unknown"),
+    )
     logger.debug("Task sent for slug", slug=slug)
-    return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url.original_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/{slug}/info")
@@ -125,7 +131,7 @@ async def export_all(
     format: Literal["csv", "json", "xlsx"] = Query("csv"),
 ) -> Response:
     content = await export_service.export_all_urls(format)
-    task_runner.run_in_bg(save_logs, user_id=admin.id, format=format)
+    task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
