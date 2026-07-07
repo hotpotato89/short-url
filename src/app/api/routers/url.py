@@ -14,6 +14,7 @@ from fastapi import (
 from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import (
+    get_click_service,
     get_current_admin,
     get_current_user,
     get_export_service,
@@ -22,8 +23,10 @@ from src.app.api.deps import (
 )
 from src.app.core.logging import get_logger
 from src.app.models.user import User
+from src.app.schemas.click import ClickResponse
 from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.click_service import ClickService
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
@@ -85,6 +88,17 @@ async def get_url_info(
     slug: str = Path(..., max_length=20, description="Url's slug"),
 ) -> UrlResponse:
     return await service.get_info(user.id, user.role, slug)
+
+
+@router.get("/{slug}/stats")
+async def get_url_stats(
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[ClickService, Depends(get_click_service)],
+    url_service: Annotated[ShortUrlService, Depends(get_url_service)],
+    slug: str = Path(..., max_length=20, description="URL's slug"),
+) -> Sequence[ClickResponse]:
+    url = await url_service.get_url(slug)
+    return await service.get_stats(user.id, user.role, url.id)
 
 
 @router.get("/{slug}/qr")
