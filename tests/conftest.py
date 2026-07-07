@@ -29,6 +29,21 @@ faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 
+@pytest.fixture
+def mock_click_stats():
+    with patch("src.app.services.click_service.ClickService.get_stats") as mock:
+        mock.return_value = [
+            {
+                "id": 1,
+                "url_id": 1,
+                "user_ip": "127.0.0.1",
+                "user_agent": "TestBot/1.0",
+                "created_at": "2026-07-07T10:00:00",
+            }
+        ]
+        yield mock
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def mock_celery():
     with patch("src.app.core.task_runner.task_runner.run_in_bg") as mock:

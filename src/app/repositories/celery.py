@@ -5,6 +5,7 @@ from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from src.app.core.exceptions import SlugNotFoundError
+from src.app.models.click import Click
 from src.app.models.export_log import ExportLog
 from src.app.models.short_url import ShortUrl
 
@@ -35,4 +36,9 @@ class CeleryRepository:
     ) -> None:
         new_log = ExportLog(user_id=user_id, format=format)
         self.session.add(new_log)
+        self.session.commit()
+
+    def save_click(self, url_id: int, user_ip: str, user_agent: str) -> None:
+        new_click = Click(url_id=url_id, user_ip=user_ip, user_agent=user_agent)
+        self.session.add(new_click)
         self.session.commit()

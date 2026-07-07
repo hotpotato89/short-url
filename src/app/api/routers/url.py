@@ -14,6 +14,7 @@ from fastapi import (
 from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import (
+    get_click_service,
     get_current_admin,
     get_current_user,
     get_export_service,
@@ -22,14 +23,16 @@ from src.app.api.deps import (
 )
 from src.app.core.logging import get_logger
 from src.app.models.user import User
+from src.app.schemas.click import ClickResponse
 from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.click_service import ClickService
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
 from src.app.core.task_runner import task_runner
-from src.app.tasks import increment_clicks_task, save_logs
+from src.app.tasks import increment_clicks_task, save_export_log_task, save_click_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
@@ -65,11 +68,17 @@ async def redirect(
     slug: str = Path(..., max_length=20),
 ) -> RedirectResponse:
 
-    url = await service.get_url(slug)
+    url = await service.get_url_cached(slug)
     logger.debug("Sending task for slug", slug=slug)
     task_runner.run_in_bg(increment_clicks_task, slug)
+    task_runner.run_in_bg(
+        save_click_task,
+        url_id=url["id"],
+        user_ip=request.client.host if request.client else "unknown",
+        user_agent=request.headers.get("user-agent", "unknown"),
+    )
     logger.debug("Task sent for slug", slug=slug)
-    return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url["original_url"], status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/{slug}/info")
@@ -79,6 +88,17 @@ async def get_url_info(
     slug: str = Path(..., max_length=20, description="Url's slug"),
 ) -> UrlResponse:
     return await service.get_info(user.id, user.role, slug)
+
+
+@router.get("/{slug}/stats")
+async def get_url_stats(
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[ClickService, Depends(get_click_service)],
+    url_service: Annotated[ShortUrlService, Depends(get_url_service)],
+    slug: str = Path(..., max_length=20, description="URL's slug"),
+) -> Sequence[ClickResponse]:
+    url = await url_service.get_url(slug)
+    return await service.get_stats(user.id, user.role, url.id)
 
 
 @router.get("/{slug}/qr")
@@ -125,7 +145,7 @@ async def export_all(
     format: Literal["csv", "json", "xlsx"] = Query("csv"),
 ) -> Response:
     content = await export_service.export_all_urls(format)
-    task_runner.run_in_bg(save_logs, user_id=admin.id, format=format)
+    task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
