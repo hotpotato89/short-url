@@ -44,12 +44,12 @@ class ShortUrlService:
         return UrlResponse.model_validate(result)
 
     @cache(BASE_CACHE_TTL, prefix=URL_KEY_FIELD)
-    async def get_url(self, slug: str) -> str:
+    async def get_url(self, slug: str) -> UrlResponse:
         result = await self.repo.get_url(slug)
         if result.is_expired:
             raise SlugNotFoundError(f"URL with slug '{result.slug}' has expired")
 
-        return result.original_url
+        return UrlResponse.model_validate(result)
 
     async def get_my_urls(
         self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
