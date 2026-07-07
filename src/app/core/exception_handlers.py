@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from src.app.core.exceptions import (
+    ClickNotFoundError,
     InvalidTokenError,
     InvalidCredentialsError,
     PermissionDeniedError,
@@ -72,6 +73,14 @@ def register_handlers(app: FastAPI) -> None:
     @app.exception_handler(UserNotFoundError)
     async def user_not_found_handler(
         request: Request, exc: UserNotFoundError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc)}
+        )
+
+    @app.exception_handler(ClickNotFoundError)
+    async def click_not_found_handler(
+        request: Request, exc: ClickNotFoundError
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"detail": str(exc)}
