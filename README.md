@@ -1,7 +1,14 @@
 # Short URL (**MIT**)
 
-Дата релиза: **26.07.2026**
+Дата релиза: **06.07.2026**
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/hotpotato89/short-url)
+
+## Релизы
+
+| Версия | Дата |
+|--------|------|
+|**[v1.0.0](https://github.com/hotpotato89/short-url/releases#release-v1.0.0)**| **06.07.2026**|
+|**[v1.1.0](https://github.com/hotpotato89/short-url/releases#release-v1.1.0)**| **07.07.2026**|
 
 
 
