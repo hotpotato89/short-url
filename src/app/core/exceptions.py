@@ -24,3 +24,7 @@ class InvalidCredentialsError(Exception):
 
 class PermissionDeniedError(Exception):
     pass
+
+
+class ClickNotFoundError(Exception):
+    pass
