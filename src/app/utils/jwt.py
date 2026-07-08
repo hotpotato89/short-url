@@ -69,7 +69,11 @@ def decode_jwt(token: str) -> dict[str, Any]:
             algorithms=["RS256"],
             options={"verify_signature": True},
         )
+    except jwt.exceptions.InvalidSignatureError:
+        raise InvalidTokenError("Invalid token")
     except jwt.exceptions.DecodeError:
         raise InvalidTokenError("Invalid token")
     except jwt.exceptions.ExpiredSignatureError:
         raise InvalidTokenError("Token has expired")
+    except jwt.exceptions.ImmatureSignatureError:
+        raise InvalidTokenError("Token  is not yet valid")
