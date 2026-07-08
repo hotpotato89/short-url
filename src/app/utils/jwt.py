@@ -76,6 +76,6 @@ def decode_jwt(token: str) -> dict[str, Any]:
     except jwt.exceptions.ExpiredSignatureError:
         raise InvalidTokenError("Token has expired")
     except jwt.exceptions.ImmatureSignatureError:
-        raise InvalidTokenError("Token  is not yet valid")
+        raise InvalidTokenError("Token is not yet valid")
     except jwt.exceptions.MissingRequiredClaimError as e:
         raise InvalidTokenError(f"Missed required claim: {e}")
