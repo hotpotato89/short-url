@@ -1,7 +1,8 @@
-from typing import Literal, Sequence
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.core.enums import UserRole
 from src.app.core.exceptions import (
     InvalidCredentialsError,
     InvalidTokenError,
@@ -84,7 +85,7 @@ class UserService:
         await self.session.commit()
 
     async def change_role(
-        self, user_id: int, admin_id: int, role: Literal["user", "admin"]
+        self, user_id: int, admin_id: int, role: UserRole = UserRole.USER
     ) -> UserResponse:
         user = await self.repo.get_by_id(user_id)
 
