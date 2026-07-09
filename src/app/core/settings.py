@@ -55,11 +55,20 @@ class AppSettings(BaseModel):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
 
+class Argon2Settings(BaseModel):
+    time_cost: int
+    memory_cost: int
+    parallelism: int
+    hash_len: int
+    salt_len: int
+
+
 class Settings(BaseSettings):
     db: DbSettings
     jwt: JwtSettings
     redis: RedisSettings
     app: AppSettings
+    argon2: Argon2Settings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
