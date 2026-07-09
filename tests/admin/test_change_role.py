@@ -4,6 +4,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
+from src.app.core.enums import UserRole
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
 from src.app.models.user import User
@@ -23,7 +24,7 @@ async def test_admin_change_role_success(
     )
     assert register_resp.status_code == status.HTTP_200_OK
     user_id = register_resp.json()["id"]
-    assert register_resp.json()["role"] == "user"
+    assert register_resp.json()["role"] == UserRole.USER
 
     resp = await client.patch(
         f"/auth/admin/users/{user_id}/role",
@@ -41,7 +42,7 @@ async def test_admin_cannot_change_own_role(
 ) -> None:
     resp = await client.patch(
         f"/auth/admin/users/{admin_user.id}/role",
-        json={"role": "user"},
+        json={"role": UserRole.USER},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_403_FORBIDDEN
@@ -54,7 +55,7 @@ async def test_admin_cannot_change_superadmin_role(
 ) -> None:
     resp = await client.patch(
         f"/auth/admin/users/{superadmin_user.id}/role",
-        json={"role": "user"},
+        json={"role": UserRole.USER},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_403_FORBIDDEN

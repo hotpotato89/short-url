@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
+
+from src.app.core.enums import UserRole
 
 
 class UserRegister(BaseModel):
@@ -23,14 +24,14 @@ class UserLogin(BaseModel):
 
 
 class ChangeRole(BaseModel):
-    role: Literal["user", "admin"] = Field(..., description="New users's role")
+    role: UserRole = Field(..., description="New users's role")
 
 
 class UserResponse(BaseModel):
     id: int
     email: str
     created_at: datetime
-    role: Literal["user", "admin"]
+    role: UserRole
     is_superadmin: bool = False
 
     model_config = {"from_attributes": True}

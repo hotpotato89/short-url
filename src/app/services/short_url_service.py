@@ -1,7 +1,8 @@
-from typing import Sequence, Literal
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.core.enums import ExportFormat, UserRole
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.cache import cache, invalidate_cache
@@ -100,13 +101,11 @@ class ShortUrlService:
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
 
-    async def export_all_urls(
-        self, format: Literal["csv", "json", "xlsx"] = "csv"
-    ) -> str | bytes:
+    async def export_all_urls(self, format: ExportFormat) -> str | bytes:
         return await self.export_service.export(format)
 
     async def get_info(
-        self, user_id: int, user_role: Literal["user", "admin"], slug: str
+        self, user_id: int, user_role: UserRole, slug: str
     ) -> UrlResponse:
         url = await self.repo.get_url(slug)
 

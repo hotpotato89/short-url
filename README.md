@@ -1,4 +1,4 @@
-# Short URL (**MIT**)
+# Short URL
 
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
@@ -23,6 +23,8 @@
 ![Pandas](https://img.shields.io/badge/Pandas-2.0-150458?logo=pandas&logoColor=white)
 ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.0-0077B5?logo=python&logoColor=white)
 ![Export Audit](https://img.shields.io/badge/Export%20Audit-Logs-blue)
+[![Enums](https://img.shields.io/badge/Typing-Enums-4B8BBE?logo=python&logoColor=white)](https://docs.python.org/3/library/enum.html)
+![JWT](https://img.shields.io/badge/JWT-RS256-000000?logo=jsonwebtokens&logoColor=white)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -150,6 +152,7 @@ pytest
  - Увеличение счетчика кликов происходит в фоне через **Celery**
  - Автоматическое удаление истекших ссылок через **Celery Beat**
  - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
+ - Типобезопасность через `Python Enums`
 
 ### 📊 Аудит экспорта
 

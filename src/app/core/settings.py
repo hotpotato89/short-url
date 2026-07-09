@@ -4,6 +4,8 @@ from typing import List, Literal
 from pydantic import BaseModel, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings
 
+from src.app.core.enums import AppEnv
+
 
 class DbSettings(BaseModel):
     user: str
@@ -49,7 +51,7 @@ class JwtSettings(BaseModel):
 class AppSettings(BaseModel):
     cors_origins: List[str] = ["http://localhost:3000"]
     base_url: str = "http://localhost:8000"
-    env: Literal["prod", "test", "dev"] = "prod"
+    env: AppEnv = AppEnv.DEV
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
 

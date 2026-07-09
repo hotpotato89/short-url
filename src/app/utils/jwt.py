@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
-from typing import Any, Literal
+from typing import Any
 
 import jwt
 
+from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError
 from src.app.core.settings import settings
 
@@ -19,7 +20,7 @@ def _public_key():
 
 
 def create_access_token(
-    user_id: int, email: str, role: Literal["user", "admin"] = "user"
+    user_id: int, email: str, role: UserRole = UserRole.USER
 ) -> str:
     return _encode_jwt(
         {
@@ -31,7 +32,7 @@ def create_access_token(
 
 
 def create_refresh_token(
-    user_id: int, email: str, role: Literal["user", "admin"] = "user"
+    user_id: int, email: str, role: UserRole = UserRole.USER
 ) -> str:
     return _encode_jwt(
         {
@@ -48,7 +49,7 @@ def _encode_jwt(
     payload: dict[str, Any],
     expire_min: int = 15,
     type: str = "access",
-    role: Literal["user", "admin"] = "user",
+    role: UserRole = UserRole.USER,
 ) -> str:
     to_encode = payload.copy()
     iat = datetime.now(timezone.utc)
