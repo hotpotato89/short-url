@@ -3,6 +3,7 @@ from typing import Dict
 
 import pytest
 
+from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError
 from src.app.utils.jwt import (
     create_access_token,
@@ -35,7 +36,7 @@ async def test_decode_jwt() -> None:
     assert token_payload["sub"] == "1"
     assert token_payload["email"] == TEST_EMAIL
     assert token_payload["type"] == "access"
-    assert token_payload["role"] == "user"
+    assert token_payload["role"] == UserRole.USER
 
 
 async def test_decode_jwt_expired() -> None:
@@ -60,7 +61,7 @@ async def test_decode_jwt_missing_type() -> None:
         "email": TEST_EMAIL,
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
-        "role": "user",
+        "role": UserRole.USER,
     }
     token = jwt.encode(payload, _private_key(), algorithm="RS256")
 
@@ -79,7 +80,7 @@ async def test_decode_jwt_missing_exp() -> None:
         "email": TEST_EMAIL,
         "iat": datetime.now(timezone.utc),
         "type": "access",
-        "role": "user",
+        "role": UserRole.USER,
     }
     token = jwt.encode(payload, _private_key(), algorithm="RS256")
 
@@ -100,7 +101,7 @@ async def test_decode_jwt_immature() -> None:
         "iat": future_iat,
         "exp": future_iat + timedelta(minutes=15),
         "type": "access",
-        "role": "user",
+        "role": UserRole.USER,
     }
     token = jwt.encode(payload, _private_key(), algorithm="RS256")
 
