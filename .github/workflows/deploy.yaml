@@ -37,19 +37,36 @@ jobs:
         run: |
           uv run pytest --cov=src.app --cov-report=html --cov-report=term --cov-fail-under=80
         env:
+          # PostgreSQL
           DB__NAME: shorturl
           DB__USER: postgres
           DB__PASSWORD: postgres
           DB__HOST: localhost
           DB__PORT: 5432
+
+          # Redis
           REDIS__HOST: localhost
           REDIS__PORT: 6379
           REDIS__DB: 0
           REDIS__RATE_LIMITER_DB: 1
+          REDIS__CELERY_DB: 2
+
+          # JWT (RSA)
           JWT__PRIVATE_KEY_PATH: keys/private.pem
           JWT__PUBLIC_KEY_PATH: keys/public.pem
-          APP__LOG_LEVEL: INFO
+
+          # App
+          APP__ENV: test
           APP__CORS_ORIGINS: '["http://localhost:3000"]'
+          APP__BASE_URL: http://localhost:8000
+          APP__LOG_LEVEL: INFO
+
+          # Argon2
+          ARGON2__TIME_COST: 1
+          ARGON2__MEMORY_COST: 8192
+          ARGON2__PARALLELISM: 1
+          ARGON2__HASH_LEN: 16
+          ARGON2__SALT_LEN: 16
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
