@@ -1,10 +1,11 @@
 import csv
 import json
 from io import BytesIO, StringIO
-from typing import Literal, Sequence
+from typing import Sequence
 
 import pandas as pd
 
+from src.app.core.enums import ExportFormat
 from src.app.core.exceptions import PermissionDeniedError
 from src.app.models.short_url import ShortUrl
 from src.app.repositories.export_log_repository import ExportLogRepository
@@ -30,16 +31,14 @@ class ExportService:
 
         return [ExportLogResponse.model_validate(u) for u in result]
 
-    async def export(
-        self, format: Literal["csv", "json", "xlsx"] = "json"
-    ) -> str | bytes:
+    async def export(self, format: ExportFormat = ExportFormat.CSV) -> str | bytes:
         urls = await self.repo.get_all()
 
-        if format == "csv":
+        if format == ExportFormat.CSV:
             return self._csv_format(urls)
-        elif format == "json":
+        elif format == ExportFormat.JSON:
             return self._json_format(urls)
-        elif format == "xlsx":
+        elif format == ExportFormat.XLSX:
             return self._xlsx_format(urls)
 
     def _json_format(self, urls: Sequence[ShortUrl]) -> str:
