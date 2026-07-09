@@ -1,6 +1,6 @@
 import base64
 from datetime import datetime
-from typing import Annotated, Literal, Sequence
+from typing import Annotated, Sequence
 
 from fastapi import (
     APIRouter,
@@ -21,6 +21,7 @@ from src.app.api.deps import (
     get_qrcode_service,
     get_url_service,
 )
+from src.app.core.enums import ExportFormat
 from src.app.core.logging import get_logger
 from src.app.models.user import User
 from src.app.schemas.click import ClickResponse
@@ -142,7 +143,7 @@ async def delete_url(
 async def export_all(
     admin: Annotated[User, Depends(get_current_admin)],
     export_service: Annotated[ShortUrlService, Depends(get_url_service)],
-    format: Literal["csv", "json", "xlsx"] = Query("csv"),
+    format: ExportFormat = Query(ExportFormat.CSV),
 ) -> Response:
     content = await export_service.export_all_urls(format)
     task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)

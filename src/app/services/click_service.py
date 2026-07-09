@@ -1,5 +1,6 @@
-from typing import Literal, Sequence
+from typing import Sequence
 
+from src.app.core.enums import UserRole
 from src.app.core.exceptions import PermissionDeniedError
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -12,7 +13,7 @@ class ClickService:
         self.url_repo = url_repo
 
     async def get_stats(
-        self, user_id: int, user_role: Literal["user", "admin"], url_id: int
+        self, user_id: int, user_role: UserRole, url_id: int
     ) -> Sequence[ClickResponse]:
         url = await self.url_repo.get_url_by_id(url_id)
 
