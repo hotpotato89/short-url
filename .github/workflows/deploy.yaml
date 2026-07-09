@@ -56,7 +56,7 @@ jobs:
           JWT__PUBLIC_KEY_PATH: keys/public.pem
 
           # App
-          APP__ENV: test
+          APP__ENV: dev
           APP__CORS_ORIGINS: '["http://localhost:3000"]'
           APP__BASE_URL: http://localhost:8000
           APP__LOG_LEVEL: INFO
