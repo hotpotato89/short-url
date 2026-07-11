@@ -3,9 +3,9 @@ from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import ExportFormat, UserRole
+from src.app.core.redis_client import cache_manager
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
-from src.app.utils.cache import cache, invalidate_cache
 from src.app.core.exceptions import (
     PermissionDeniedError,
     SlugAlreadyExistsError,
@@ -51,7 +51,7 @@ class ShortUrlService:
 
         return UrlResponse.model_validate(result)
 
-    @cache(BASE_CACHE_TTL, prefix=URL_KEY_FIELD)
+    @cache_manager.cache(BASE_CACHE_TTL, prefix=URL_KEY_FIELD)
     async def get_url_cached(self, slug: str) -> dict:
         result = await self.get_url(slug)
         return {
@@ -80,7 +80,7 @@ class ShortUrlService:
             raise PermissionDeniedError("You don't have permission")
 
         result = await self.repo.edit_slug(exist_slug, edit_data.slug)
-        await invalidate_cache(URL_KEY_FIELD)
+        await cache_manager.invalidate_cache(URL_KEY_FIELD)
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
         return UrlResponse.model_validate(result)
@@ -97,7 +97,7 @@ class ShortUrlService:
             raise PermissionDeniedError("You don't have permission")
 
         await self.repo.delete_url(slug)
-        await invalidate_cache(URL_KEY_FIELD)
+        await cache_manager.invalidate_cache(URL_KEY_FIELD)
         await self.qr_service.invalidate_qrcode_cache()
         await self.session.commit()
 

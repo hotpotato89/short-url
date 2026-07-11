@@ -3,6 +3,7 @@ from unittest.mock import patch, AsyncMock
 import uuid
 
 from faker import Faker
+from simple_redis_cache.asyncio import Cache
 from pydantic import SecretStr
 import pytest
 from slowapi import Limiter
@@ -13,7 +14,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from httpx import AsyncClient, ASGITransport
-from fakeredis import aioredis
+from fakeredis.aioredis import FakeRedis
 
 from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
@@ -51,11 +52,11 @@ async def mock_celery():
 
 
 @pytest.fixture(autouse=True, scope="function")
-async def test_redis() -> AsyncGenerator[aioredis.FakeRedis, None]:
-    test_redis_client = aioredis.FakeRedis(decode_responses=True)
+async def test_redis() -> AsyncGenerator[Cache, None]:
+    test_cache_manager = Cache(FakeRedis())
 
-    with patch("src.app.utils.cache.redis_client", test_redis_client):
-        yield test_redis_client
+    with patch("src.app.core.redis_client.cache_manager", test_cache_manager):
+        yield test_cache_manager
 
 
 @pytest.fixture(autouse=True)

@@ -25,6 +25,7 @@
 ![Export Audit](https://img.shields.io/badge/Export%20Audit-Logs-blue)
 [![Enums](https://img.shields.io/badge/Typing-Enums-4B8BBE?logo=python&logoColor=white)](https://docs.python.org/3/library/enum.html)
 ![JWT](https://img.shields.io/badge/JWT-RS256-000000?logo=jsonwebtokens&logoColor=white)
+[![simple-redis-cache](https://img.shields.io/badge/simple--redis--cache-PyPI-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/simple-redis-cache/)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -145,7 +146,7 @@ pytest
  - Чистая архитектура (Service → Repository)
  - ~~**Nginx** reverse proxy + раздача статики~~ Убрано по причине ненадобности.
  - Rate limiting (**SlowAPI**)
- - Кэширование редиректов в **Redis**
+ - Кэширование редиректов в **Redis** *(своя библиотека [репозиторий](https://github.com/hotpotato89/simple-redis-cache))*
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
