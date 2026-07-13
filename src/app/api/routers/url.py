@@ -69,17 +69,17 @@ async def redirect(
     slug: str = Path(..., max_length=20),
 ) -> RedirectResponse:
 
-    url = await service.get_url_cached(slug)
+    url = await service.get_url(slug)
     logger.debug("Sending task for slug", slug=slug)
     task_runner.run_in_bg(increment_clicks_task, slug)
     task_runner.run_in_bg(
         save_click_task,
-        url_id=url["id"],
+        url_id=url.id,
         user_ip=request.client.host if request.client else "unknown",
         user_agent=request.headers.get("user-agent", "unknown"),
     )
     logger.debug("Task sent for slug", slug=slug)
-    return RedirectResponse(url["original_url"], status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url.original_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/{slug}/info")
