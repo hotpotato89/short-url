@@ -26,6 +26,7 @@
 [![Enums](https://img.shields.io/badge/Typing-Enums-4B8BBE?logo=python&logoColor=white)](https://docs.python.org/3/library/enum.html)
 ![JWT](https://img.shields.io/badge/JWT-RS256-000000?logo=jsonwebtokens&logoColor=white)
 [![simple-redis-cache](https://img.shields.io/badge/simple--redis--cache-PyPI-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/simple-redis-cache/)
+[![Async Argon2](https://img.shields.io/badge/Async%20Argon2-v1.1.0-6A0DAD?logo=python)](https://pypi.org/project/async-argon2/)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -84,7 +85,7 @@ curl http://localhost:8000/health
 pytest
 ```
 
-> Результат: **107 зеленых тестов.**
+> Результат: **102 зеленых тестов.**
 
 ## API эндпоинты
 
@@ -141,7 +142,7 @@ pytest
  - JWT access (15 минут) + refresh (7 дней) токены
  - RSA подпись токенов (асимметричное шифрование)
  - Обработка ошибок при расшифровке `JWT` токена
- - **Argon2** хэширование паролей
+ - **Async Argon2** хэширование паролей *(своя библиотека [репозиторий](https://github.com/hotpotato89/async-argon2))*
  - **SHA-256** хэширование refresh токенов в базе данных
  - Чистая архитектура (Service → Repository)
  - ~~**Nginx** reverse proxy + раздача статики~~ Убрано по причине ненадобности.
@@ -175,6 +176,15 @@ pytest
 6. Автор может менять `slug` и удалять его.
 
 > Имеется счетчик кликов
+
+## 📦 Собственные библиотеки в проекте
+
+Этот проект использует две мои собственные библиотеки, опубликованные на PyPI:
+
+- **[`simple-redis-cache`](https://pypi.org/project/simple-redis-cache/)** — инструмент для кэширования синхронных и асинхронных функций в Redis.
+- **[`async-argon2`](https://pypi.org/project/async-argon2/)** — асинхронная обёртка для хэширования паролей Argon2, не блокирующая event loop.
+
+Обе библиотеки имеют 100% покрытие тестами, полную документацию и доступны для установки через pip.
 
 
 
