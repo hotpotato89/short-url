@@ -116,6 +116,19 @@ wheels = [
 ]
 
 [[package]]
+name = "async-argon2"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "argon2-cffi" },
+    { name = "passlib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/02/22c66ae2f41808695effd2955d3ab2ca06bbcba92cd733b9a63be56b2d27/async_argon2-1.1.0.tar.gz", hash = "sha256:355b2f31b2b4bd21cf7e93c31e57a78a86deaf181e056d18cd9869458178b2a4", size = 5260, upload-time = "2026-07-14T14:43:03.864Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/07/7862783ff63dc3201a7ec69acc6203faf2be63c707946c2f753b31737b32/async_argon2-1.1.0-py3-none-any.whl", hash = "sha256:e42d7b66041bbc0e16b7f5fab0181c0d27f0ca5088558c81d7f2f4962c2c2c06", size = 4729, upload-time = "2026-07-14T14:43:02.594Z" },
+]
+
+[[package]]
 name = "asyncpg"
 version = "0.31.0"
 source = { registry = "https://pypi.org/simple" }
@@ -998,11 +1011,12 @@ wheels = [
 
 [[package]]
 name = "short-url"
-version = "1.2.4"
+version = "1.2.5"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
     { name = "argon2-cffi" },
+    { name = "async-argon2" },
     { name = "asyncpg" },
     { name = "celery" },
     { name = "cryptography" },
@@ -1039,6 +1053,7 @@ dev = [
 requires-dist = [
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "argon2-cffi", specifier = ">=25.1.0" },
+    { name = "async-argon2", specifier = ">=1.1.0" },
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "celery", specifier = ">=5.6.3" },
     { name = "cryptography", specifier = "==49.0.0" },
