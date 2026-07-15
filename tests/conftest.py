@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from httpx import AsyncClient, ASGITransport
 from fakeredis.aioredis import FakeRedis
+from async_argon2 import AsyncArgon2
 
 from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
@@ -23,11 +24,11 @@ from src.app.models.base import Base
 from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
-from src.app.utils.hash import hash_password
 
 
 faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
+test_hasher = AsyncArgon2()
 
 
 @pytest.fixture
@@ -187,7 +188,7 @@ async def auth_tokens2(client: AsyncClient, fake_user2: UserRegister) -> TokenIn
 async def admin_user(db_session: AsyncSession) -> User:
     admin = User(
         email=f"admin_{uuid.uuid4()}@example.com",
-        password_hash=hash_password("admin123"),
+        password_hash=await test_hasher.hash("admin123"),
         role="admin",
         is_superadmin=False,
     )
@@ -214,7 +215,7 @@ async def admin_tokens(client: AsyncClient, admin_user: User) -> TokenInfo:
 async def superadmin_user(db_session: AsyncSession) -> User:
     admin = User(
         email=f"superadmin_{uuid.uuid4()}@example.com",
-        password_hash=hash_password("superadmin123"),
+        password_hash=await test_hasher.hash("superadmin123"),
         role="admin",
         is_superadmin=True,
     )
