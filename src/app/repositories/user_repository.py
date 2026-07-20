@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -44,3 +44,9 @@ class UserRepository:
             select(User).limit(limit).order_by(User.id.desc())
         )
         return result.scalars().all()
+
+    async def deincrement_credits(self, user_id: int) -> bool:
+        stmt = update(User).where(User.id == user_id).values(credits=User.credits - 1)
+        result = await self.session.execute(stmt)
+        await self.session.flush()
+        return result.rowcount > 0 # type: ignore
