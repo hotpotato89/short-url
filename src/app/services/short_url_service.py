@@ -3,6 +3,7 @@ from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import ExportFormat, UserRole
+from src.app.core.logging import get_logger
 from src.app.core.redis_client import cache_manager
 from src.app.repositories.user_repository import UserRepository
 from src.app.services.export_service import ExportService
@@ -20,6 +21,7 @@ from src.app.utils.slug import generate_slug
 
 URL_KEY_FIELD: str = "url"
 BASE_CACHE_TTL: int = 3600 * 2
+logger = get_logger(__name__)
 
 
 class ShortUrlService:
@@ -44,7 +46,8 @@ class ShortUrlService:
         original_url = str(url_data.original_url)
         slug = generate_slug(6)
 
-        if not await self.user_repo.dencrement_credits(owner_id):
+        if not await self.user_repo.decrement_credits(owner_id):
+            logger.warning("No left credits", user_id=owner_id)
             raise PermissionDeniedError("No credits left")
 
         result = await self.repo.create_url(original_url, slug, owner_id, ttl_days)

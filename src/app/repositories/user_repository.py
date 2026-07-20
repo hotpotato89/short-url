@@ -45,7 +45,7 @@ class UserRepository:
         )
         return result.scalars().all()
 
-    async def dencrement_credits(self, user_id: int) -> bool:
+    async def decrement_credits(self, user_id: int) -> bool:
         stmt = update(User).where(User.id == user_id).values(credits=User.credits - 1)
         result = await self.session.execute(stmt)
         await self.session.flush()
