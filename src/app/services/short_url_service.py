@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import ExportFormat, UserRole
 from src.app.core.redis_client import cache_manager
+from src.app.repositories.user_repository import UserRepository
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.core.exceptions import (
@@ -25,11 +26,13 @@ class ShortUrlService:
     def __init__(
         self,
         repo: ShortUrlRepository,
+        user_repo: UserRepository,
         session: AsyncSession,
         qr_service: QrcodeService,
         export_service: ExportService,
     ) -> None:
         self.repo = repo
+        self.user_repo = user_repo
         self.session = session
         self.qr_service = qr_service
         self.export_service = export_service
@@ -40,6 +43,10 @@ class ShortUrlService:
     ) -> UrlResponse:
         original_url = str(url_data.original_url)
         slug = generate_slug(6)
+
+        if not await self.user_repo.dencrement_credits(owner_id):
+            raise PermissionDeniedError("No credits left")
+
         result = await self.repo.create_url(original_url, slug, owner_id, ttl_days)
         await self.session.commit()
         return UrlResponse.model_validate(result)
