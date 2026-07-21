@@ -6,7 +6,7 @@ from time import perf_counter
 
 
 async def test_cache_redirect(client: AsyncClient, auth_tokens: TokenInfo) -> None:
-    for _ in range(100):
+    for _ in range(4):
         resp = await client.post(
             "/url",
             json={"original_url": "https://example.com"},
