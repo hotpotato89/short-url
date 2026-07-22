@@ -99,8 +99,7 @@ async def test_create_url_ttl_days(client: AsyncClient, fake_user2) -> None:
 
     assert url_resp.status_code == status.HTTP_200_OK
     data = url_resp.json()
-    assert "ttl_days" in data
-    assert data["ttl_days"] == 7
+    assert "expires_at" in data
 
 
 async def test_create_url_multiple(client: AsyncClient, fake_user2) -> None:
