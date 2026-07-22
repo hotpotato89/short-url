@@ -94,11 +94,12 @@ async def get_click_service(
 
 async def get_url_service(
     url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
     session: Annotated[AsyncSession, Depends(get_session)],
     qrcode_service: Annotated[QrcodeService, Depends(get_qrcode_service)],
     export_service: Annotated[ExportService, Depends(get_export_service)],
 ) -> ShortUrlService:
-    return ShortUrlService(url_repo, session, qrcode_service, export_service)
+    return ShortUrlService(url_repo, user_repo, session, qrcode_service, export_service)
 
 
 # Jwt dependencies

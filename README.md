@@ -27,6 +27,8 @@
 ![JWT](https://img.shields.io/badge/JWT-RS256-000000?logo=jsonwebtokens&logoColor=white)
 [![simple-redis-cache](https://img.shields.io/badge/simple--redis--cache-PyPI-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/simple-redis-cache/)
 [![Async Argon2](https://img.shields.io/badge/Async%20Argon2-v1.1.0-6A0DAD?logo=python)](https://pypi.org/project/async-argon2/)
+![Credits](https://img.shields.io/badge/Credits-5%20free-FFD700)
+![Credits System](https://img.shields.io/badge/Credits-System-blue)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
 
@@ -82,12 +84,27 @@ curl http://localhost:8000/health
 # Тестирование:
 
 ```bash
-pytest
+pytest --cov src.app --cov-report=term
 ```
 
-> Результат: **102 зеленых тестов.**
+> Результат: **111 зеленых тестов.**
 
 ## API эндпоинты
+
+## 💰 Кредитная система
+
+Каждый пользователь получает **5 кредитов** при регистрации.
+
+- **Создание ссылки** — тратит 1 кредит
+- **При 0 кредитах** — создание ссылки недоступно (ошибка 403)
+
+**Эндпоинты:**
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| GET | `/credits` | Получить баланс пользователя |
+
+
+---
 
 ### 📱 QR-коды
 

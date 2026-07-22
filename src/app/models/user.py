@@ -31,6 +31,8 @@ class User(Base):
 
     is_superadmin: Mapped[bool] = mapped_column(nullable=True, default=False)
 
+    credits: Mapped[int] = mapped_column(default=5)
+
     export_logs: Mapped[List["ExportLog"]] = relationship(
         "ExportLog", back_populates="user", lazy="selectin"
     )

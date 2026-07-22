@@ -12,6 +12,7 @@ from src.app.core.settings import settings
 from src.app.api.routers import health
 from src.app.api.routers import auth
 from src.app.api.routers import url
+from src.app.api.routers import credits
 from src.app.middlewares import register_middlewares
 
 logging.getLogger("uvicorn").handlers.clear()
@@ -33,5 +34,6 @@ register_handlers(app)
 register_middlewares(app)
 
 app.include_router(health.router)
+app.include_router(credits.router)
 app.include_router(auth.router)
 app.include_router(url.router)
