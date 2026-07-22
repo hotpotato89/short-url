@@ -2,6 +2,7 @@ from typing import Literal
 from celery import shared_task
 
 from src.app.core.database import CelerySessionLocal
+from src.app.core.enums import ExportFormat
 from src.app.core.logging import get_logger
 from src.app.repositories.celery import CeleryRepository
 
@@ -33,8 +34,14 @@ def delete_expired_task() -> None:
 
 
 @shared_task
-def save_export_log_task(user_id: int, format: Literal["csv", "json", "xlsx"]) -> None:
+def save_export_log_task(user_id: int, format: ExportFormat) -> None:
     with CelerySessionLocal() as session:
         repo = CeleryRepository(session)
         repo.save_export_logs(user_id, format)
         logger.info("Saved export log", user_id=user_id, format=format)
+
+@shared_task
+def replenish_credits_task() -> None:
+    with CelerySessionLocal() as session:
+        repo = CeleryRepository(session)
+        repo.replenish_credits(5)
