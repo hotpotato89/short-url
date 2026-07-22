@@ -1,4 +1,3 @@
-from typing import Literal
 from celery import shared_task
 
 from src.app.core.database import CelerySessionLocal
@@ -39,6 +38,7 @@ def save_export_log_task(user_id: int, format: ExportFormat) -> None:
         repo = CeleryRepository(session)
         repo.save_export_logs(user_id, format)
         logger.info("Saved export log", user_id=user_id, format=format)
+
 
 @shared_task
 def replenish_credits_task() -> None:
