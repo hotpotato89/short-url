@@ -14,8 +14,12 @@ class ClickService:
         self.url_repo = url_repo
 
     async def get_stats(
-        self, user_id: int, user_role: UserRole, url_id: int,
-        limit: int = 10, cursor: int | None = None
+        self,
+        user_id: int,
+        user_role: UserRole,
+        url_id: int,
+        limit: int = 10,
+        cursor: int | None = None,
     ) -> CursorPaginationResponse[ClickResponse]:
         url = await self.url_repo.get_url_by_id(url_id)
 
@@ -32,6 +36,5 @@ class ClickService:
             items=[ClickResponse.model_validate(item) for item in items],
             next_cursor=next_cursor,
             limit=limit,
-            has_more=has_more
+            has_more=has_more,
         )
-        
