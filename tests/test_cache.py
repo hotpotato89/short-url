@@ -20,12 +20,12 @@ async def test_cache_redirect(client: AsyncClient, auth_tokens: TokenInfo) -> No
     slug = resp.json()["slug"]
 
     start = perf_counter()
-    resp1 = await client.get(f"/url/{slug}")
+    resp1 = await client.get(f"/{slug}")
     duration1 = perf_counter() - start
     assert resp1.status_code == status.HTTP_303_SEE_OTHER
 
     start = perf_counter()
-    resp2 = await client.get(f"/url/{slug}")
+    resp2 = await client.get(f"/{slug}")
     duration2 = perf_counter() - start
     assert resp2.status_code == status.HTTP_303_SEE_OTHER
 

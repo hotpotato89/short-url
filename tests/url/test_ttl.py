@@ -110,7 +110,7 @@ async def test_expired_url_returns_404(
     with patch.object(
         ShortUrl, "is_expired", new_callable=PropertyMock, return_value=True
     ):
-        redirect_resp = await client.get(f"/url/{slug}")
+        redirect_resp = await client.get(f"/{slug}")
         assert redirect_resp.status_code == status.HTTP_404_NOT_FOUND
 
 

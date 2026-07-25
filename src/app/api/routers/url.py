@@ -1,5 +1,4 @@
 import base64
-from datetime import datetime
 from typing import Annotated, Sequence
 
 from fastapi import (
@@ -15,29 +14,25 @@ from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import (
     get_click_service,
-    get_current_admin,
     get_current_user,
-    get_export_service,
     get_qrcode_service,
     get_url_service,
 )
-from src.app.core.enums import ExportFormat
 from src.app.core.logging import get_logger
 from src.app.models.user import User
 from src.app.schemas.click import ClickResponse
-from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.click_service import ClickService
-from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.core.limiter import limiter
 from src.app.core.task_runner import task_runner
-from src.app.tasks import increment_clicks_task, save_export_log_task, save_click_task
+from src.app.tasks import increment_clicks_task, save_click_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
+redirect_router = APIRouter(tags=["url-redirect"])
 logger = get_logger(__name__)
 
 
@@ -63,7 +58,7 @@ async def get_my(
     return await service.get_my_urls(current_user.id, reverse, page, limit)
 
 
-@router.get("/{slug}")
+@redirect_router.get("/{slug}")
 async def redirect(
     request: Request,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
