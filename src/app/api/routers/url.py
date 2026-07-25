@@ -26,6 +26,7 @@ from src.app.core.logging import get_logger
 from src.app.models.user import User
 from src.app.schemas.click import ClickResponse
 from src.app.schemas.export_log import ExportLogResponse
+from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.click_service import ClickService
 from src.app.services.export_service import ExportService
@@ -97,9 +98,11 @@ async def get_url_stats(
     service: Annotated[ClickService, Depends(get_click_service)],
     url_service: Annotated[ShortUrlService, Depends(get_url_service)],
     slug: str = Path(..., max_length=20, description="URL's slug"),
-) -> Sequence[ClickResponse]:
+    limit: int = Query(10, ge=1, le=100, description="Limit on 1 page"),
+    cursor: int | None = Query(None, description="Pagination cursor (ID)"),
+) -> CursorPaginationResponse[ClickResponse]:
     url = await url_service.get_url(slug)
-    return await service.get_stats(user.id, user.role, url.id)
+    return await service.get_stats(user.id, user.role, url.id, limit, cursor)
 
 
 @router.get("/{slug}/qr")
