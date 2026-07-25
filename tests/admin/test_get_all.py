@@ -10,7 +10,7 @@ async def test_admin_get_all_users_with_limit(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/auth/admin/users?limit=5",
+        "/admin/users?limit=5",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_200_OK
@@ -24,7 +24,7 @@ async def test_admin_get_all_users_default_limit(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/auth/admin/users",
+        "/admin/users",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_200_OK
@@ -37,7 +37,7 @@ async def test_admin_get_all_users_invalid_limit(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/auth/admin/users?limit=2000",
+        "/admin/users?limit=2000",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT

@@ -9,6 +9,7 @@ services:
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis
+        - APP__ENV=prod
       env_file:
        - ".env"
       restart: unless-stopped
@@ -19,6 +20,7 @@ services:
           condition: service_healthy
         redis:
           condition: service_healthy
+      user: "1000:1000"
 
     db:
       image: postgres:18-alpine

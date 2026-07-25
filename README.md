@@ -130,8 +130,6 @@ pytest --cov src.app --cov-report=term
 | POST | `/auth/refresh` | Обновить access и refresh | Да (refresh) |
 | POST | `/auth/logout` | Выход | Да (refresh) |
 | GET | `/auth/me` | Профиль | Да |
-| GET | `/auth/admin/users` | Все пользователи (админ) | Да |
-| PATCH | `/auth/admin/users/{user_id}/role` | Меняет роль пользователя (админ)| Да |
 
 
 ### Ссылки
@@ -143,7 +141,6 @@ pytest --cov src.app --cov-report=term
 | GET | `/url/{slug}` | Редирект | Нет |
 | PUT | `/url/{slug}` | Изменить адрес (владелец) | Да |
 | DELETE | `/url/{slug}` | Удалить (владелец) | Да |
-| GET | `/url/admin/export` | Экспортировать все ссылки (админ) | Да |
 | GET | `/url/{slug}/info` | Получить данные конкретной ссылки (владелец или админ) | Да |
 
 ### Документация
@@ -152,6 +149,20 @@ pytest --cov src.app --cov-report=term
 |-------|----------|----------|
 | GET | `/docs` | Swagger UI |
 | GET | `/openapi.json` | OpenAPI схема |
+
+
+### Администрация
+
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| PATCH | `/admin/users/{user_id}/role` | Изменить роль другого пользователя |
+| GET | `/admin/users` | Посмотреть список пользователей |
+| GET | `/admin/export` | Экспоритировать сипсок ссылок |
+| GET | `/admin/export-logs` | Логи экспортов *(аудит)* |
+
+
+
+
 
 # Переменные окружение:
  - *в файле .env.example*
