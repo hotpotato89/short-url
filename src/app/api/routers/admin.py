@@ -1,17 +1,21 @@
-from fastapi import APIRouter, Depends, Path, Query
+from datetime import datetime
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from typing import Annotated, Sequence
 
-from src.app.api.deps import get_current_admin, get_user_service
+from src.app.api.deps import get_current_admin, get_export_service, get_url_service, get_user_service
+from src.app.core.task_runner import task_runner
+from src.app.core.enums import ExportFormat
 from src.app.models.user import User
+from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.user import ChangeRole, UserResponse
+from src.app.services.export_service import ExportService
+from src.app.services.short_url_service import ShortUrlService
 from src.app.services.user_service import UserService
+from src.app.tasks import save_export_log_task
 
 
-router = APIRouter(
-    tags=["admin"],
-    prefix="/admin"
-)
+router = APIRouter(tags=["admin"], prefix="/admin")
 
 
 @router.patch("/users/{user_id}/role")
@@ -31,3 +35,40 @@ async def get_all(
     limit: int = Query(100, ge=1, le=1000, description="Count of records on 1 page"),
 ) -> Sequence[UserResponse]:
     return await service.get_all(limit)
+
+
+@router.get("/export")
+async def export_all(
+    admin: Annotated[User, Depends(get_current_admin)],
+    export_service: Annotated[ShortUrlService, Depends(get_url_service)],
+    format: ExportFormat = Query(ExportFormat.CSV),
+) -> Response:
+    content = await export_service.export_all_urls(format)
+    task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)
+
+    if format == "xlsx":
+        media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        extension = "xlsx"
+    elif format == "csv":
+        media_type = "text/csv"
+        extension = "csv"
+    else:
+        media_type = "application/json"
+        extension = "json"
+
+    filename = f"urls_{datetime.now().strftime('%Y_%m_%d_%H_%M')}.{extension}"
+
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/export-logs")
+async def get_logs(
+    admin: Annotated[User, Depends(get_current_admin)],
+    service: Annotated[ExportService, Depends(get_export_service)],
+    limit: int = Query(100, ge=1, le=500, description="limit of records count"),
+) -> Sequence[ExportLogResponse]:
+    return await service.get_logs(admin.is_superadmin, admin.id, limit)
