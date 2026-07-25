@@ -12,7 +12,7 @@ async def test_admin_export_denied_for_user(
     auth_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/url/admin/export",
+        "/admin/export",
         headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_403_FORBIDDEN
@@ -23,7 +23,7 @@ async def test_admin_export_allowed_for_admin(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/url/admin/export?format=json",
+        "/admin/export?format=json",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == status.HTTP_200_OK
@@ -35,7 +35,7 @@ async def test_admin_export_csv(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/url/admin/export?format=csv",
+        "/admin/export?format=csv",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
 
@@ -55,7 +55,7 @@ async def test_admin_export_json(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/url/admin/export?format=json",
+        "/admin/export?format=json",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
 
@@ -100,7 +100,7 @@ async def test_admin_export_empty(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.get(
-        "/url/admin/export?format=json",
+        "/admin/export?format=json",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
 
@@ -122,7 +122,7 @@ async def test_export_xlsx(
     )
     assert create_resp.status_code == 200
 
-    response = await client.get("/url/admin/export?format=xlsx", headers=headers)
+    response = await client.get("/admin/export?format=xlsx", headers=headers)
     assert response.status_code == 200
     assert (
         response.headers["content-type"]

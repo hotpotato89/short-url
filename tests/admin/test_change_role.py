@@ -27,7 +27,7 @@ async def test_admin_change_role_success(
     assert register_resp.json()["role"] == UserRole.USER
 
     resp = await client.patch(
-        f"/auth/admin/users/{user_id}/role",
+        f"/admin/users/{user_id}/role",
         json={"role": "admin"},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
@@ -41,7 +41,7 @@ async def test_admin_cannot_change_own_role(
     admin_user: User,
 ) -> None:
     resp = await client.patch(
-        f"/auth/admin/users/{admin_user.id}/role",
+        f"/admin/users/{admin_user.id}/role",
         json={"role": UserRole.USER},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
@@ -54,7 +54,7 @@ async def test_admin_cannot_change_superadmin_role(
     superadmin_user: User,
 ) -> None:
     resp = await client.patch(
-        f"/auth/admin/users/{superadmin_user.id}/role",
+        f"/admin/users/{superadmin_user.id}/role",
         json={"role": UserRole.USER},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
@@ -77,7 +77,7 @@ async def test_non_admin_cannot_change_role(
     user_id = register_resp.json()["id"]
 
     resp = await client.patch(
-        f"/auth/admin/users/{user_id}/role",
+        f"/admin/users/{user_id}/role",
         json={"role": "admin"},
         headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
     )
@@ -89,7 +89,7 @@ async def test_change_role_invalid_user(
     admin_tokens: TokenInfo,
 ) -> None:
     resp = await client.patch(
-        "/auth/admin/users/99999/role",
+        "/admin/users/99999/role",
         json={"role": "admin"},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
@@ -111,7 +111,7 @@ async def test_change_role_invalid_data(
     user_id = register_resp.json()["id"]
 
     resp = await client.patch(
-        f"/auth/admin/users/{user_id}/role",
+        f"/admin/users/{user_id}/role",
         json={"role": "superadmin"},
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )

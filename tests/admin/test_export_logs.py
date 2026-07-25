@@ -9,7 +9,7 @@ async def test_get_export_logs_denied_for_user(
     auth_tokens: TokenInfo,
 ):
     resp = await client.get(
-        "/url/admin/export-logs",
+        "/admin/export-logs",
         headers={"Authorization": f"Bearer {auth_tokens.access_token}"},
     )
     assert resp.status_code == 403
@@ -20,7 +20,7 @@ async def test_get_export_logs_denied_for_regular_admin(
     admin_tokens: TokenInfo,
 ):
     resp = await client.get(
-        "/url/admin/export-logs",
+        "/admin/export-logs",
         headers={"Authorization": f"Bearer {admin_tokens.access_token}"},
     )
     assert resp.status_code == 403
@@ -31,7 +31,7 @@ async def test_get_export_logs_as_superadmin(
     superadmin_tokens: TokenInfo,
 ):
     resp = await client.get(
-        "/url/admin/export-logs",
+        "/admin/export-logs",
         headers={"Authorization": f"Bearer {superadmin_tokens.access_token}"},
     )
 
@@ -45,7 +45,7 @@ async def test_export_logs_limit(
     superadmin_tokens: TokenInfo,
 ):
     resp = await client.get(
-        "/url/admin/export-logs?limit=3",
+        "/admin/export-logs?limit=3",
         headers={"Authorization": f"Bearer {superadmin_tokens.access_token}"},
     )
 
@@ -57,5 +57,5 @@ async def test_export_logs_limit(
 async def test_export_logs_denied_without_token(
     client: AsyncClient,
 ):
-    resp = await client.get("/url/admin/export-logs")
+    resp = await client.get("/admin/export-logs")
     assert resp.status_code == 401
