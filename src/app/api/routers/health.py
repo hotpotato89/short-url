@@ -10,10 +10,10 @@ class StatusInfo(BaseModel):
 
 
 @router.get("")
-async def health() -> StatusInfo: # pragma: no cover
+async def health() -> StatusInfo:  # pragma: no cover
     return StatusInfo()
 
 
 @router.head("", status_code=status.HTTP_200_OK)
-async def health_head() -> None: # pragma: no cover
+async def health_head() -> None:  # pragma: no cover
     return None
