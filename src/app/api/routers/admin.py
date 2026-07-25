@@ -3,7 +3,12 @@ from fastapi import APIRouter, Depends, Path, Query, Response
 
 from typing import Annotated, Sequence
 
-from src.app.api.deps import get_current_admin, get_export_service, get_url_service, get_user_service
+from src.app.api.deps import (
+    get_current_admin,
+    get_export_service,
+    get_url_service,
+    get_user_service,
+)
 from src.app.core.task_runner import task_runner
 from src.app.core.enums import ExportFormat
 from src.app.models.user import User
