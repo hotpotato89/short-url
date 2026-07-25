@@ -9,6 +9,7 @@ services:
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis
+        - APP__ENV=prod
       env_file:
        - ".env"
       restart: unless-stopped
