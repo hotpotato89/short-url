@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import AsyncGenerator
 from unittest.mock import patch, AsyncMock
 import uuid
@@ -22,6 +23,8 @@ from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
 from src.app.models.user import User
+from src.app.schemas.click import ClickResponse
+from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
 
@@ -34,15 +37,20 @@ test_hasher = AsyncArgon2()
 @pytest.fixture
 def mock_click_stats():
     with patch("src.app.services.click_service.ClickService.get_stats") as mock:
-        mock.return_value = [
-            {
-                "id": 1,
-                "url_id": 1,
-                "user_ip": "127.0.0.1",
-                "user_agent": "TestBot/1.0",
-                "created_at": "2026-07-07T10:00:00",
-            }
-        ]
+        mock.return_value = CursorPaginationResponse(
+            items=[
+                ClickResponse(
+                    id=1,
+                    url_id=1,
+                    user_ip="127.0.0.1",
+                    user_agent="TestBot/1.0",
+                    created_at=datetime.now(timezone.utc),
+                )
+            ],
+            next_cursor=None,
+            limit=10,
+            has_more=False,
+        )
         yield mock
 
 
