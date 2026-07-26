@@ -59,6 +59,9 @@ services:
       volumes:
         - rabbitmq_data:/var/lib/rabbitmq
       restart: unless-stopped
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ__LOGIN}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ__PASSWORD}
 
 volumes:
   postgres_data:
