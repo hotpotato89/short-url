@@ -1,3 +1,5 @@
+from datetime import UTC
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,7 +63,7 @@ async def test_delete_expired(repo: ShortUrlRepository) -> None:
     from datetime import datetime, timedelta, timezone
 
     # Создаём просроченную ссылку
-    expired_at = datetime.now(timezone.utc) - timedelta(days=1)
+    expired_at = datetime.now(UTC) - timedelta(days=1)
     url = await repo.create_url(
         original_url="https://expired.com",
         slug="expired",

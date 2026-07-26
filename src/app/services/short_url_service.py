@@ -1,23 +1,22 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import ExportFormat, UserRole
-from src.app.core.logging import get_logger
-from src.app.core.redis_client import cache_manager
-from src.app.repositories.user_repository import UserRepository
-from src.app.services.export_service import ExportService
-from src.app.services.qrcode_service import QrcodeService
 from src.app.core.exceptions import (
     PermissionDeniedError,
     SlugAlreadyExistsError,
     SlugNotFoundError,
 )
+from src.app.core.logging import get_logger
+from src.app.core.redis_client import cache_manager
 from src.app.repositories.short_url_repository import ShortUrlRepository
+from src.app.repositories.user_repository import UserRepository
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.export_service import ExportService
+from src.app.services.qrcode_service import QrcodeService
 from src.app.utils.retry import retry
 from src.app.utils.slug import generate_slug
-
 
 URL_KEY_FIELD: str = "url"
 BASE_CACHE_TTL: int = 3600 * 2

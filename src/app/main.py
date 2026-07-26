@@ -3,17 +3,11 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-
+from src.app.api.routers import admin, auth, credits, health, url
 from src.app.core.exception_handlers import register_handlers
 from src.app.core.lifespan import lifespan
 from src.app.core.limiter import limiter
 from src.app.core.settings import settings
-
-from src.app.api.routers import health
-from src.app.api.routers import auth
-from src.app.api.routers import url
-from src.app.api.routers import credits
-from src.app.api.routers import admin
 from src.app.middlewares import register_middlewares
 
 logging.getLogger("uvicorn").handlers.clear()

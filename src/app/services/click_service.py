@@ -1,4 +1,3 @@
-from typing import Sequence
 
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import PermissionDeniedError

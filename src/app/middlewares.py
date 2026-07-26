@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from time import perf_counter
-from typing import Callable
 from uuid import uuid4
 
 from fastapi import FastAPI, Request

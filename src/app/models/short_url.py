@@ -1,14 +1,9 @@
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from datetime import UTC, datetime
 
 from sqlalchemy import TIMESTAMP, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
-
-
-if TYPE_CHECKING:
-    pass
 
 
 class ShortUrl(Base):
@@ -38,4 +33,4 @@ class ShortUrl(Base):
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at

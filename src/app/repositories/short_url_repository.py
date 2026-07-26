@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, select, desc, asc, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import asc, delete, desc, select, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.exceptions import SlugAlreadyExistsError, SlugNotFoundError
 from src.app.models.short_url import ShortUrl
@@ -18,7 +18,7 @@ class ShortUrlRepository:
         self, original_url: str, slug: str, owner_id: int, ttl_days: int | None
     ) -> ShortUrl:
         ttl = (
-            datetime.now(timezone.utc) + timedelta(days=ttl_days) if ttl_days else None
+            datetime.now(UTC) + timedelta(days=ttl_days) if ttl_days else None
         )
         new_url = ShortUrl(
             original_url=original_url, slug=slug, owner_id=owner_id, expires_at=ttl
@@ -100,7 +100,7 @@ class ShortUrlRepository:
         await self.session.flush()
 
     async def delete_expired(self) -> int:
-        stmt = delete(ShortUrl).where(ShortUrl.expires_at < datetime.now(timezone.utc))
+        stmt = delete(ShortUrl).where(ShortUrl.expires_at < datetime.now(UTC))
         result = await self.session.execute(stmt)
         await self.session.flush()
         if hasattr(result, "rowcount"):

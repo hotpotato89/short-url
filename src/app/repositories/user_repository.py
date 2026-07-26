@@ -1,8 +1,8 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import UserAlreadyExistsError, UserNotFoundError

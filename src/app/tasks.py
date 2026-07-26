@@ -1,13 +1,9 @@
+from src.app.core.database import SessionLocal
 from src.app.core.enums import ExportFormat
 from src.app.core.taskiq_broker import broker
-
-
-from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
-
-
-from src.app.core.database import SessionLocal
+from src.app.repositories.short_url_repository import ShortUrlRepository
 
 
 @broker.task

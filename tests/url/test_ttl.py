@@ -1,8 +1,9 @@
+from datetime import UTC, datetime, timezone
+from unittest.mock import PropertyMock, patch
+
 import pytest
-from datetime import datetime, timezone
 from fastapi import status
 from httpx import AsyncClient
-from unittest.mock import patch, PropertyMock
 
 from src.app.models.short_url import ShortUrl
 from src.app.schemas.token import TokenInfo
@@ -52,7 +53,7 @@ async def test_create_url_with_ttl_1_day(
     assert data["expires_at"] is not None
 
     expires_at = datetime.fromisoformat(data["expires_at"].replace("Z", "+00:00"))
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     diff = expires_at - now
     assert 23 <= diff.total_seconds() / 3600 <= 25
 

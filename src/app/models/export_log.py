@@ -20,4 +20,4 @@ class ExportLog(Base):
         TIMESTAMP(timezone=True), server_default=func.now()
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="export_logs")
+    user: Mapped[User] = relationship("User", back_populates="export_logs")

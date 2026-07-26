@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from typing import Any
 
@@ -9,12 +9,12 @@ from src.app.core.exceptions import InvalidTokenError
 from src.app.core.settings import settings
 
 
-@lru_cache()
+@lru_cache
 def _private_key():
     return settings.jwt.private_key_path.read_text()
 
 
-@lru_cache()
+@lru_cache
 def _public_key():
     return settings.jwt.public_key_path.read_text()
 
@@ -52,7 +52,7 @@ def _encode_jwt(
     role: UserRole = UserRole.USER,
 ) -> str:
     to_encode = payload.copy()
-    iat = datetime.now(timezone.utc)
+    iat = datetime.now(UTC)
     exp = iat + timedelta(minutes=expire_min)
     to_encode["iat"] = iat
     to_encode["exp"] = exp

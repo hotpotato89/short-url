@@ -1,4 +1,4 @@
-from src.app.core.enums import UserRole, ExportFormat, AppEnv
+from src.app.core.enums import AppEnv, ExportFormat, UserRole
 
 
 def test_user_role_values():

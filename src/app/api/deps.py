@@ -1,8 +1,9 @@
+from collections.abc import AsyncGenerator
+from typing import Annotated, Any
+
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from typing import Annotated, Any, AsyncGenerator
 
 from src.app.core.database import SessionLocal
 from src.app.core.enums import UserRole
@@ -21,7 +22,7 @@ from src.app.services.user_service import UserService
 from src.app.utils.jwt import decode_jwt
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_session() -> AsyncGenerator[AsyncSession]:
     async with SessionLocal() as session:
         yield session
 

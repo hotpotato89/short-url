@@ -1,7 +1,7 @@
-from typing import Callable
+from collections.abc import Callable
 
-from src.app.core.taskiq_broker import *  # noqa
 from src.app.core.logging import get_logger
+from src.app.core.taskiq_broker import *
 
 logger = get_logger(__name__)
 

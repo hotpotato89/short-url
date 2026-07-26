@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Dict
 
 import pytest
@@ -6,10 +6,10 @@ import pytest
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError
 from src.app.utils.jwt import (
+    _encode_jwt,
     create_access_token,
     create_refresh_token,
     decode_jwt,
-    _encode_jwt,
 )
 
 TEST_EMAIL: str = "test@test.test"
@@ -32,7 +32,7 @@ async def test_decode_jwt() -> None:
     token = create_access_token(1, TEST_EMAIL)
     token_payload = decode_jwt(token)
 
-    assert isinstance(token_payload, Dict)
+    assert isinstance(token_payload, dict)
     assert token_payload["sub"] == "1"
     assert token_payload["email"] == TEST_EMAIL
     assert token_payload["type"] == "access"
@@ -54,13 +54,14 @@ async def test_decode_jwt_invalid() -> None:
 
 async def test_decode_jwt_missing_type() -> None:
     import jwt
+
     from src.app.utils.jwt import _private_key
 
     payload = {
         "sub": "1",
         "email": TEST_EMAIL,
-        "iat": datetime.now(timezone.utc),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
+        "iat": datetime.now(UTC),
+        "exp": datetime.now(UTC) + timedelta(minutes=15),
         "role": UserRole.USER,
     }
     token = jwt.encode(payload, _private_key(), algorithm="RS256")
@@ -73,12 +74,13 @@ async def test_decode_jwt_missing_type() -> None:
 
 async def test_decode_jwt_missing_exp() -> None:
     import jwt
+
     from src.app.utils.jwt import _private_key
 
     payload = {
         "sub": "1",
         "email": TEST_EMAIL,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "type": "access",
         "role": UserRole.USER,
     }
@@ -92,9 +94,10 @@ async def test_decode_jwt_missing_exp() -> None:
 
 async def test_decode_jwt_immature() -> None:
     import jwt
+
     from src.app.utils.jwt import _private_key
 
-    future_iat = datetime.now(timezone.utc) + timedelta(days=1)
+    future_iat = datetime.now(UTC) + timedelta(days=1)
     payload = {
         "sub": "1",
         "email": TEST_EMAIL,
