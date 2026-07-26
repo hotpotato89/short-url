@@ -39,13 +39,15 @@ class RedisSettings(BaseModel):
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
 
 
-class NatsSettings(BaseModel):
+class RabbitMqSettings(BaseModel):
     host: str
     port: int
+    login: str
+    password: SecretStr
 
     @property
     def url(self) -> str:
-        return f"nats://{self.host}:{self.port}"
+        return f"amqp://{self.login}:{self.password}@{self.host}:{self.port}//"
 
 
 class JwtSettings(BaseModel):
@@ -74,7 +76,7 @@ class Settings(BaseSettings):
     redis: RedisSettings
     app: AppSettings
     argon2: Argon2Settings
-    nats: NatsSettings
+    rabbitmq: RabbitMqSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
