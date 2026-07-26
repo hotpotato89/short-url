@@ -11,10 +11,21 @@ class TaskRunner:
     async def run_in_bg(task: Callable, *args, **kwargs) -> None:
 
         try:
-            result = await task.kiq(*args, **kwargs)
-            logger.debug("Task sent!", id=result.id)
+            task_name = task.__name__
+            await task.kiq(*args, **kwargs)
+            logger.debug(
+                "Task sent!",
+                task=task_name,
+                args=args,
+                kwargs=kwargs,
+            )
         except Exception as e:
-            logger.error("Failed to send task", error=str(e), exc_info=True)
+            logger.error(
+                "Failed to send task",
+                task=task.__name__,
+                error=str(e),
+                exc_info=True,
+            )
             raise
 
 
