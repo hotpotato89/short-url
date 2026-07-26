@@ -17,7 +17,6 @@ from src.app.schemas.user import ChangeRole, UserResponse
 from src.app.services.export_service import ExportService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.services.user_service import UserService
-from src.app.tasks import save_export_log_task
 
 
 router = APIRouter(tags=["admin"], prefix="/admin")
@@ -49,7 +48,6 @@ async def export_all(
     format: ExportFormat = Query(ExportFormat.CSV),
 ) -> Response:
     content = await export_service.export_all_urls(format)
-    task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
