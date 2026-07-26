@@ -57,7 +57,7 @@ services:
       ports:
         - "4222:4222"
       restart: unless-stopped
-      command: ["-js"]
+      command: ["-js", "-sd", "/data"]
       volumes:
         - nats_data:/data
 
