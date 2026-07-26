@@ -1,6 +1,6 @@
 from typing import Callable
 
-from src.app.core.taskiq_broker import broker # noqa
+from src.app.core.taskiq_broker import * # noqa
 from src.app.core.logging import get_logger
 
 logger = get_logger(__name__)
