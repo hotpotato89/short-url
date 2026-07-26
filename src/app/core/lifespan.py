@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from src.app.core.database import engine
 from src.app.core.logging import get_logger, setup_logging
 from src.app.core.redis_client import redis_client
+from src.app.core.taskiq_broker import broker
 
 
 logger = get_logger(__name__)
@@ -22,7 +23,13 @@ async def lifespan(_: FastAPI):
     await redis_client.ping()
     logger.info("Redis connected")
 
+    if not broker.is_worker_process:
+        await broker.startup()
+
     yield
+
+    if not broker.is_worker_process:
+        await broker.shutdown()
 
     await redis_client.close()
     logger.info("Redis disconnected")
