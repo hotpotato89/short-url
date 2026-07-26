@@ -10,4 +10,3 @@ broker = PullBasedJetStreamBroker(
     pull_consume_batch=5,
     subject="taskiq_tasks",
 )
-

@@ -37,7 +37,7 @@ class RedisSettings(BaseModel):
     @property
     def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
-    
+
 
 class NatsSettings(BaseModel):
     host: str
