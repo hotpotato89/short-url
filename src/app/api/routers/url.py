@@ -72,7 +72,7 @@ async def redirect(
         save_click_task,
         url.id,
         request.client.host if request.client else "unknown",
-        request.headers.get("user-agent", "unknown")
+        request.headers.get("user-agent", "unknown"),
     )
     logger.debug("Task sent for slug", slug=slug)
     return RedirectResponse(url.original_url, status_code=status.HTTP_303_SEE_OTHER)
