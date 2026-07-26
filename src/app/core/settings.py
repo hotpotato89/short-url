@@ -37,10 +37,15 @@ class RedisSettings(BaseModel):
     @property
     def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
+    
+
+class NatsSettings(BaseModel):
+    host: str
+    port: int
 
     @property
-    def celery_url(self) -> str:
-        return f"redis://{self.host}:{self.port}/{self.celery_db}"
+    def url(self) -> str:
+        return f"nats://{self.host}:{self.port}"
 
 
 class JwtSettings(BaseModel):
@@ -69,6 +74,7 @@ class Settings(BaseSettings):
     redis: RedisSettings
     app: AppSettings
     argon2: Argon2Settings
+    nats: NatsSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 
