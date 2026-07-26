@@ -18,19 +18,3 @@ SessionLocal = async_sessionmaker(
     autoflush=False,
     autocommit=False,
 )
-
-celery_engine = create_engine(
-    settings.db.url.replace("+asyncpg", ""),
-    pool_size=10,
-    max_overflow=15,
-    pool_pre_ping=True,
-    pool_recycle=60 * 60,
-)
-
-CelerySessionLocal = sessionmaker(
-    celery_engine,
-    class_=Session,
-    expire_on_commit=False,
-    autoflush=False,
-    autocommit=False,
-)
