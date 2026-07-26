@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta, timezone
 from typing import Sequence
 
-from sqlalchemy import select, desc, asc
+from sqlalchemy import delete, select, desc, asc, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from src.app.core.exceptions import SlugAlreadyExistsError, SlugNotFoundError
 from src.app.models.short_url import ShortUrl
+from src.app.models.user import User
 
 
 class ShortUrlRepository:
@@ -46,11 +47,6 @@ class ShortUrlRepository:
         if not url:
             raise SlugNotFoundError(f"Url with ID {url_id} not found")
         return url
-
-    async def increment_clicks(self, slug: str) -> None:
-        url = await self.get_url(slug)
-        url.clicks += 1
-        await self.session.flush()
 
     async def get_urls_owner(
         self, owner_id: int, reverse: bool = False, page: int = 1, limit: int = 10
@@ -93,3 +89,28 @@ class ShortUrlRepository:
             select(ShortUrl).limit(limit).order_by(ShortUrl.created_at.desc())
         )
         return result.scalars().all()
+
+    async def increment_click(self, url_id: int) -> None:
+        stmt = (
+            update(ShortUrl)
+            .values(clicks=ShortUrl.clicks + 1)
+            .where(ShortUrl.id == url_id)
+        )
+        await self.session.execute(stmt)
+        await self.session.flush()
+
+    async def delete_expired(self) -> int:
+        stmt = delete(ShortUrl).where(ShortUrl.expires_at < datetime.now(timezone.utc))
+        result = await self.session.execute(stmt)
+        await self.session.flush()
+        if hasattr(result, "rowcount"):
+            return result.rowcount
+        else:
+            return 0
+
+    async def replenish_credits(self, amount: int) -> None:
+        stmt = (
+            update(User).values(credits=User.credits + amount).where(User.credits < 5)
+        )
+        await self.session.execute(stmt)
+        await self.session.flush()

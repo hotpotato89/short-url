@@ -3,6 +3,7 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.core.enums import ExportFormat
 from src.app.models.export_log import ExportLog
 
 
@@ -26,3 +27,8 @@ class ExportLogRepository:
             .limit(limit)
         )
         return result.scalars().all()
+
+    async def save_export_logs(self, user_id: int, format: ExportFormat) -> None:
+        new_log = ExportLog(user_id=user_id, format=format)
+        await self.session.add(new_log)
+        await self.session.flush()
