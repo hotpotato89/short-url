@@ -25,6 +25,7 @@ dependencies = [
     "uvicorn>=0.49.0",
     "xlsxwriter>=3.2.9",
     "psycopg2-binary>=2.9.12",
+    "taskiq[nats]>=0.12.4",
 ]
 
 [dependency-groups]
