@@ -52,7 +52,7 @@ async def test_create_url_with_ttl_1_day(
     data = resp.json()
     assert data["expires_at"] is not None
 
-    expires_at = datetime.fromisoformat(data["expires_at"].replace("Z", "+00:00"))
+    expires_at = datetime.fromisoformat(data["expires_at"])
     now = datetime.now(UTC)
     diff = expires_at - now
     assert 23 <= diff.total_seconds() / 3600 <= 25

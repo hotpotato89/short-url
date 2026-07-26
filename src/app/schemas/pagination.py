@@ -1,12 +1,12 @@
 from collections.abc import Sequence
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
 T = TypeVar("T")
 
 
-class CursorPaginationResponse(BaseModel, Generic[T]):
+class CursorPaginationResponse[T](BaseModel):
     items: Sequence[T]
     next_cursor: int | None
     limit: int

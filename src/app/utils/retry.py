@@ -10,9 +10,9 @@ def retry(exc: type[Exception], retries: int = 5, delay: float = 0.1):
             for attempt in range(retries):
                 try:
                     return await func(*args, **kwargs)
-                except exc as e:
+                except exc:
                     if attempt == retries - 1:
-                        raise e
+                        raise
                     await asyncio.sleep(delay * (attempt + 1))
 
         return inner
