@@ -68,6 +68,12 @@ jobs:
           ARGON2__HASH_LEN: 16
           ARGON2__SALT_LEN: 16
 
+          # RabbitMq
+          RABBITMQ__HOST: localhost
+          RABBITMQ__PORT: 5672
+          RABBITMQ__LOGIN: quest
+          RABBITMQ__PASSWORD: quest
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
