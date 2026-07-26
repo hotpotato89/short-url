@@ -1,18 +1,20 @@
-from taskiq_nats import PullBasedJetStreamBroker, PushBasedJetStreamBroker
+from taskiq_aio_pika import AioPikaBroker
+from taskiq_aio_pika.queue import Queue
 
 from src.app.core.settings import settings
 
+task_queue = Queue(name="short_url_tasks", durable=True)
 
-push_broker = PushBasedJetStreamBroker(
-    servers=settings.nats.url,
-    subject="taskiq_tasks"
+dead_letter_queue = Queue(
+    name="short_url_tasks_dlq",
+    durable=True,
 )
 
 
-pull_broker = PullBasedJetStreamBroker(
-    servers=settings.nats.url,
-    stream_name="short_url_stream",
-    durable="short_url_durable",
-    pull_consume_batch=5,
-    subject="taskiq_tasks",
+broker = AioPikaBroker(
+    settings.rabbitmq.url,
+    result_backend=False,
+    qos=10,
+    task_queues=[task_queue],
+    dead_letter_queue=dead_letter_queue,
 )
