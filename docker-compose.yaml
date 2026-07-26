@@ -10,6 +10,7 @@ services:
         - DB__HOST=db
         - REDIS__HOST=redis
         - APP__ENV=prod
+        - RABBITMQ__HOST=rabbitmq
       env_file:
        - ".env"
       restart: unless-stopped
@@ -62,6 +63,26 @@ services:
       environment:
         RABBITMQ_DEFAULT_USER: ${RABBITMQ__LOGIN}
         RABBITMQ_DEFAULT_PASS: ${RABBITMQ__PASSWORD}
+
+    taskiq_worker:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: taskiq worker src.app.worker:broker --workers=2
+      environment:
+        - DB__HOST=db
+        - REDIS__HOST=redis
+        - RABBITMQ__HOST=rabbitmq
+        - APP__ENV=prod
+      env_file:
+        - ".env"
+      depends_on:
+        - db
+        - redis
+        - rabbitmq
+      restart: unless-stopped
+      volumes:
+        - ./keys:/app/keys
 
 volumes:
   postgres_data:
