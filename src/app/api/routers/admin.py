@@ -10,6 +10,7 @@ from src.app.api.deps import (
     get_user_service,
 )
 from src.app.core.task_runner import task_runner
+from src.app.tasks import save_export_log_task
 from src.app.core.enums import ExportFormat
 from src.app.models.user import User
 from src.app.schemas.export_log import ExportLogResponse
@@ -48,6 +49,11 @@ async def export_all(
     format: ExportFormat = Query(ExportFormat.CSV),
 ) -> Response:
     content = await export_service.export_all_urls(format)
+    await task_runner.run_in_bg(
+        save_export_log_task,
+        admin.id,
+        format
+    )
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
