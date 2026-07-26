@@ -1,7 +1,7 @@
 import csv
 import json
+from collections.abc import Sequence
 from io import BytesIO, StringIO
-from typing import Sequence
 
 import pandas as pd
 

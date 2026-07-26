@@ -5,9 +5,9 @@ from fastapi import status
 from httpx import AsyncClient
 
 from src.app.core.enums import UserRole
+from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
-from src.app.models.user import User
 
 
 async def test_admin_change_role_success(

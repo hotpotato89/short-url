@@ -1,5 +1,5 @@
-import pytest
 import httpx
+import pytest
 from fastapi import status
 
 from src.app.schemas.user import UserResponse

@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from sqlalchemy import TIMESTAMP, func, String
+from sqlalchemy import TIMESTAMP, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.app.core.enums import UserRole
 from src.app.models.base import Base
-
 
 if TYPE_CHECKING:
     from src.app.models.export_log import ExportLog
@@ -33,6 +32,6 @@ class User(Base):
 
     credits: Mapped[int] = mapped_column(default=5)
 
-    export_logs: Mapped[List["ExportLog"]] = relationship(
+    export_logs: Mapped[list[ExportLog]] = relationship(
         "ExportLog", back_populates="user", lazy="selectin"
     )

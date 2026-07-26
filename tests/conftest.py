@@ -1,22 +1,22 @@
-from datetime import datetime, timezone
-from typing import AsyncGenerator
-from unittest.mock import patch, AsyncMock
 import uuid
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime, timezone
+from unittest.mock import AsyncMock, patch
 
-from faker import Faker
-from simple_redis_cache.asyncio import Cache
-from pydantic import SecretStr
 import pytest
+from async_argon2 import AsyncArgon2
+from faker import Faker
+from fakeredis.aioredis import FakeRedis
+from httpx import ASGITransport, AsyncClient
+from pydantic import SecretStr
+from simple_redis_cache.asyncio import Cache
 from slowapi import Limiter
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
-    create_async_engine,
-    async_sessionmaker,
     AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
-from httpx import AsyncClient, ASGITransport
-from fakeredis.aioredis import FakeRedis
-from async_argon2 import AsyncArgon2
 
 from src.app.api.deps import get_session
 from src.app.core.limiter import limiter
@@ -27,7 +27,6 @@ from src.app.schemas.click import ClickResponse
 from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
-
 
 faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
@@ -44,7 +43,7 @@ def mock_click_stats():
                     url_id=1,
                     user_ip="127.0.0.1",
                     user_agent="TestBot/1.0",
-                    created_at=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
                 )
             ],
             next_cursor=None,
@@ -61,7 +60,7 @@ async def mock_celery():
 
 
 @pytest.fixture(autouse=True, scope="function")
-async def test_redis() -> AsyncGenerator[Cache, None]:
+async def test_redis() -> AsyncGenerator[Cache]:
     test_cache_manager = Cache(FakeRedis())
 
     with patch("src.app.core.redis_client.cache_manager", test_cache_manager):
@@ -69,14 +68,14 @@ async def test_redis() -> AsyncGenerator[Cache, None]:
 
 
 @pytest.fixture(autouse=True)
-async def disable_limiter() -> AsyncGenerator[Limiter, None]:
+async def disable_limiter() -> AsyncGenerator[Limiter]:
     limiter.enabled = False
     yield limiter
     limiter.enabled = True
 
 
 @pytest.fixture(scope="session")
-async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
+async def db_engine() -> AsyncGenerator[AsyncEngine]:
     engine = create_async_engine(TEST_DB_URL, echo=False)
 
     async with engine.begin() as conn:
@@ -89,7 +88,7 @@ async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
 
 
 @pytest.fixture()
-async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(db_engine) -> AsyncGenerator[AsyncSession]:
     TestSesstionLocal = async_sessionmaker(
         db_engine, expire_on_commit=False, class_=AsyncSession
     )
@@ -99,7 +98,7 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture()
-async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     async def override_db_session():
         yield db_session
 

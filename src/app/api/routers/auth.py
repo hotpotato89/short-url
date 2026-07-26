@@ -1,14 +1,13 @@
-from typing import Annotated, Sequence
+from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, Path, Query, Request, status
+from fastapi import APIRouter, Body, Depends, Request, status
 
-from src.app.api.deps import get_current_admin, get_current_user, get_user_service
+from src.app.api.deps import get_current_user, get_user_service
+from src.app.core.limiter import limiter
 from src.app.models.user import User
 from src.app.schemas.token import TokenInfo
-from src.app.schemas.user import ChangeRole, UserLogin, UserRegister, UserResponse
+from src.app.schemas.user import UserLogin, UserRegister, UserResponse
 from src.app.services.user_service import UserService
-from src.app.core.limiter import limiter
-
 
 router = APIRouter(tags=["auth"], prefix="/auth")
 BASE_LIMIT: str = "5/min"

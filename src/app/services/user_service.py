@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,13 +9,13 @@ from src.app.core.exceptions import (
     PermissionDeniedError,
     UserNotFoundError,
 )
+from src.app.core.hashing import hasher
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.user_repository import UserRepository
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserLogin, UserRegister, UserResponse
-from src.app.core.hashing import hasher
-from src.app.utils.jwt import create_access_token, create_refresh_token, decode_jwt
 from src.app.utils.crypt import crypt_util
+from src.app.utils.jwt import create_access_token, create_refresh_token, decode_jwt
 
 
 class UserService:

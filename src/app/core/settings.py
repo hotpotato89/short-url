@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import BaseModel, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings
@@ -38,9 +38,16 @@ class RedisSettings(BaseModel):
     def rate_limiter_url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.rate_limiter_db}"
 
+
+class RabbitMqSettings(BaseModel):
+    host: str
+    port: int
+    login: str
+    password: SecretStr
+
     @property
-    def celery_url(self) -> str:
-        return f"redis://{self.host}:{self.port}/{self.celery_db}"
+    def url(self) -> str:
+        return f"amqp://{self.login}:{self.password.get_secret_value()}@{self.host}:{self.port}//"
 
 
 class JwtSettings(BaseModel):
@@ -49,7 +56,7 @@ class JwtSettings(BaseModel):
 
 
 class AppSettings(BaseModel):
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = ["http://localhost:3000"]
     base_url: str = "http://localhost:8000"
     env: AppEnv = AppEnv.DEV
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
@@ -69,6 +76,7 @@ class Settings(BaseSettings):
     redis: RedisSettings
     app: AppSettings
     argon2: Argon2Settings
+    rabbitmq: RabbitMqSettings
 
     model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
 

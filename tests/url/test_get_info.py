@@ -1,4 +1,5 @@
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
+
 from fastapi import status
 from httpx import AsyncClient
 

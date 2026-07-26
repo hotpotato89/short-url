@@ -1,7 +1,7 @@
+from src.app.core.redis_client import cache_manager
 from src.app.core.settings import settings
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.utils.qrcode import generate_qr_base64
-from src.app.core.redis_client import cache_manager
 
 
 class QrcodeService:

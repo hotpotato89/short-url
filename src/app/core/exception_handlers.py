@@ -1,16 +1,15 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
-
 from slowapi.errors import RateLimitExceeded
 
 from src.app.core.exceptions import (
     ClickNotFoundError,
-    InvalidTokenError,
     InvalidCredentialsError,
+    InvalidTokenError,
     PermissionDeniedError,
-    UserAlreadyExistsError,
-    SlugNotFoundError,
     SlugAlreadyExistsError,
+    SlugNotFoundError,
+    UserAlreadyExistsError,
     UserNotFoundError,
 )
 

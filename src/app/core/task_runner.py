@@ -1,20 +1,31 @@
-from typing import Callable
+from collections.abc import Callable
 
-from src.app.core.celery import celery_app  # noqa
 from src.app.core.logging import get_logger
+from src.app.core.taskiq_broker import *
 
 logger = get_logger(__name__)
 
 
 class TaskRunner:
     @staticmethod
-    def run_in_bg(task: Callable, *args, **kwargs) -> None:
+    async def run_in_bg(task: Callable, *args, **kwargs) -> None:
 
         try:
-            result = task.delay(*args, **kwargs)
-            logger.debug("Task sent!", id=result.id)
+            task_name = task.__name__
+            await task.kiq(*args, **kwargs)
+            logger.debug(
+                "Task sent!",
+                task=task_name,
+                args=args,
+                kwargs=kwargs,
+            )
         except Exception as e:
-            logger.error("Failed to send task", error=str(e), exc_info=True)
+            logger.error(
+                "Failed to send task",
+                task=task.__name__,
+                error=str(e),
+                exc_info=True,
+            )
             raise
 
 

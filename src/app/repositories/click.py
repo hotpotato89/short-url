@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,3 +32,8 @@ class ClickRepository:
             stmt = stmt.where(Click.id < cursor)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def save_click(self, url_id: int, user_ip: str, user_agent: str) -> None:
+        new_click = Click(url_id=url_id, user_ip=user_ip, user_agent=user_agent)
+        self.session.add(new_click)
+        await self.session.flush()

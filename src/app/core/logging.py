@@ -1,13 +1,12 @@
-import logging
-from typing import Any
-import sys
 import contextvars
+import logging
+import sys
+from typing import Any
 
 import structlog
 from structlog.types import EventDict
 
 from src.app.core.settings import settings
-
 
 request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "request_id", default=None

@@ -1,4 +1,5 @@
 import pytest
+
 from src.app.utils.crypt import crypt_util
 
 

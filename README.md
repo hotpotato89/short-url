@@ -9,8 +9,8 @@
 ![Alembic](https://img.shields.io/badge/Alembic-1.14-orange)
 ![QR Code](https://img.shields.io/badge/QR%20Code-Generated-brightgreen)
 [![logging](https://img.shields.io/badge/logging-structlog-FF6B6B?logo=python&logoColor=white)](https://www.structlog.org/)
-![Celery](https://img.shields.io/badge/Celery-5.6-brightgreen)
-![Celery Beat](https://img.shields.io/badge/Celery%20Beat-Scheduler-blue)
+![Taskiq](https://img.shields.io/badge/Taskiq-0.12-blue)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-4.0-orange)
 ![SHA-256](https://img.shields.io/badge/Token%20Storage-SHA256-orange)
 ![Argon2](https://img.shields.io/badge/Argon2-Secure-purple)
 ![Rate Limiting](https://img.shields.io/badge/Rate%20Limiting-SlowAPI-purple)
@@ -30,11 +30,11 @@
 ![Credits](https://img.shields.io/badge/Credits-5%20free-FFD700)
 ![Credits System](https://img.shields.io/badge/Credits-System-blue)
 
-Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis, а также Celery с Celery Beat.
+Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis и асинхронными задачами через Taskiq + RabbitMQ.
 
 ## 🌐 Демо
 
-⚠️ Сайт работает в ограниченном режиме: Celery воркер отключён из-за ограничений бесплатного тарифа Render. Клики не учитываются, просроченные ссылки не удаляются, а всё остальное работает.
+⚠️ Сайт работает в ограниченном режиме: Taskiq воркер отключён из-за ограничений бесплатного тарифа Render. Клики не учитываются, просроченные ссылки не удаляются, а всё остальное работает.
 
 - **Swagger UI:** [short-url-8bjl.onrender.com/docs](https://short-url-8bjl.onrender.com/docs)
 - **Фронтенд:** [short-url-ui-9240.onrender.com](https://short-url-ui-9240.onrender.com)
@@ -87,7 +87,7 @@ curl http://localhost:8000/health
 pytest --cov src.app --cov-report=term
 ```
 
-> Результат: **115 зеленых тестов.**
+> Результат: **119 зеленых тестов.**
 
 ## API эндпоинты
 
@@ -97,7 +97,7 @@ pytest --cov src.app --cov-report=term
 
 - **Создание ссылки** — тратит 1 кредит
 - **При 0 кредитах** — создание ссылки недоступно (ошибка 403)
-- **Автоматическое пополнение** — +5 кредитов 1-го числа каждого месяца (через Celery Beat)
+- **Автоматическое пополнение** — +5 кредитов 1-го числа каждого месяца (через Taskiq Scheduler, в разработке)
 
 **Эндпоинты:**
 | Метод | Эндпоинт | Описание |
@@ -199,8 +199,8 @@ pytest --cov src.app --cov-report=term
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
- - Увеличение счетчика кликов происходит в фоне через **Celery**
- - Автоматическое удаление истекших ссылок через **Celery Beat**
+ - Увеличение счетчика кликов происходит в фоне через **Taskiq** (асинхронные задачи)
+ - Автоматическое удаление истекших ссылок через **Taskiq Scheduler** (планируется)
  - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
  - Типобезопасность через `Python Enums`
 

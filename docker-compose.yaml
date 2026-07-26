@@ -10,6 +10,7 @@ services:
         - DB__HOST=db
         - REDIS__HOST=redis
         - APP__ENV=prod
+        - RABBITMQ__HOST=rabbitmq
       env_file:
        - ".env"
       restart: unless-stopped
@@ -52,38 +53,38 @@ services:
         timeout: 10s
         retries: 3
 
-    celery_worker:
-      build: .
-      command: celery -A src.app.core.celery worker --loglevel=info
-      environment:
-        - DB__HOST=db
-        - REDIS__HOST=redis
-      env_file:
-        - ".env"
-      restart: unless-stopped
+    rabbitmq:
+      image: rabbitmq:alpine
+      ports:
+        - "5672:5672"
       volumes:
-        - ./keys:/app/keys:ro
-      depends_on:
-        db:
-          condition: service_healthy
-        redis:
-          condition: service_healthy
+        - rabbitmq_data:/var/lib/rabbitmq
+      restart: unless-stopped
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ__LOGIN}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ__PASSWORD}
 
-    celery_beat:
-      build: .
-      command: celery -A src.app.core.celery beat --loglevel=info
+    taskiq_worker:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: taskiq worker src.app.worker:broker --workers=2
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis
+        - RABBITMQ__HOST=rabbitmq
+        - APP__ENV=prod
       env_file:
         - ".env"
+      depends_on:
+        - db
+        - redis
+        - rabbitmq
       restart: unless-stopped
       volumes:
-        - ./keys:/app/keys:ro
-      depends_on:
-        celery_worker:
-          condition: service_started
+        - ./keys:/app/keys
 
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:

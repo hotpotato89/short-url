@@ -1,7 +1,8 @@
+from collections.abc import Sequence
 from datetime import datetime
-from fastapi import APIRouter, Depends, Path, Query, Response
+from typing import Annotated
 
-from typing import Annotated, Sequence
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from src.app.api.deps import (
     get_current_admin,
@@ -9,8 +10,8 @@ from src.app.api.deps import (
     get_url_service,
     get_user_service,
 )
-from src.app.core.task_runner import task_runner
 from src.app.core.enums import ExportFormat
+from src.app.core.task_runner import task_runner
 from src.app.models.user import User
 from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.user import ChangeRole, UserResponse
@@ -18,7 +19,6 @@ from src.app.services.export_service import ExportService
 from src.app.services.short_url_service import ShortUrlService
 from src.app.services.user_service import UserService
 from src.app.tasks import save_export_log_task
-
 
 router = APIRouter(tags=["admin"], prefix="/admin")
 
@@ -49,7 +49,7 @@ async def export_all(
     format: ExportFormat = Query(ExportFormat.CSV),
 ) -> Response:
     content = await export_service.export_all_urls(format)
-    task_runner.run_in_bg(save_export_log_task, user_id=admin.id, format=format)
+    await task_runner.run_in_bg(save_export_log_task, admin.id, format)
 
     if format == "xlsx":
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

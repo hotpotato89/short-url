@@ -1,8 +1,10 @@
-from httpx import AsyncClient
-import pytest
-from src.app.schemas.token import TokenInfo
-from fastapi import status
 from time import perf_counter
+
+import pytest
+from fastapi import status
+from httpx import AsyncClient
+
+from src.app.schemas.token import TokenInfo
 
 
 async def test_cache_redirect(client: AsyncClient, auth_tokens: TokenInfo) -> None:
