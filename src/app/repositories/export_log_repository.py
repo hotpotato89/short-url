@@ -30,5 +30,5 @@ class ExportLogRepository:
 
     async def save_export_logs(self, user_id: int, format: ExportFormat) -> None:
         new_log = ExportLog(user_id=user_id, format=format)
-        await self.session.add(new_log)
+        self.session.add(new_log)
         await self.session.flush()

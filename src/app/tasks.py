@@ -19,4 +19,4 @@ async def save_click_task(url_id: int, user_ip: str, user_agent: str) -> None:
     async with SessionLocal() as session:
         repo = ClickRepository(session)
         await repo.save_click(url_id, user_ip, user_agent)
-        await session.commt()
+        await session.commit()
