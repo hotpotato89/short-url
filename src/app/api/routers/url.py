@@ -67,7 +67,7 @@ async def redirect(
 
     url = await service.get_url(slug)
     logger.debug("Sending task for slug", slug=slug)
-    await task_runner.run_in_bg(increment_click_task, slug)
+    await task_runner.run_in_bg(increment_click_task, url.id)
     await task_runner.run_in_bg(
         save_click_task,
         url.id,
