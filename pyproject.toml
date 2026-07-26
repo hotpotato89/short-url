@@ -26,6 +26,8 @@ dependencies = [
     "xlsxwriter>=3.2.9",
     "psycopg2-binary>=2.9.12",
     "taskiq[nats]>=0.12.4",
+    "taskiq-nats>=0.6.0",
+    "nats-py>=2.15.0",
 ]
 
 [dependency-groups]
