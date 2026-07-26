@@ -13,7 +13,6 @@ dead_letter_queue = Queue(
 
 broker = AioPikaBroker(
     settings.rabbitmq.url,
-    result_backend=False,
     qos=10,
     task_queues=[task_queue],
     dead_letter_queue=dead_letter_queue,
