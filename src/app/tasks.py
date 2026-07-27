@@ -6,7 +6,6 @@ from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 
-
 logger = get_logger(__name__)
 
 
