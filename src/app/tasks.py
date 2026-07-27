@@ -1,9 +1,13 @@
 from src.app.core.database import SessionLocal
 from src.app.core.enums import ExportFormat
+from src.app.core.logging import get_logger
 from src.app.core.taskiq_broker import broker
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
+
+
+logger = get_logger(__name__)
 
 
 @broker.task
@@ -35,4 +39,13 @@ async def replenish_credits_task() -> None:
     async with SessionLocal() as session:
         repo = ShortUrlRepository(session)
         await repo.replenish_credits(5)
+        await session.commit()
+
+
+@broker.task(schedule=[{"cron": "0 0 * * *"}])
+async def delete_expired_task() -> None:
+    async with SessionLocal() as session:
+        repo = ShortUrlRepository(session)
+        deleted = await repo.delete_expired()
+        logger.info("Deleted expired urls", count=deleted)
         await session.commit()
