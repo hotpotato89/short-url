@@ -28,3 +28,11 @@ async def save_export_log_task(user_id: int, format: ExportFormat) -> None:
         repo = ExportLogRepository(session)
         await repo.save_export_logs(user_id, format)
         await session.commit()
+
+
+@broker.task(schedule=[{"cron": "0 0 1 * *"}])
+async def replenish_credits_task() -> None:
+    async with SessionLocal() as session:
+        repo = ShortUrlRepository(session)
+        await repo.replenish_credits(5)
+        await session.commit()
