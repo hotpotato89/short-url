@@ -17,9 +17,7 @@ class ShortUrlRepository:
     async def create_url(
         self, original_url: str, slug: str, owner_id: int, ttl_days: int | None
     ) -> ShortUrl:
-        ttl = (
-            datetime.now(UTC) + timedelta(days=ttl_days) if ttl_days else None
-        )
+        ttl = datetime.now(UTC) + timedelta(days=ttl_days) if ttl_days else None
         new_url = ShortUrl(
             original_url=original_url, slug=slug, owner_id=owner_id, expires_at=ttl
         )

@@ -1,7 +1,7 @@
+from taskiq import TaskiqScheduler
+from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_aio_pika import AioPikaBroker
 from taskiq_aio_pika.queue import Queue
-from taskiq.schedule_sources import LabelScheduleSource
-from taskiq import TaskiqScheduler
 
 from src.app.core.settings import settings
 
@@ -20,7 +20,4 @@ broker = AioPikaBroker(
     dead_letter_queue=dead_letter_queue,
 )
 
-scheduler = TaskiqScheduler(
-    broker=broker,
-    sources=[LabelScheduleSource(broker)]
-)
+scheduler = TaskiqScheduler(broker=broker, sources=[LabelScheduleSource(broker)])
