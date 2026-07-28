@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query, Response
@@ -46,7 +46,7 @@ async def get_all(
 async def export_all(
     admin: Annotated[User, Depends(get_current_admin)],
     export_service: Annotated[ShortUrlService, Depends(get_url_service)],
-    format: ExportFormat = Query(ExportFormat.CSV),
+    format: ExportFormat = ExportFormat.CSV,
 ) -> Response:
     content = await export_service.export_all_urls(format)
     await task_runner.run_in_bg(save_export_log_task, admin.id, format)
@@ -61,7 +61,7 @@ async def export_all(
         media_type = "application/json"
         extension = "json"
 
-    filename = f"urls_{datetime.now().strftime('%Y_%m_%d_%H_%M')}.{extension}"
+    filename = f"urls_{datetime.now(UTC).strftime('%Y_%m_%d_%H_%M')}.{extension}"
 
     return Response(
         content=content,

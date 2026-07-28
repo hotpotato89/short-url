@@ -1,5 +1,4 @@
-from datetime import UTC, datetime, timedelta, timezone
-from typing import Dict
+from datetime import UTC, datetime, timedelta
 
 import pytest
 

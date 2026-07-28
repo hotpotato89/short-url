@@ -68,7 +68,27 @@ services:
       build:
         context: .
         dockerfile: Dockerfile
-      command: taskiq worker src.app.worker:broker --workers=2
+      command: taskiq worker src.app.worker:broker --workers=2 --log-level=WARNING
+      environment:
+        - DB__HOST=db
+        - REDIS__HOST=redis
+        - RABBITMQ__HOST=rabbitmq
+        - APP__ENV=prod
+      env_file:
+        - ".env"
+      depends_on:
+        - db
+        - redis
+        - rabbitmq
+      restart: unless-stopped
+      volumes:
+        - ./keys:/app/keys
+
+    taskiq_scheduler:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command: taskiq scheduler src.app.scheduler:scheduler --log-level=WARNING
       environment:
         - DB__HOST=db
         - REDIS__HOST=redis

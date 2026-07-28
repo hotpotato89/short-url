@@ -20,11 +20,10 @@ class TaskRunner:
                 kwargs=kwargs,
             )
         except Exception as e:
-            logger.error(
+            logger.exception(
                 "Failed to send task",
                 task=task.__name__,
                 error=str(e),
-                exc_info=True,
             )
             raise
 

@@ -1,4 +1,3 @@
-
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import PermissionDeniedError
 from src.app.repositories.click import ClickRepository
