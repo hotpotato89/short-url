@@ -75,5 +75,6 @@ async def get_logs(
     admin: Annotated[User, Depends(get_current_admin)],
     service: Annotated[ExportService, Depends(get_export_service)],
     limit: int = Query(100, ge=1, le=500, description="limit of records count"),
+    cursor: int | None = Query(None, description="Pagination cursor (ID)"),
 ) -> Sequence[ExportLogResponse]:
-    return await service.get_logs(admin.is_superadmin, admin.id, limit)
+    return await service.get_logs(admin.is_superadmin, limit=limit, cursor=cursor)
