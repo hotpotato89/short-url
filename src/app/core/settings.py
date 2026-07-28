@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     argon2: Argon2Settings
     rabbitmq: RabbitMqSettings
 
-    model_config = {"env_file": ".env", "env_nested_delimiter": "__"}
+    model_config = {"env_file": ".env", "env_nested_delimiter": "__", "extra": "ignore"}
 
 
 settings = Settings()  # type: ignore

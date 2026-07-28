@@ -37,7 +37,11 @@ async def test_get_export_logs_as_superadmin(
 
     assert resp.status_code == 200
     data = resp.json()
-    assert isinstance(data, list)
+    assert isinstance(data, dict)
+    assert "items" in data
+    assert "has_more" in data
+    assert "limit" in data
+    assert "next_cursor" in data
 
 
 async def test_export_logs_limit(
@@ -51,7 +55,7 @@ async def test_export_logs_limit(
 
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) <= 3
+    assert len(data.get("items")) <= 3
 
 
 async def test_export_logs_denied_without_token(

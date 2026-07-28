@@ -14,6 +14,7 @@ from src.app.core.enums import ExportFormat
 from src.app.core.task_runner import task_runner
 from src.app.models.user import User
 from src.app.schemas.export_log import ExportLogResponse
+from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.user import ChangeRole, UserResponse
 from src.app.services.export_service import ExportService
 from src.app.services.short_url_service import ShortUrlService
@@ -75,5 +76,6 @@ async def get_logs(
     admin: Annotated[User, Depends(get_current_admin)],
     service: Annotated[ExportService, Depends(get_export_service)],
     limit: int = Query(100, ge=1, le=500, description="limit of records count"),
-) -> Sequence[ExportLogResponse]:
-    return await service.get_logs(admin.is_superadmin, admin.id, limit)
+    cursor: int | None = Query(None, description="Pagination cursor (ID)"),
+) -> CursorPaginationResponse[ExportLogResponse]:
+    return await service.get_logs(admin.is_superadmin, limit=limit, cursor=cursor)

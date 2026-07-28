@@ -11,6 +11,7 @@ from src.app.models.short_url import ShortUrl
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.schemas.export_log import ExportLogResponse
+from src.app.schemas.pagination import CursorPaginationResponse
 
 
 class ExportService:
@@ -19,17 +20,26 @@ class ExportService:
         self.log_repo = log_repo
 
     async def get_logs(
-        self, is_superadmin: bool, user_id: int | None = None, limit: int = 100
-    ) -> Sequence[ExportLogResponse]:
+        self,
+        is_superadmin: bool,
+        limit: int = 100,
+        cursor: int | None = None,
+    ) -> CursorPaginationResponse[ExportLogResponse]:
         if is_superadmin is False:
-            raise PermissionDeniedError("Only for supeadmin")
+            raise PermissionDeniedError("Only for superadmin")
 
-        if user_id:
-            result = await self.log_repo.get_logs_by_user_id(limit, user_id)
-        else:
-            result = await self.log_repo.get_all_logs(limit)
+        result = await self.log_repo.get_all_logs(limit + 1, cursor)
 
-        return [ExportLogResponse.model_validate(u) for u in result]
+        has_more = len(result) > limit
+        next_cursor = result[limit - 1].id if has_more else None
+        items = result[:limit]
+
+        return CursorPaginationResponse(
+            items=[ExportLogResponse.model_validate(item) for item in items],
+            next_cursor=next_cursor,
+            limit=limit,
+            has_more=has_more,
+        )
 
     async def export(self, format: ExportFormat = ExportFormat.CSV) -> str | bytes:
         urls = await self.repo.get_all()
