@@ -14,7 +14,7 @@ class ExportLogRepository:
     async def get_all_logs(
         self, limit: int = 100, cursor: int | None = None
     ) -> Sequence[ExportLog]:
-        stmt = select(ExportLog).order_by(ExportLog.created_at.desc()).limit(limit)
+        stmt = select(ExportLog).order_by(ExportLog.id.desc()).limit(limit)
 
         if cursor:
             stmt = stmt.where(ExportLog.id < cursor)
