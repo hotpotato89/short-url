@@ -44,9 +44,12 @@ class RabbitMqSettings(BaseModel):
     port: int
     login: str
     password: SecretStr
+    override_url: str | None = None
 
     @property
     def url(self) -> str:
+        if self.override_url:
+            return self.override_url
         return f"amqp://{self.login}:{self.password.get_secret_value()}@{self.host}:{self.port}//"
 
 
