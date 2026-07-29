@@ -15,11 +15,11 @@ class ClickService:
         self,
         user_id: int,
         user_role: UserRole,
-        url_id: int,
+        url_slug: str,
         limit: int = 10,
         cursor: int | None = None,
     ) -> CursorPaginationResponse[ClickResponse]:
-        url = await self.url_repo.get_url_by_id(url_id)
+        url = await self.url_repo.get_url(url_slug)
 
         if url.owner_id != user_id and user_role != UserRole.ADMIN:
             raise PermissionDeniedError("You dont have permission to view it")
