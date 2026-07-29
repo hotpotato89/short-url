@@ -30,9 +30,9 @@ class ExportService:
 
         result = await self.log_repo.get_all_logs(limit + 1, cursor)
 
-        has_more = len(result) > limit
-        next_cursor = result[limit - 1].id if has_more else None
         items = result[:limit]
+        has_more = len(result) > limit
+        next_cursor = items[-1].id if has_more else None
 
         return CursorPaginationResponse(
             items=[ExportLogResponse.model_validate(item) for item in items],

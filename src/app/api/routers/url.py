@@ -92,13 +92,11 @@ async def get_url_info(
 async def get_url_stats(
     user: Annotated[User, Depends(get_current_user)],
     service: Annotated[ClickService, Depends(get_click_service)],
-    url_service: Annotated[ShortUrlService, Depends(get_url_service)],
     slug: str = Path(..., max_length=20, description="URL's slug"),
     limit: int = Query(10, ge=1, le=100, description="Limit on 1 page"),
     cursor: int | None = Query(None, description="Pagination cursor (ID)"),
 ) -> CursorPaginationResponse[ClickResponse]:
-    url = await url_service.get_url(slug)
-    return await service.get_stats(user.id, user.role, url.id, limit, cursor)
+    return await service.get_stats(user.id, user.role, slug, limit, cursor)
 
 
 @router.get("/{slug}/qr")

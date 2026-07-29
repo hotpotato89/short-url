@@ -15,20 +15,20 @@ class ClickService:
         self,
         user_id: int,
         user_role: UserRole,
-        url_id: int,
+        url_slug: str,
         limit: int = 10,
         cursor: int | None = None,
     ) -> CursorPaginationResponse[ClickResponse]:
-        url = await self.url_repo.get_url_by_id(url_id)
+        url = await self.url_repo.get_url(url_slug)
 
-        if url.owner_id != user_id and user_role != "admin":
+        if url.owner_id != user_id and user_role != UserRole.ADMIN:
             raise PermissionDeniedError("You dont have permission to view it")
 
-        db_result = await self.repo.get_clicks_by_url_id(url.id, limit, cursor)
-        has_more = len(db_result) > limit
-        next_cursor = db_result[limit - 1].id if has_more else None
+        result = await self.repo.get_clicks_by_url_id(url.id, limit, cursor)
 
-        items = db_result[:limit]
+        items = result[:limit]
+        has_more = len(result) > limit
+        next_cursor = items[-1].id if has_more else None
 
         return CursorPaginationResponse(
             items=[ClickResponse.model_validate(item) for item in items],
