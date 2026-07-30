@@ -207,6 +207,7 @@ pytest --cov src.app --cov-report=term
  - Автоматическое удаление истекших ссылок через **Taskiq Scheduler**
  - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
  - Типобезопасность через `Python Enums`
+ - Миксины, например `IdPkMixin` для моделей `SQLAlchemy`
 
 ### 📊 Аудит экспорта
 

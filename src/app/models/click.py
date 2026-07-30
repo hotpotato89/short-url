@@ -4,12 +4,12 @@ from sqlalchemy import TIMESTAMP, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
+from src.app.models.mixins import IdPkMixin
 
 
-class Click(Base):
+class Click(IdPkMixin, Base):
     __tablename__ = "clicks"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     url_id: Mapped[int] = mapped_column(
         ForeignKey("short_urls.id", ondelete="CASCADE"),
         nullable=False,
