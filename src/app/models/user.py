@@ -5,12 +5,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.core.enums import UserRole
 from src.app.models.base import Base
+from src.app.models.mixins import IdPkMixin
 
 
-class User(Base):
+class User(IdPkMixin, Base):
     __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     email: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True

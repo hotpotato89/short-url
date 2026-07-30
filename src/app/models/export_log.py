@@ -4,12 +4,12 @@ from sqlalchemy import TIMESTAMP, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
+from src.app.models.mixins import IdPkMixin
 
 
-class ExportLog(Base):
+class ExportLog(IdPkMixin, Base):
     __tablename__ = "export_logs"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"), nullable=False, index=True
     )
