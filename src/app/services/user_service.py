@@ -104,7 +104,7 @@ class UserService:
         if user_role != UserRole.ADMIN:
             raise PermissionDeniedError("Only for admins")
 
-        result = await self.repo.get_all(limit, cursor)
+        result = await self.repo.get_all(limit + 1, cursor)
 
         items = result[:limit]
         has_more = len(result) > limit
