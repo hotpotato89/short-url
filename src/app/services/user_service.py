@@ -1,5 +1,3 @@
-from collections.abc import Sequence
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.enums import UserRole
@@ -12,6 +10,7 @@ from src.app.core.exceptions import (
 from src.app.core.hashing import hasher
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.user_repository import UserRepository
+from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserLogin, UserRegister, UserResponse
 from src.app.utils.crypt import crypt_util
@@ -99,6 +98,21 @@ class UserService:
         await self.session.commit()
         return UserResponse.model_validate(result)
 
-    async def get_all(self, limit: int = 100) -> Sequence[UserResponse]:
-        users = await self.repo.get_all(limit)
-        return [UserResponse.model_validate(user) for user in users]
+    async def get_all(
+        self, user_role: UserRole, limit: int = 100, cursor: int | None = None
+    ) -> CursorPaginationResponse[UserResponse]:
+        if user_role != UserRole.ADMIN:
+            raise PermissionDeniedError("Only for admins")
+
+        result = await self.repo.get_all(limit, cursor)
+
+        items = result[:limit]
+        has_more = len(result) > limit
+        next_cursor = items[-1].id if has_more else None
+
+        return CursorPaginationResponse(
+            items=[UserResponse.model_validate(item) for item in items],
+            next_cursor=next_cursor,
+            limit=limit,
+            has_more=has_more,
+        )
