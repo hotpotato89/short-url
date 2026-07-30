@@ -39,10 +39,15 @@ class UserRepository:
         await self.session.flush()
         return user
 
-    async def get_all(self, limit: int = 100) -> Sequence[User]:
-        result = await self.session.execute(
-            select(User).limit(limit).order_by(User.id.desc())
-        )
+    async def get_all(
+        self, limit: int = 100, cursor: int | None = None
+    ) -> Sequence[User]:
+        stmt = select(User).order_by(User.id.desc()).limit(limit)
+
+        if cursor:
+            stmt = stmt.where(User.id < cursor)
+
+        result = await self.session.execute(stmt)
         return result.scalars().all()
 
     async def decrement_credits(self, user_id: int) -> bool:

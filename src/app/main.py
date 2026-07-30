@@ -13,6 +13,9 @@ from src.app.middlewares import register_middlewares
 logging.getLogger("uvicorn").handlers.clear()
 logging.getLogger("uvicorn.access").handlers.clear()
 logging.getLogger("uvicorn.error").handlers.clear()
+logging.getLogger("aiormq").setLevel(logging.WARNING)
+logging.getLogger("aio_pika").setLevel(logging.WARNING)
+logging.getLogger("taskiq_aio_pika").setLevel(logging.WARNING)
 
 
 app = FastAPI(title="Short Url", lifespan=lifespan)

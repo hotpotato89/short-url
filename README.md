@@ -111,6 +111,7 @@ pytest --cov src.app --cov-report=term
 
  - `/admin/export-logs`
  - `/url/{slug}/stats`
+ - `/admin/users`
 
 **Параметры:**
 - `limit` — количество записей на странице (1–100, по умолчанию 10)

@@ -15,8 +15,11 @@ async def test_admin_get_all_users_with_limit(
     )
     assert resp.status_code == status.HTTP_200_OK
     data = resp.json()
-    assert isinstance(data, list)
-    assert len(data) <= 5
+    assert isinstance(data, dict)
+    assert "items" in data
+    assert "next_cursor" in data
+    assert "has_more" in data
+    assert "limit" in data and data["limit"] == 5
 
 
 async def test_admin_get_all_users_default_limit(
