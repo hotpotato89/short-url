@@ -2,16 +2,21 @@ import csv
 import json
 from collections.abc import Sequence
 from io import BytesIO, StringIO
+from typing import Final
 
 import pandas as pd
 
 from src.app.core.enums import ExportFormat
 from src.app.core.exceptions import PermissionDeniedError
+from src.app.core.redis_client import cache_manager
 from src.app.models.short_url import ShortUrl
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.schemas.export_log import ExportLogResponse
 from src.app.schemas.pagination import CursorPaginationResponse
+
+EXPORT_LOGS_TTL: Final[int] = 3600
+CACHE_KEY_PREFIX: Final[str] = "export_logs"
 
 
 class ExportService:
@@ -19,6 +24,7 @@ class ExportService:
         self.repo = repo
         self.log_repo = log_repo
 
+    @cache_manager.cache(EXPORT_LOGS_TTL, CACHE_KEY_PREFIX, use_pickle=True)
     async def get_logs(
         self,
         is_superadmin: bool,
@@ -43,6 +49,8 @@ class ExportService:
 
     async def export(self, format: ExportFormat = ExportFormat.CSV) -> str | bytes:
         urls = await self.repo.get_all()
+
+        await cache_manager.invalidate_cache(CACHE_KEY_PREFIX)
 
         if format == ExportFormat.CSV:
             return self._csv_format(urls)
