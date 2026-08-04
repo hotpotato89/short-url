@@ -7,7 +7,7 @@ from src.app.models.base import Base
 from src.app.models.mixins import IdPkMixin
 
 
-class ExportLog(Base, IdPkMixin):
+class ExportLog(IdPkMixin, Base):
     __tablename__ = "export_logs"
 
     user_id: Mapped[int] = mapped_column(

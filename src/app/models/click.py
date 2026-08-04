@@ -5,7 +5,7 @@ from src.app.models.base import Base
 from src.app.models.mixins import IdPkMixin
 
 
-class Click(Base, IdPkMixin):
+class Click(IdPkMixin, Base):
     __tablename__ = "clicks"
 
     url_id: Mapped[int] = mapped_column(

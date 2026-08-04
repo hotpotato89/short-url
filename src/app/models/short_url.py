@@ -7,7 +7,7 @@ from src.app.models.base import Base
 from src.app.models.mixins import IdPkMixin, TimestampMixin
 
 
-class ShortUrl(Base, IdPkMixin, TimestampMixin):
+class ShortUrl(TimestampMixin, IdPkMixin, Base):
     __tablename__ = "short_urls"
 
     original_url: Mapped[str] = mapped_column(String(2048), nullable=False)
