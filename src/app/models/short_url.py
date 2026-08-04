@@ -3,10 +3,11 @@ from datetime import UTC, datetime
 from sqlalchemy import TIMESTAMP, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.app.models.base import BaseTimestamped
+from src.app.models.base import Base
+from src.app.models.mixins import IdPkMixin, TimestampMixin
 
 
-class ShortUrl(BaseTimestamped):
+class ShortUrl(Base, IdPkMixin, TimestampMixin):
     __tablename__ = "short_urls"
 
     original_url: Mapped[str] = mapped_column(String(2048), nullable=False)
