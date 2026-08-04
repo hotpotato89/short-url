@@ -1,10 +1,10 @@
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.app.models.base import Base
+from src.app.models.base import NoIdBase
 
 
-class RefreshToken(Base):
+class RefreshToken(NoIdBase):
     __tablename__ = "refresh_tokens"
 
     user_id: Mapped[int] = mapped_column(

@@ -4,10 +4,9 @@ from sqlalchemy import TIMESTAMP, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.app.models.base import Base
-from src.app.models.mixins import IdPkMixin
 
 
-class ExportLog(IdPkMixin, Base):
+class ExportLog(Base):
     __tablename__ = "export_logs"
 
     user_id: Mapped[int] = mapped_column(

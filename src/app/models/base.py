@@ -4,12 +4,12 @@ from src.app.models.mixins import IdPkMixin, TimestampMixin
 
 
 class NoIdBase(DeclarativeBase):
-    pass
+    __abstract__ = True
 
 
 class Base(NoIdBase, IdPkMixin):
-    pass
+    __abstract__ = True
 
 
 class BaseTimestamped(Base, TimestampMixin):
-    pass
+    __abstract__ = True
