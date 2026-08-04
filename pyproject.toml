@@ -24,7 +24,6 @@ dependencies = [
     "structlog>=26.1.0",
     "uvicorn>=0.49.0",
     "xlsxwriter>=3.2.9",
-    "psycopg2-binary>=2.9.12",
     "taskiq-aio-pika>=0.6.0",
 ]
 
