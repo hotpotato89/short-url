@@ -3,15 +3,15 @@ from datetime import datetime
 from sqlalchemy import TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.app.models.base import Base
+from src.app.models.base import NoIdBase
 
 
-class IdPkMixin(Base):
+class IdPkMixin(NoIdBase):
     __abstract__ = True
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
 
-class TimestampMixin(Base):
+class TimestampMixin(NoIdBase):
     __abstract__ = True
 
     created_at: Mapped[datetime] = mapped_column(

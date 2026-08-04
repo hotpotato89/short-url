@@ -3,7 +3,11 @@ from sqlalchemy.orm import DeclarativeBase
 from src.app.models.mixins import IdPkMixin, TimestampMixin
 
 
-class Base(DeclarativeBase, IdPkMixin):
+class NoIdBase(DeclarativeBase):
+    pass
+
+
+class Base(NoIdBase, IdPkMixin):
     pass
 
 
