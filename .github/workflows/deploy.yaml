@@ -22,6 +22,11 @@ jobs:
           pip install uv
           uv sync --frozen
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libzbar0
+
       - name: Install pytest-cov
         run: |
           uv add --dev pytest-cov
