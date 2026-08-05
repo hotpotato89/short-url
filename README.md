@@ -87,7 +87,7 @@ curl http://localhost:8000/health
 pytest --cov src.app --cov-report=term
 ```
 
-> Результат: **119 зеленых тестов.**
+> Результат: **120 зеленых тестов.**
 
 ## API эндпоинты
 
