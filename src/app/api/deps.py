@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.app.core.database import SessionLocal
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError, PermissionDeniedError
+from src.app.core.redis_client import redis_client
 from src.app.models.user import User
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
@@ -18,6 +19,7 @@ from src.app.services.click_service import ClickService
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
+from src.app.services.slug_pool_service import SlugPoolService
 from src.app.services.user_service import UserService
 from src.app.utils.jwt import decode_jwt
 
@@ -69,6 +71,10 @@ async def get_qrcode_service(
     return QrcodeService(url_repo)
 
 
+async def get_slug_pool_service() -> SlugPoolService:
+    return SlugPoolService(redis_client)
+
+
 async def get_export_service(
     url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
     log_repo: Annotated[ExportLogRepository, Depends(get_log_repo)],
@@ -99,8 +105,11 @@ async def get_url_service(
     session: Annotated[AsyncSession, Depends(get_session)],
     qrcode_service: Annotated[QrcodeService, Depends(get_qrcode_service)],
     export_service: Annotated[ExportService, Depends(get_export_service)],
+    slug_pool_service: Annotated[SlugPoolService, Depends(get_slug_pool_service)],
 ) -> ShortUrlService:
-    return ShortUrlService(url_repo, user_repo, session, qrcode_service, export_service)
+    return ShortUrlService(
+        url_repo, user_repo, session, qrcode_service, export_service, slug_pool_service
+    )
 
 
 # Jwt dependencies
