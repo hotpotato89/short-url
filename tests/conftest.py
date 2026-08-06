@@ -1,7 +1,7 @@
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from async_argon2 import AsyncArgon2
@@ -31,6 +31,12 @@ from src.app.schemas.user import UserRegister
 faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 test_hasher = AsyncArgon2()
+
+
+@pytest.fixture(autouse=True, scope="session")
+async def disable_bg_tasks() -> AsyncGenerator[None]:
+    with patch("src.app.core.task_runner.task_runner.run_in_bg", MagicMock()):
+        yield
 
 
 @pytest.fixture
