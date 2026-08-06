@@ -23,7 +23,8 @@ class SlugPoolService:
     async def get_slug(self) -> str:
         slug = await self.redis_client.lpop(self.POOL_KEY)
         if slug:
-            if await self.redis_client.llen(self.POOL_KEY) < self.WATERMARK:
+            is_locked = await self.redis_client.exists(self.LOCK_KEY)
+            if not is_locked and await self.redis_client.llen(self.POOL_KEY) < self.WATERMARK:
                 await task_runner.run_in_bg(refill_slug_pool_task)
             return slug.decode()
         return generate_slug()
