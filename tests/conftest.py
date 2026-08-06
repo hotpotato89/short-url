@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.app.api.deps import get_session
+from src.app.api.deps import get_redis_client, get_session
 from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
@@ -53,12 +53,8 @@ def mock_click_stats():
         yield mock
 
 
-@pytest.fixture(autouse=True, scope="function")
-async def test_redis() -> AsyncGenerator[Cache]:
-    test_cache_manager = Cache(FakeRedis())
-
-    with patch("src.app.core.redis_client.cache_manager", test_cache_manager):
-        yield test_cache_manager
+async def get_test_redis() -> FakeRedis:
+    return FakeRedis()
 
 
 @pytest.fixture(autouse=True)
@@ -97,6 +93,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield db_session
 
     app.dependency_overrides[get_session] = override_db_session
+    app.dependency_overrides[get_redis_client] = get_test_redis
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
