@@ -3,6 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.database import SessionLocal
@@ -27,6 +28,10 @@ from src.app.utils.jwt import decode_jwt
 async def get_session() -> AsyncGenerator[AsyncSession]:
     async with SessionLocal() as session:
         yield session
+
+
+async def get_redis_client() -> Redis:
+    return redis_client
 
 
 # Repository dependencies
@@ -71,7 +76,9 @@ async def get_qrcode_service(
     return QrcodeService(url_repo)
 
 
-async def get_slug_pool_service() -> SlugPoolService:
+async def get_slug_pool_service(
+    redis_client: Annotated[Redis, Depends(get_redis_client)],
+) -> SlugPoolService:
     return SlugPoolService(redis_client)
 
 
