@@ -53,12 +53,6 @@ def mock_click_stats():
         yield mock
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def mock_celery():
-    with patch("src.app.core.task_runner.task_runner.run_in_bg") as mock:
-        yield mock
-
-
 @pytest.fixture(autouse=True, scope="function")
 async def test_redis() -> AsyncGenerator[Cache]:
     test_cache_manager = Cache(FakeRedis())
