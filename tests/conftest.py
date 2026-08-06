@@ -35,7 +35,7 @@ test_hasher = AsyncArgon2()
 
 @pytest.fixture(autouse=True, scope="session")
 async def disable_bg_tasks() -> AsyncGenerator[None]:
-    with patch("src.app.core.task_runner.task_runner.run_in_bg", MagicMock()):
+    with patch("src.app.core.task_runner.task_runner.run_in_bg", AsyncMock()):
         yield
 
 
