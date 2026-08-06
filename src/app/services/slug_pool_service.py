@@ -4,7 +4,6 @@ from redis.asyncio import Redis
 
 from src.app.core.logging import get_logger
 from src.app.core.task_runner import task_runner
-from src.app.tasks import refill_slug_pool_task
 from src.app.utils.slug import generate_slug
 
 logger = get_logger(__name__)
@@ -28,6 +27,8 @@ class SlugPoolService:
                 not is_locked
                 and await self.redis_client.llen(self.POOL_KEY) < self.WATERMARK
             ):
+                from src.app.tasks import refill_slug_pool_task
+
                 await task_runner.run_in_bg(refill_slug_pool_task)
             return slug.decode()
         return generate_slug()
