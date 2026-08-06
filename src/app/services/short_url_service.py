@@ -15,8 +15,8 @@ from src.app.repositories.user_repository import UserRepository
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
+from src.app.services.slug_pool_service import SlugPoolService
 from src.app.utils.retry import retry
-from src.app.utils.slug import generate_slug
 
 URL_KEY_FIELD: str = "url"
 BASE_CACHE_TTL: int = 3600 * 2
@@ -31,23 +31,25 @@ class ShortUrlService:
         session: AsyncSession,
         qr_service: QrcodeService,
         export_service: ExportService,
+        slug_pool_service: SlugPoolService,
     ) -> None:
         self.repo = repo
         self.user_repo = user_repo
         self.session = session
         self.qr_service = qr_service
         self.export_service = export_service
+        self.slug_pool_service = slug_pool_service
 
     @retry(SlugAlreadyExistsError)
     async def create(
         self, url_data: UrlCreate, owner_id: int, ttl_days: int | None
     ) -> UrlResponse:
-        original_url = str(url_data.original_url)
-        slug = generate_slug(6)
-
         if not await self.user_repo.decrement_credits(owner_id):
             logger.warning("No left credits", user_id=owner_id)
             raise PermissionDeniedError("No credits left")
+
+        original_url = str(url_data.original_url)
+        slug = await self.slug_pool_service.get_slug()
 
         result = await self.repo.create_url(original_url, slug, owner_id, ttl_days)
         await self.session.commit()
