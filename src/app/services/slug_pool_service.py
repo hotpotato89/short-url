@@ -2,9 +2,12 @@ from typing import Final
 
 from redis.asyncio import Redis
 
+from src.app.core.logging import get_logger
 from src.app.core.task_runner import task_runner
 from src.app.tasks import refill_slug_pool_task
 from src.app.utils.slug import generate_slug
+
+logger = get_logger(__name__)
 
 
 class SlugPoolService:
@@ -30,9 +33,11 @@ class SlugPoolService:
             return
 
         try:
+            logger.info("Started slug pool refilling")
             await self.redis_client.expire(self.LOCK_KEY, 10)
 
             new_slugs = [generate_slug() for _ in range(self.BATCH_SIZE)]
             await self.redis_client.rpush(self.POOL_KEY, *new_slugs)
+            logger.info("Finished slug pool refilling", count=len(new_slugs))
         finally:
             await self.redis_client.delete(self.LOCK_KEY)
