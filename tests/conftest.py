@@ -1,7 +1,7 @@
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from async_argon2 import AsyncArgon2
@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.app.api.deps import get_session
+from src.app.api.deps import get_redis_client, get_session
 from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
@@ -31,6 +31,12 @@ from src.app.schemas.user import UserRegister
 faker = Faker()
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 test_hasher = AsyncArgon2()
+
+
+@pytest.fixture(autouse=True, scope="session")
+async def disable_bg_tasks() -> AsyncGenerator[None]:
+    with patch("src.app.core.task_runner.task_runner.run_in_bg", AsyncMock()):
+        yield
 
 
 @pytest.fixture
@@ -53,18 +59,8 @@ def mock_click_stats():
         yield mock
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def mock_celery():
-    with patch("src.app.core.task_runner.task_runner.run_in_bg") as mock:
-        yield mock
-
-
-@pytest.fixture(autouse=True, scope="function")
-async def test_redis() -> AsyncGenerator[Cache]:
-    test_cache_manager = Cache(FakeRedis())
-
-    with patch("src.app.core.redis_client.cache_manager", test_cache_manager):
-        yield test_cache_manager
+async def get_test_redis() -> FakeRedis:
+    return FakeRedis()
 
 
 @pytest.fixture(autouse=True)
@@ -103,6 +99,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
         yield db_session
 
     app.dependency_overrides[get_session] = override_db_session
+    app.dependency_overrides[get_redis_client] = get_test_redis
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:

@@ -1,10 +1,12 @@
 from src.app.core.database import SessionLocal
 from src.app.core.enums import ExportFormat
 from src.app.core.logging import get_logger
+from src.app.core.redis_client import redis_client
 from src.app.core.taskiq_broker import broker
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
+from src.app.services.slug_pool_service import SlugPoolService
 
 logger = get_logger(__name__)
 
@@ -31,6 +33,12 @@ async def save_export_log_task(user_id: int, format: ExportFormat) -> None:
         repo = ExportLogRepository(session)
         await repo.save_export_logs(user_id, format)
         await session.commit()
+
+
+@broker.task
+async def refill_slug_pool_task() -> None:
+    service = SlugPoolService(redis_client)
+    await service.refill_slug_pool()
 
 
 @broker.task(schedule=[{"cron": "0 0 1 * *"}])
