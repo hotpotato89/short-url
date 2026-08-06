@@ -2,11 +2,12 @@ from typing import Final
 
 from redis.asyncio import Redis
 
+from src.app.core.task_runner import task_runner
+from src.app.tasks import refill_slug_pool_task
 from src.app.utils.slug import generate_slug
 
 
 class SlugPoolService:
-
     POOL_KEY: Final[str] = "slug_pool"
     BATCH_SIZE: Final[int] = 500
     WATERMARK: Final[int] = 200
@@ -20,7 +21,7 @@ class SlugPoolService:
         slug = await self.redis_client.lpop(self.POOL_KEY)
         if slug:
             if await self.redis_client.llen(self.POOL_KEY) < self.WATERMARK:
-                ...
+                await task_runner.run_in_bg(refill_slug_pool_task)
             return slug.decode()
         return generate_slug()
 
@@ -35,5 +36,3 @@ class SlugPoolService:
             await self.redis_client.rpush(self.POOL_KEY, *new_slugs)
         finally:
             await self.redis_client.delete(self.LOCK_KEY)
-
-    
