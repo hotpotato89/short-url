@@ -55,7 +55,9 @@ class ShortUrlService:
         await self.session.commit()
         return UrlResponse.model_validate(result)
 
-    @cache_manager.cache(ttl=BASE_CACHE_TTL, prefix=URL_KEY_FIELD, use_pickle=True)
+    @cache_manager.cache(
+        ttl=BASE_CACHE_TTL, prefix=URL_KEY_FIELD, use_pickle=True, cache_none=False
+    )
     async def get_url(self, slug: str) -> UrlResponse:
         result = await self.repo.get_url(slug)
         if result.is_expired:
