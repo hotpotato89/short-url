@@ -73,8 +73,9 @@ async def get_click_repo(
 
 async def get_click_buffer_service(
     redis_client: Annotated[Redis, Depends(get_redis_client)],
+    repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
 ) -> ClickBuffer:
-    return ClickBuffer(redis_client)
+    return ClickBuffer(redis_client, repo)
 
 
 async def get_qrcode_service(
