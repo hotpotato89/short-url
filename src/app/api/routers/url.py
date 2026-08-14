@@ -20,7 +20,6 @@ from src.app.api.deps import (
     get_qrcode_service,
     get_url_service,
 )
-from src.app.core.redis_client import redis_client
 from src.app.core.limiter import limiter
 from src.app.core.logging import get_logger
 from src.app.core.task_runner import task_runner
@@ -32,7 +31,7 @@ from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.click_service import ClickService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
-from src.app.tasks import increment_click_task, save_click_task
+from src.app.tasks import save_click_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")

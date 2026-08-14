@@ -70,8 +70,9 @@ async def get_click_repo(
 
 # Service dependencies
 
+
 async def get_click_buffer_service(
-        redis_client: Annotated[Redis, Depends(get_redis_client)]
+    redis_client: Annotated[Redis, Depends(get_redis_client)],
 ) -> ClickBuffer:
     return ClickBuffer(redis_client)
 
