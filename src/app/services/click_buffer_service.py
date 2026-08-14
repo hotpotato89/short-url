@@ -10,7 +10,6 @@ logger = get_logger(__name__)
 
 
 class ClickBuffer:
-
     LOCK_KEY: Final[str] = "click_buffer_lock"
     TIMEOUT_SECONDS: Final[int] = 30
     BATCH_SIZE: Final[int] = 100
