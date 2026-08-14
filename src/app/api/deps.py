@@ -6,17 +6,16 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.database import SessionLocal
+from src.app.core.database import get_db_session
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError, PermissionDeniedError
 from src.app.core.redis_client import redis_client
 from src.app.models.user import User
-from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.user_repository import UserRepository
-from src.app.services.click_service import ClickService
+from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
@@ -26,7 +25,7 @@ from src.app.utils.jwt import decode_jwt
 
 
 async def get_session() -> AsyncGenerator[AsyncSession]:
-    async with SessionLocal() as session:
+    async with get_db_session() as session:
         yield session
 
 
@@ -61,13 +60,14 @@ async def get_log_repo(
     return ExportLogRepository(session)
 
 
-async def get_click_repo(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> ClickRepository:
-    return ClickRepository(session)
-
-
 # Service dependencies
+
+
+async def get_click_buffer_service(
+    redis_client: Annotated[Redis, Depends(get_redis_client)],
+    repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
+) -> ClickBuffer:
+    return ClickBuffer(redis_client, repo)
 
 
 async def get_qrcode_service(
@@ -97,13 +97,6 @@ async def get_user_service(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserService:
     return UserService(user_repo, refresh_token_repo, session)
-
-
-async def get_click_service(
-    click_repo: Annotated[ClickRepository, Depends(get_click_repo)],
-    url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
-) -> ClickService:
-    return ClickService(click_repo, url_repo)
 
 
 async def get_url_service(
