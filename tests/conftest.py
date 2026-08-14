@@ -17,13 +17,13 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from src.app.schemas.click import ClickResponse
 
 from src.app.api.deps import get_redis_client, get_session
 from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
 from src.app.models.user import User
-from src.app.schemas.click import ClickResponse
 from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
