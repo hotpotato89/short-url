@@ -6,7 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.core.database import SessionLocal
+from src.app.core.database import get_db_session
 from src.app.core.enums import UserRole
 from src.app.core.exceptions import InvalidTokenError, PermissionDeniedError
 from src.app.core.redis_client import redis_client
@@ -27,7 +27,7 @@ from src.app.utils.jwt import decode_jwt
 
 
 async def get_session() -> AsyncGenerator[AsyncSession]:
-    async with SessionLocal() as session:
+    async with get_db_session() as session:
         yield session
 
 

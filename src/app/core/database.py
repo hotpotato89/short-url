@@ -1,3 +1,6 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.app.core.settings import settings
@@ -17,3 +20,14 @@ SessionLocal = async_sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+
+@asynccontextmanager
+async def get_db_session() -> AsyncGenerator[AsyncSession]:
+    async with SessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
