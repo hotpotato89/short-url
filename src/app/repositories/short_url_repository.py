@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import asc, delete, desc, select, update
+from sqlalchemy import asc, case, delete, desc, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -89,6 +89,7 @@ class ShortUrlRepository:
         return result.scalars().all()
 
     async def increment_click(self, url_id: int) -> None:
+        """Deprecated: use bulk_increment_clicks"""
         stmt = (
             update(ShortUrl)
             .values(clicks=ShortUrl.clicks + 1)
@@ -110,5 +111,24 @@ class ShortUrlRepository:
         stmt = (
             update(User).values(credits=User.credits + amount).where(User.credits < 5)
         )
+        await self.session.execute(stmt)
+        await self.session.flush()
+
+    async def bulk_increment_clicks(self, clicks: dict[str, int]) -> None:
+        if not clicks:
+            return
+
+        case_stmt = case(
+            clicks,
+            value=ShortUrl.slug,
+            else_=0,
+        )
+
+        stmt = (
+            update(ShortUrl)
+            .where(ShortUrl.slug.in_(clicks.keys()))
+            .values(clicks = ShortUrl.clicks + case_stmt)
+        )
+
         await self.session.execute(stmt)
         await self.session.flush()
