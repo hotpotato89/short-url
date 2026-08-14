@@ -14,11 +14,13 @@ from fastapi import (
 from fastapi.responses import RedirectResponse
 
 from src.app.api.deps import (
+    get_click_buffer_service,
     get_click_service,
     get_current_user,
     get_qrcode_service,
     get_url_service,
 )
+from src.app.core.redis_client import redis_client
 from src.app.core.limiter import limiter
 from src.app.core.logging import get_logger
 from src.app.core.task_runner import task_runner
@@ -26,6 +28,7 @@ from src.app.models.user import User
 from src.app.schemas.click import ClickResponse
 from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
+from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.click_service import ClickService
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
@@ -63,12 +66,13 @@ async def get_my(
 async def redirect(
     request: Request,
     service: Annotated[ShortUrlService, Depends(get_url_service)],
+    click_buffer: Annotated[ClickBuffer, Depends(get_click_buffer_service)],
     slug: str = Path(..., max_length=20),
 ) -> RedirectResponse:
 
     url = await service.get_url(slug)
+    await click_buffer.incr_count(slug, 1)
     logger.debug("Sending task for slug", slug=slug)
-    await task_runner.run_in_bg(increment_click_task, url.id)
     await task_runner.run_in_bg(
         save_click_task,
         url.id,
