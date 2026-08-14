@@ -2,7 +2,6 @@ import asyncio
 from typing import Final
 
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.logging import get_logger
 from src.app.repositories.short_url_repository import ShortUrlRepository
@@ -15,11 +14,8 @@ class ClickBuffer:
     TIMEOUT_SECONDS: Final[int] = 30
     BATCH_SIZE: Final[int] = 100
 
-    def __init__(
-        self, redis_client: Redis, db_session: AsyncSession, repo: ShortUrlRepository
-    ) -> None:
+    def __init__(self, redis_client: Redis, repo: ShortUrlRepository) -> None:
         self.redis_client = redis_client
-        self.session = db_session
         self.repo = repo
 
     async def incr_count(self, slug: str, amount: int) -> None:
@@ -71,7 +67,6 @@ class ClickBuffer:
                 return True
 
             await self.repo.bulk_increment_clicks(clicks)
-            await self.session.commit()
             return True
         except Exception as exc:
             logger.exception("Unhandled error", error=str(exc))

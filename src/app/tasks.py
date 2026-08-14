@@ -6,6 +6,7 @@ from src.app.core.taskiq_broker import broker
 from src.app.repositories.click import ClickRepository
 from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
+from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.slug_pool_service import SlugPoolService
 
 logger = get_logger(__name__)
@@ -56,3 +57,19 @@ async def delete_expired_task() -> None:
         deleted = await repo.delete_expired()
         logger.info("Deleted expired urls", count=deleted)
         await session.commit()
+
+
+@broker.task(schedule=[{"cron": "*/5 * * * *"}])
+async def push_clicks_to_db_task() -> None:
+
+    async with SessionLocal() as session:
+        repo = ShortUrlRepository(session)
+        click_buffer = ClickBuffer(redis_client, repo)
+        result = await click_buffer.push()
+
+        if result:
+            await session.commit()
+            logger.debug("Clicks flushed and committed")
+        else:
+            await session.rollback()
+            logger.warning("Clicks flush failed, rolled back")
