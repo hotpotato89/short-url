@@ -16,6 +16,7 @@ from src.app.repositories.export_log_repository import ExportLogRepository
 from src.app.repositories.refresh_token_reposiotry import RefreshTokenRepository
 from src.app.repositories.short_url_repository import ShortUrlRepository
 from src.app.repositories.user_repository import UserRepository
+from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.click_service import ClickService
 from src.app.services.export_service import ExportService
 from src.app.services.qrcode_service import QrcodeService
@@ -68,6 +69,11 @@ async def get_click_repo(
 
 
 # Service dependencies
+
+async def get_click_buffer_service(
+        redis_client: Annotated[Redis, Depends(get_redis_client)]
+) -> ClickBuffer:
+    return ClickBuffer(redis_client)
 
 
 async def get_qrcode_service(
