@@ -1,14 +1,22 @@
 import asyncio
+from typing import Final
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.repositories.click import ClickRepository
+from src.app.core.logging import get_logger
+from src.app.repositories.short_url_repository import ShortUrlRepository
+
+logger = get_logger(__name__)
 
 
 class ClickBuffer:
+    LOCK_KEY: Final[str] = "click_buffer_lock"
+    TIMEOUT_SECONDS: Final[int] = 30
+    BATCH_SIZE: Final[int] = 100
+
     def __init__(
-        self, redis_client: Redis, db_session: AsyncSession, repo: ClickRepository
+        self, redis_client: Redis, db_session: AsyncSession, repo: ShortUrlRepository
     ) -> None:
         self.redis_client = redis_client
         self.session = db_session
@@ -17,13 +25,14 @@ class ClickBuffer:
     async def incr_count(self, slug: str, amount: int) -> None:
         await self.redis_client.incr(f"click:{slug}", amount)
 
-    async def __flush_all(self, batch_size: int = 100, timeout_seconds: int = 30) -> dict[str, int]:
+    async def __flush_all(
+        self, batch_size: int = 100, timeout_seconds: int = 30
+    ) -> dict[str, int]:
         cursor = 0
         all_clicks = {}
         started_at = asyncio.get_event_loop().time()
 
         while True:
-
             if asyncio.get_event_loop().time() - started_at > timeout_seconds:
                 break
 
@@ -45,3 +54,27 @@ class ClickBuffer:
                 count = int(values[i * 2])
                 all_clicks[slug] = count
         return all_clicks
+
+    async def push(
+        self, batch_size: int = BATCH_SIZE, timeout_seconds: int = TIMEOUT_SECONDS
+    ) -> bool | None:
+        lock = self.redis_client.lock(self.LOCK_KEY, timeout=timeout_seconds)
+        acquired = await lock.acquire(blocking=False)
+        if not acquired:
+            return
+
+        try:
+            clicks = await self.__flush_all(batch_size, timeout_seconds)
+
+            if not clicks:
+                logger.debug("Clicks is empty")
+                return True
+
+            await self.repo.bulk_increment_clicks(clicks)
+            await self.session.commit()
+            return True
+        except Exception as exc:
+            logger.exception("Unhandled error", error=str(exc))
+            return False
+        finally:
+            await lock.release()
