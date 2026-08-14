@@ -127,7 +127,7 @@ class ShortUrlRepository:
         stmt = (
             update(ShortUrl)
             .where(ShortUrl.slug.in_(clicks.keys()))
-            .values(clicks = ShortUrl.clicks + case_stmt)
+            .values(clicks=ShortUrl.clicks + case_stmt)
         )
 
         await self.session.execute(stmt)
