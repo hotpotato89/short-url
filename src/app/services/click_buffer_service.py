@@ -54,23 +54,26 @@ class ClickBuffer:
 
     async def push(
         self, batch_size: int = BATCH_SIZE, timeout_seconds: int = TIMEOUT_SECONDS
-    ) -> bool | None:
+    ) -> None:
         lock = self.redis_client.lock(self.LOCK_KEY, timeout=timeout_seconds)
         acquired = await lock.acquire(blocking=False)
         if not acquired:
+            logger.debug("ClickBuffer lock is already acquired by another instance")
             return
 
         try:
             clicks = await self.__flush_all(batch_size, timeout_seconds)
 
-            if not clicks:
-                logger.debug("Clicks is empty")
-                return True
-
             await self.repo.bulk_increment_clicks(clicks)
-            return True
+            logger.info(
+                "Pushed clicks to db",
+                keys=len(clicks.keys()),
+                total_clicks=sum(clicks.values()),
+            )
+
+        except asyncio.CancelledError:
+            raise
         except Exception as exc:
             logger.exception("Unhandled error", error=str(exc))
-            return False
         finally:
             await lock.release()

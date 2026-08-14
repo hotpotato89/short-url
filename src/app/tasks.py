@@ -65,11 +65,5 @@ async def push_clicks_to_db_task() -> None:
     async with SessionLocal() as session:
         repo = ShortUrlRepository(session)
         click_buffer = ClickBuffer(redis_client, repo)
-        result = await click_buffer.push()
-
-        if result:
-            await session.commit()
-            logger.debug("Clicks flushed and committed")
-        else:
-            await session.rollback()
-            logger.warning("Clicks flush failed, rolled back")
+        await click_buffer.push()
+        await session.commit()
