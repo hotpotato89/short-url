@@ -10,6 +10,7 @@ logger = get_logger(__name__)
 
 
 class ClickBuffer:
+
     LOCK_KEY: Final[str] = "click_buffer_lock"
     TIMEOUT_SECONDS: Final[int] = 30
     BATCH_SIZE: Final[int] = 100
@@ -19,7 +20,8 @@ class ClickBuffer:
         self.repo = repo
 
     async def incr_count(self, slug: str, amount: int) -> None:
-        await self.redis_client.incr(f"click:{slug}", amount)
+        await self.redis_client.incr(f"clicks:{slug}", amount)
+        logger.debug("Increment click to Redis", slug=slug)
 
     async def __flush_all(
         self, batch_size: int = 100, timeout_seconds: int = 30
