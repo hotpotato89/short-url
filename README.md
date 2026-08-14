@@ -29,6 +29,7 @@
 [![Async Argon2](https://img.shields.io/badge/Async%20Argon2-v1.1.0-6A0DAD?logo=python)](https://pypi.org/project/async-argon2/)
 ![Credits](https://img.shields.io/badge/Credits-5%20free-FFD700)
 ![Credits System](https://img.shields.io/badge/Credits-System-blue)
+![ClickBuffer](https://img.shields.io/badge/ClickBuffer-Batch%20Clicks-blue)
 
 Сервис для сокращения ссылок с JWT-аутентификацией, ролями, кэшированием в Redis и асинхронными задачами через Taskiq + RabbitMQ.
 
@@ -114,10 +115,9 @@ pytest --cov src.app --cov-report=term
 Используется курсорная пагинация для:
 
  - `/admin/export-logs`
- - `/url/{slug}/stats`
  - `/admin/users`
 
-**Параметры:**
+**Параметры:**Увеличение счетчика кликов происходит в фоне через **Taskiq** (асинхронные задачи)
 - `limit` — количество записей на странице (1–100, по умолчанию 10)
 - `cursor` — ID последнего клика с предыдущей страницы (опционально)
 
@@ -126,10 +126,6 @@ pytest --cov src.app --cov-report=term
 - `next_cursor` — ID для следующей страницы (null, если данных больше нет)
 - `has_more` — есть ли ещё данные
 - `limit` — запрошенное количество
-
-**Пример:**
-- GET /url/docs/stats?limit=10
-- GET /url/docs/stats?limit=10&cursor=123
 
 
 ---
@@ -207,12 +203,13 @@ pytest --cov src.app --cov-report=term
  - CI/CD через **Github Actions**
  - QR-коды через библиотеку **qrcode**
  - **TTL** система для ссылок
- - Увеличение счетчика кликов происходит в фоне через **Taskiq** (асинхронные задачи)
+ - Увеличение счетчика кликов происходит через **ClickBuffer** — пачки кликов накапливаются в Redis и раз в 5 минут сбрасываются в БД одним запросом
  - Автоматическое удаление истекших ссылок через **Taskiq Scheduler**
  - Структурированные логи через [`structlog`](https://www.structlog.org/) с возможностью настроить `JSON` формат
  - Типобезопасность через `Python Enums`
  - Миксины, например `IdPkMixin` для моделей `SQLAlchemy`
  - Прегенерация слэгов в `Redis` пул для снижения `CPU` нагрузки
+ - **ClickBuffer** — пачка кликов накапливается в Redis и раз в 5 минут сбрасывается в БД одним запросом (экономит ресурсы БД)
 
 ### 📊 Аудит экспорта
 
@@ -229,7 +226,7 @@ pytest --cov src.app --cov-report=term
 1. Пользователь регистрируется и получает JWT-токен.
 2. Вставляет длинную ссылку → получает короткий `slug`.
 3. При переходе по `/{slug}` происходит редирект.
-4. Каждый переход учитывается в счётчике кликов.
+4. Каждый переход инкрементит счётчик в Redis, а раз в 5 минут все клики пачкой записываются в БД.
 5. Для любой ссылки можно сгенерировать QR-код.
 6. Автор может менять `slug` и удалять его.
 
