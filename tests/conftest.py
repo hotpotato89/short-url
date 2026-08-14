@@ -1,7 +1,6 @@
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import UTC, datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from async_argon2 import AsyncArgon2
@@ -9,7 +8,6 @@ from faker import Faker
 from fakeredis.aioredis import FakeRedis
 from httpx import ASGITransport, AsyncClient
 from pydantic import SecretStr
-from simple_redis_cache.asyncio import Cache
 from slowapi import Limiter
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -17,14 +15,12 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from src.app.schemas.click import ClickResponse
 
 from src.app.api.deps import get_redis_client, get_session
 from src.app.core.limiter import limiter
 from src.app.main import app
 from src.app.models.base import Base
 from src.app.models.user import User
-from src.app.schemas.pagination import CursorPaginationResponse
 from src.app.schemas.token import TokenInfo
 from src.app.schemas.user import UserRegister
 
@@ -37,26 +33,6 @@ test_hasher = AsyncArgon2()
 async def disable_bg_tasks() -> AsyncGenerator[None]:
     with patch("src.app.core.task_runner.task_runner.run_in_bg", AsyncMock()):
         yield
-
-
-@pytest.fixture
-def mock_click_stats():
-    with patch("src.app.services.click_service.ClickService.get_stats") as mock:
-        mock.return_value = CursorPaginationResponse(
-            items=[
-                ClickResponse(
-                    id=1,
-                    url_id=1,
-                    user_ip="127.0.0.1",
-                    user_agent="TestBot/1.0",
-                    created_at=datetime.now(UTC),
-                )
-            ],
-            next_cursor=None,
-            limit=10,
-            has_more=False,
-        )
-        yield mock
 
 
 async def get_test_redis() -> FakeRedis:

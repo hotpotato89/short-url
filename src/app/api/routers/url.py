@@ -27,7 +27,6 @@ from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.click_buffer_service import ClickBuffer
 from src.app.services.qrcode_service import QrcodeService
 from src.app.services.short_url_service import ShortUrlService
-from src.app.tasks import save_click_task
 
 BASE_LIMIT: str = "5/min"
 router = APIRouter(tags=["url"], prefix="/url")
@@ -67,14 +66,6 @@ async def redirect(
 
     url = await service.get_url(slug)
     await click_buffer.incr_count(slug, 1)
-    logger.debug("Sending task for slug", slug=slug)
-    await task_runner.run_in_bg(
-        save_click_task,
-        url.id,
-        request.client.host if request.client else "unknown",
-        request.headers.get("user-agent", "unknown"),
-    )
-    logger.debug("Task sent for slug", slug=slug)
     return RedirectResponse(url.original_url, status_code=status.HTTP_303_SEE_OTHER)
 
 
