@@ -34,7 +34,9 @@ class SlugPoolService:
         return generate_slug()
 
     async def refill_slug_pool(self) -> None:
-        if not await self.redis_client.setnx(self.LOCK_KEY, 1):
+        lock = self.redis_client.lock(self.LOCK_KEY, timeout=10)
+        if not await lock.acquire(blocking=False):
+            logger.debug("SlugPool lock is already acquired by another instance")
             return
 
         try:
@@ -45,4 +47,4 @@ class SlugPoolService:
             await self.redis_client.rpush(self.POOL_KEY, *new_slugs)
             logger.info("Finished slug pool refilling", count=len(new_slugs))
         finally:
-            await self.redis_client.delete(self.LOCK_KEY)
+            await lock.release()
