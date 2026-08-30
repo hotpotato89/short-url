@@ -136,3 +136,8 @@ class ShortUrlRepository:
     async def check_exists(self, slug: str) -> bool:
         stmt = select(exists().where(ShortUrl.slug == slug))
         return await self.session.scalar(stmt)
+
+    async def get_all_slugs(self) -> list[str]:
+        stmt = select(ShortUrl.slug)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
