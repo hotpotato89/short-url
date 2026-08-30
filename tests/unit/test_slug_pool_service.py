@@ -19,7 +19,7 @@ async def redis_client():
 @pytest.fixture
 async def url_repo(
     db_session: AsyncSession,
-) -> AsyncGenerator[ShortUrlRepository, None]:
+) -> AsyncGenerator[ShortUrlRepository]:
     yield ShortUrlRepository(db_session)
 
 
@@ -249,5 +249,4 @@ async def test_gen_unique_slugs_stops_after_max_attempts(slug_pool_service):
             "src.app.services.slug_pool_service.generate_slug",
             return_value="aaa111",
         ):
-            slugs = await slug_pool_service.gen_unique_slugs(batch_size=10)
-
+            await slug_pool_service.gen_unique_slugs(batch_size=10)
