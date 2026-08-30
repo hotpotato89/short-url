@@ -78,8 +78,9 @@ async def get_qrcode_service(
 
 async def get_slug_pool_service(
     redis_client: Annotated[Redis, Depends(get_redis_client)],
+    url_repo: Annotated[ShortUrlRepository, Depends(get_url_repo)],
 ) -> SlugPoolService:
-    return SlugPoolService(redis_client)
+    return SlugPoolService(redis_client, url_repo)
 
 
 async def get_export_service(

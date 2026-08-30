@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import asc, case, delete, desc, select, update
+from sqlalchemy import asc, case, delete, desc, exists, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -132,3 +132,12 @@ class ShortUrlRepository:
 
         await self.session.execute(stmt)
         await self.session.flush()
+
+    async def check_exists(self, slug: str) -> bool:
+        stmt = select(exists().where(ShortUrl.slug == slug))
+        return await self.session.scalar(stmt)
+
+    async def get_all_slugs(self) -> list[str]:
+        stmt = select(ShortUrl.slug)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

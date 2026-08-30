@@ -21,7 +21,6 @@ from src.app.api.deps import (
 )
 from src.app.core.limiter import limiter
 from src.app.core.logging import get_logger
-from src.app.core.task_runner import task_runner
 from src.app.models.user import User
 from src.app.schemas.short_url import UrlCreate, UrlEdit, UrlResponse
 from src.app.services.click_buffer_service import ClickBuffer
