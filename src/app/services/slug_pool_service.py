@@ -22,12 +22,22 @@ class SlugPoolService:
         self.url_repo = url_repo
 
     async def gen_unique_slugs(self, batch_size: int = BATCH_SIZE) -> list[str]:
+        existing_slugs = set(await self.url_repo.get_all_slugs())
         slugs = []
 
-        for _ in range(batch_size):
+        cursor = 0
+        attempts = 0
+        max_attempts = batch_size * 2
+
+        while cursor < batch_size and attempts < max_attempts:
+            attempts += 1
             slug = generate_slug()
-            if not self.url_repo.check_exists(slug):
+
+            if not slug in existing_slugs:
                 slugs.append(slug)
+                existing_slugs.add(slug)
+
+                cursor += 1
 
         return slugs
 
@@ -53,7 +63,6 @@ class SlugPoolService:
 
         try:
             logger.info("Started slug pool refilling")
-            await self.redis_client.expire(self.LOCK_KEY, 10)
 
             new_slugs = await self.gen_unique_slugs()
             await self.redis_client.rpush(self.POOL_KEY, *new_slugs)
